@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/marker_background"
+    android:padding="10dp"
+    android:minWidth="130dp">
+
+    <TextView
+        android:id="@+id/markerAsset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end"/>
+
+    <TextView
+        android:id="@+id/markerMonth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#99FFFFFF"
+        android:textSize="10sp"
+        android:layout_marginTop="1dp"/>
+
+    <TextView
+        android:id="@+id/markerValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:layout_marginTop="3dp"/>
+
+</LinearLayout>

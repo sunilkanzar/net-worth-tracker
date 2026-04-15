@@ -1,0 +1,574 @@
+[
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_tooltip_frame_dark.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/tooltip_frame_dark.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/layout_item_asset.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/layout/item_asset.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/interpolator_mtrl_fast_out_linear_in.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/interpolator/mtrl_fast_out_linear_in.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_btn_checkbox_to_checked_box_outer_merged_animation.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/btn_checkbox_to_checked_box_outer_merged_animation.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/animator_mtrl_extended_fab_hide_motion_spec.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/animator/mtrl_extended_fab_hide_motion_spec.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_common_google_signin_btn_icon_dark.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/common_google_signin_btn_icon_dark.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/animator_mtrl_btn_state_list_anim.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/animator/mtrl_btn_state_list_anim.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/mipmap-xxhdpi_ic_launcher_foreground.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/mipmap-xxhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/animator_mtrl_chip_state_list_anim.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/animator/mtrl_chip_state_list_anim.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_design_snackbar_in.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/design_snackbar_in.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/interpolator_mtrl_linear_out_slow_in.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/interpolator/mtrl_linear_out_slow_in.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/interpolator_btn_checkbox_checked_mtrl_animation_interpolator_1.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_1.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/layout_activity_allocation.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/layout/activity_allocation.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_mtrl_bottom_sheet_slide_out.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/mtrl_bottom_sheet_slide_out.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_test_custom_background.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/test_custom_background.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_tooltip_frame_light.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/tooltip_frame_light.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/mipmap-hdpi_ic_launcher_round.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/mipmap-hdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/color_common_google_signin_btn_text_light.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/color/common_google_signin_btn_text_light.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/menu_drawer.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/menu/drawer.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/color_common_google_signin_btn_tint.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/color/common_google_signin_btn_tint.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_tutorial_asset.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/tutorial_asset.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_common_google_signin_btn_text_dark_normal.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/common_google_signin_btn_text_dark_normal.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_btn_radio_off_mtrl.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/btn_radio_off_mtrl.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/interpolator_btn_checkbox_unchecked_mtrl_animation_interpolator_0.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_0.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_btn_checkbox_to_unchecked_box_inner_merged_animation.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/btn_checkbox_to_unchecked_box_inner_merged_animation.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_design_bottom_sheet_slide_in.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/design_bottom_sheet_slide_in.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/layout_activity_tutorial.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/layout/activity_tutorial.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_icon_arrow.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/icon_arrow.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_abc_slide_out_bottom.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/abc_slide_out_bottom.xml"
+    },
+    {
+        "merged": "com.kanzar.networthtracker.app-debug-44:/layout_activity_allocation.xml.flat",
+        "source": "com.kanzar.networthtracker.app-main-46:/layout/activity_allocation.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_abc_slide_in_top.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/abc_slide_in_top.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/menu_menu.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/menu/menu.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_ic_mtrl_chip_checked_circle.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/ic_mtrl_chip_checked_circle.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_common_google_signin_btn_text_dark_focused.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/common_google_signin_btn_text_dark_focused.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_btn_checkbox_to_unchecked_icon_null_animation.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/btn_checkbox_to_unchecked_icon_null_animation.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_abc_slide_out_top.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/abc_slide_out_top.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_btn_checkbox_to_unchecked_check_path_merged_animation.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/btn_checkbox_to_unchecked_check_path_merged_animation.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/layout_activity_comment.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/layout/activity_comment.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_ic_keyboard_arrow_left_black_24dp.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/ic_keyboard_arrow_left_black_24dp.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_navigation_empty_icon.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/navigation_empty_icon.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/layout_custom_dialog.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/layout/custom_dialog.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_btn_radio_on_mtrl.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/btn_radio_on_mtrl.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_mtrl_card_lowers_interpolator.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/mtrl_card_lowers_interpolator.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/mipmap-mdpi_ic_launcher_round.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/mipmap-mdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/animator_mtrl_extended_fab_shrink_motion_spec.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/animator/mtrl_extended_fab_shrink_motion_spec.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/layout_view_percent.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/layout/view_percent.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/interpolator_mtrl_linear.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/interpolator/mtrl_linear.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_icon_comment.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/icon_comment.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/layout_view_trend_marker.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/layout/view_trend_marker.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/layout_activity_month.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/layout/activity_month.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_icon_percent.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/icon_percent.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_ic_menu_arrow_up_black_24dp.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/ic_menu_arrow_up_black_24dp.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_abc_popup_enter.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/abc_popup_enter.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/layout_widget_overview.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/layout/widget_overview.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/animator_mtrl_fab_show_motion_spec.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/animator/mtrl_fab_show_motion_spec.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_btn_radio_to_off_mtrl_ring_outer_animation.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/btn_radio_to_off_mtrl_ring_outer_animation.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_btn_checkbox_unchecked_mtrl.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/btn_checkbox_unchecked_mtrl.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/animator_mtrl_btn_unelevated_state_list_anim.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/animator/mtrl_btn_unelevated_state_list_anim.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_abc_grow_fade_in_from_bottom.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/abc_grow_fade_in_from_bottom.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_icon_save.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/icon_save.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_common_google_signin_btn_icon_dark_focused.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/common_google_signin_btn_icon_dark_focused.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/interpolator_btn_radio_to_off_mtrl_animation_interpolator_0.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/interpolator/btn_radio_to_off_mtrl_animation_interpolator_0.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/layout_activity_asset_trend.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/layout/activity_asset_trend.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_design_bottom_sheet_slide_out.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/design_bottom_sheet_slide_out.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/mipmap-hdpi_ic_launcher_foreground.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/mipmap-hdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/color_switch_thumb_material_dark.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/color/switch_thumb_material_dark.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_ic_mtrl_chip_checked_black.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/ic_mtrl_chip_checked_black.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/layout_activity_chart.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/layout/activity_chart.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/mipmap-xxhdpi_ic_launcher_round.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/mipmap-xxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_btn_radio_to_off_mtrl_dot_group_animation.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/btn_radio_to_off_mtrl_dot_group_animation.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_btn_checkbox_unchecked_to_checked_mtrl_animation.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/btn_checkbox_unchecked_to_checked_mtrl_animation.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_icon_menu.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/icon_menu.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_abc_fade_out.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/abc_fade_out.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/mipmap-xxxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_common_google_signin_btn_text_light.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/common_google_signin_btn_text_light.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_icon_widget_add.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/icon_widget_add.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_abc_slide_in_bottom.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/abc_slide_in_bottom.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/color_common_google_signin_btn_text_dark.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/color/common_google_signin_btn_text_dark.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_btn_radio_to_on_mtrl_ring_outer_animation.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/btn_radio_to_on_mtrl_ring_outer_animation.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_btn_radio_to_off_mtrl_ring_outer_path_animation.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/btn_radio_to_off_mtrl_ring_outer_path_animation.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_btn_checkbox_checked_to_unchecked_mtrl_animation.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/btn_checkbox_checked_to_unchecked_mtrl_animation.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/animator_mtrl_fab_hide_motion_spec.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/animator/mtrl_fab_hide_motion_spec.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/interpolator_mtrl_fast_out_slow_in.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/interpolator/mtrl_fast_out_slow_in.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/mipmap-xhdpi_ic_launcher_round.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/mipmap-xhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/layout_activity_main.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/layout/activity_main.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_common_google_signin_btn_text_light_focused.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/common_google_signin_btn_text_light_focused.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_icon_plus.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/icon_plus.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/layout_item_month.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/layout/item_month.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/mipmap-xxxhdpi_ic_launcher_foreground.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/mipmap-xxxhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_abc_tooltip_enter.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/abc_tooltip_enter.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/mipmap-anydpi-v26/ic_launcher_round.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/animator_mtrl_card_state_list_anim.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/animator/mtrl_card_state_list_anim.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_btn_radio_to_on_mtrl_ring_outer_path_animation.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/btn_radio_to_on_mtrl_ring_outer_path_animation.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_common_google_signin_btn_icon_light_focused.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/common_google_signin_btn_icon_light_focused.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_ic_mtrl_chip_close_circle.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/ic_mtrl_chip_close_circle.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_common_google_signin_btn_icon_light_normal.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/common_google_signin_btn_icon_light_normal.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/mipmap-mdpi_ic_launcher_foreground.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/mipmap-mdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_mtrl_bottom_sheet_slide_in.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/mtrl_bottom_sheet_slide_in.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/xml_provider_paths.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/xml/provider_paths.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_tutorial_new.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/tutorial_new.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/animator_mtrl_extended_fab_show_motion_spec.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/animator/mtrl_extended_fab_show_motion_spec.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/interpolator_fast_out_slow_in.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/interpolator/fast_out_slow_in.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/animator_design_fab_show_motion_spec.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/animator/design_fab_show_motion_spec.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_common_google_signin_btn_text_disabled.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/common_google_signin_btn_text_disabled.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/xml_provider_overview_widget.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/xml/provider_overview_widget.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_abc_tooltip_exit.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/abc_tooltip_exit.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_ic_keyboard_arrow_right_black_24dp.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/ic_keyboard_arrow_right_black_24dp.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/color_switch_thumb_material_light.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/color/switch_thumb_material_light.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/interpolator_btn_checkbox_unchecked_mtrl_animation_interpolator_1.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_1.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_abc_fade_in.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/abc_fade_in.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_marker_background.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/marker_background.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_btn_checkbox_to_checked_box_inner_merged_animation.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/btn_checkbox_to_checked_box_inner_merged_animation.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_btn_radio_on_to_off_mtrl_animation.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/btn_radio_on_to_off_mtrl_animation.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/mipmap-xhdpi_ic_launcher_foreground.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/mipmap-xhdpi/ic_launcher_foreground.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_btn_checkbox_checked_mtrl.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/btn_checkbox_checked_mtrl.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/layout_view_chart_marker.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/layout/view_chart_marker.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_design_snackbar_out.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/design_snackbar_out.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_btn_checkbox_to_checked_icon_null_animation.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/btn_checkbox_to_checked_icon_null_animation.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_abc_popup_exit.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/abc_popup_exit.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/animator_mtrl_fab_transformation_sheet_expand_spec.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/animator/mtrl_fab_transformation_sheet_expand_spec.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/interpolator_btn_checkbox_checked_mtrl_animation_interpolator_0.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/interpolator/btn_checkbox_checked_mtrl_animation_interpolator_0.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/animator_mtrl_fab_transformation_sheet_collapse_spec.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/animator/mtrl_fab_transformation_sheet_collapse_spec.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_common_google_signin_btn_text_dark.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/common_google_signin_btn_text_dark.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_ic_close_white_24dp.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/ic_close_white_24dp.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_common_google_signin_btn_text_light_normal.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/common_google_signin_btn_text_light_normal.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/interpolator_btn_radio_to_on_mtrl_animation_interpolator_0.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/interpolator/btn_radio_to_on_mtrl_animation_interpolator_0.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_ic_mtrl_checked_circle.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/ic_mtrl_checked_circle.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_btn_radio_to_on_mtrl_dot_group_animation.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/btn_radio_to_on_mtrl_dot_group_animation.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_common_google_signin_btn_icon_light.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/common_google_signin_btn_icon_light.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_common_google_signin_btn_icon_dark_normal.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/common_google_signin_btn_icon_dark_normal.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_btn_radio_off_to_on_mtrl_animation.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/btn_radio_off_to_on_mtrl_animation.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/animator_design_fab_hide_motion_spec.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/animator/design_fab_hide_motion_spec.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_common_google_signin_btn_icon_disabled.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/common_google_signin_btn_icon_disabled.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/drawable_tutorial_liability.png.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/drawable/tutorial_liability.png"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/animator_mtrl_extended_fab_extend_motion_spec.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/animator/mtrl_extended_fab_extend_motion_spec.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/animator_mtrl_extended_fab_state_list_animator.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/animator/mtrl_extended_fab_state_list_animator.xml"
+    },
+    {
+        "merged": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-debug-44:/anim_abc_shrink_fade_out_from_bottom.xml.flat",
+        "source": "/home/sunil/.gradle/daemon/9.3.1/com.kanzar.networthtracker.app-main-46:/anim/abc_shrink_fade_out_from_bottom.xml"
+    }
+]

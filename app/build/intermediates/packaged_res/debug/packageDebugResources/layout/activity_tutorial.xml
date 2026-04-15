@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundContent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <TextView
+                android:gravity="center"
+                android:textColor="@color/textPrimary"
+                android:textSize="14sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="@string/tutorial_intro"/>
+
+            <ImageView
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/tutorial_asset"
+                android:adjustViewBounds="true"/>
+
+            <TextView
+                android:gravity="center"
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="@string/tutorial_asset"/>
+
+            <ImageView
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/tutorial_liability"
+                android:adjustViewBounds="true"/>
+
+            <TextView
+                android:gravity="center"
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="@string/tutorial_liability"/>
+
+            <TextView
+                android:gravity="center"
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="@string/tutorial_year"/>
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:adjustViewBounds="true"
+                android:tint="@color/colorPrimary"/>
+
+            <TextView
+                android:gravity="center"
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="@string/tutorial_chart"/>
+
+            <TextView
+                android:gravity="center"
+                android:textColor="@color/textSecondary"
+                android:textSize="12sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:text="@string/tutorial_footer"/>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

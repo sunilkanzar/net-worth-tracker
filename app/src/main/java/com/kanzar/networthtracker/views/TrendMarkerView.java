@@ -1,0 +1,58 @@
+package com.kanzar.networthtracker.views;
+
+import android.content.Context;
+import android.widget.TextView;
+
+import com.github.mikephil.charting.components.MarkerView;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.utils.MPPointF;
+import com.kanzar.networthtracker.R;
+import com.kanzar.networthtracker.helpers.Month;
+import com.kanzar.networthtracker.helpers.Tools;
+
+import java.util.List;
+
+public class TrendMarkerView extends MarkerView {
+
+    private final List<Month> months;
+    private final List<String> assetNames;
+    private final TextView tvAsset;
+    private final TextView tvMonth;
+    private final TextView tvValue;
+
+    public TrendMarkerView(Context context, List<Month> months, List<String> assetNames) {
+        super(context, R.layout.view_trend_marker);
+        this.months     = months;
+        this.assetNames = assetNames;
+        tvAsset  = findViewById(R.id.markerAsset);
+        tvMonth  = findViewById(R.id.markerMonth);
+        tvValue  = findViewById(R.id.markerValue);
+    }
+
+    @Override
+    public void refreshContent(Entry e, Highlight highlight) {
+        int xIndex       = (int) e.getX();
+        int datasetIndex = highlight.getDataSetIndex();
+
+        String assetName = (datasetIndex >= 0 && datasetIndex < assetNames.size())
+                ? assetNames.get(datasetIndex) : "";
+        String monthLabel = (xIndex >= 0 && xIndex < months.size())
+                ? months.get(xIndex).toString() : "";
+
+        float value = e.getY();
+        boolean isLiability = value < 0;
+
+        tvAsset.setText(assetName);
+        tvMonth.setText(monthLabel);
+        tvValue.setText(Tools.formatAmount(value, true));
+        tvValue.setTextColor(isLiability ? 0xFFFF5252 : 0xFF00C853);
+
+        super.refreshContent(e, highlight);
+    }
+
+    @Override
+    public MPPointF getOffset() {
+        return new MPPointF(-(getWidth() / 2f), -getHeight() - 16f);
+    }
+}
