@@ -1,6 +1,7 @@
 package com.kanzar.networthtracker.views;
 
 import android.content.Context;
+import android.util.AttributeSet;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.components.MarkerView;
@@ -20,6 +21,19 @@ public class TrendMarkerView extends MarkerView {
     private final TextView tvAsset;
     private final TextView tvMonth;
     private final TextView tvValue;
+
+    public TrendMarkerView(Context context) {
+        this(context, (AttributeSet) null);
+    }
+
+    public TrendMarkerView(Context context, AttributeSet attrs) {
+        super(context, R.layout.view_trend_marker);
+        this.months     = new java.util.ArrayList<>();
+        this.assetNames = new java.util.ArrayList<>();
+        tvAsset = null;
+        tvMonth = null;
+        tvValue = null;
+    }
 
     public TrendMarkerView(Context context, List<Month> months, List<String> assetNames) {
         super(context, R.layout.view_trend_marker);

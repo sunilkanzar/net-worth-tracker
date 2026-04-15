@@ -10,6 +10,7 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 import org.greenrobot.eventbus.EventBus;
 
+import android.util.Log;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -52,7 +53,7 @@ public final class LocalBackup {
                 EventBus.getDefault().post(new BackupSavedEvent(file));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("LocalBackup", "Export failed", e);
         }
     }
 

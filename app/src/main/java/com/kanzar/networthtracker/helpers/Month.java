@@ -1,5 +1,6 @@
 package com.kanzar.networthtracker.helpers;
 
+import androidx.annotation.NonNull;
 import com.kanzar.networthtracker.models.Asset;
 import com.kanzar.networthtracker.models.AssetFields;
 
@@ -78,6 +79,18 @@ public class Month {
         return new Month();
     }
 
+    public Month getLast() {
+        Asset lastAsset = Realm.getDefaultInstance()
+                .where(Asset.class)
+                .sort(new String[]{AssetFields.YEAR, AssetFields.MONTH}, new Sort[]{Sort.DESCENDING, Sort.DESCENDING})
+                .findFirst();
+
+        if (lastAsset != null) {
+            return new Month(lastAsset.getMonth(), lastAsset.getYear());
+        }
+        return new Month();
+    }
+
     public Month getPreviousMonth() {
         Month prev = new Month(this.month, this.year);
         prev.previous();
@@ -118,6 +131,7 @@ public class Month {
         calculateValues();
     }
 
+    @NonNull
     @Override
     public String toString() {
         return new DateFormatSymbols().getMonths()[month - 1] + " " + year;

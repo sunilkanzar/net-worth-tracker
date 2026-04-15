@@ -28,7 +28,10 @@ public final class OverviewWidget extends AppWidgetProvider {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         remoteViews.setOnClickPendingIntent(R.id.widgetLayout, pendingIntent);
         
-        Month month = new Month();
+        Month month = new Month().getLast();
+        if (month == null) {
+            month = new Month();
+        }
         remoteViews.setTextViewText(R.id.widgetHeader, month.toString());
         
         double percent = month.getPercent();

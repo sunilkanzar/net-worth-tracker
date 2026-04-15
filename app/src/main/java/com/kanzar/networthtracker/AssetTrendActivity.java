@@ -34,7 +34,6 @@ import java.util.TreeMap;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
-import io.realm.Sort;
 
 public class AssetTrendActivity extends AppCompatActivity {
 
@@ -111,21 +110,7 @@ public class AssetTrendActivity extends AppCompatActivity {
 
         chart.getAxisRight().setEnabled(false);
 
-        // Legend
-        Legend legend = chart.getLegend();
-        legend.setEnabled(true);
-        legend.setTextColor(Color.argb(200, 255, 255, 255));
-        legend.setTextSize(11f);
-        legend.setForm(Legend.LegendForm.LINE);
-        legend.setFormLineWidth(3f);
-        legend.setFormSize(14f);
-        legend.setXEntrySpace(16f);
-        legend.setYEntrySpace(4f);
-        legend.setWordWrapEnabled(true);
-        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
-        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
-        legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
-        legend.setDrawInside(false);
+        chart.getLegend().setEnabled(false);
 
         chart.setRenderer(new SelectionHighlightRenderer(chart, chart.getAnimator(),
                 chart.getViewPortHandler(), ContextCompat.getColor(this, R.color.background)));
@@ -134,14 +119,17 @@ public class AssetTrendActivity extends AppCompatActivity {
     private void loadData(LineChart chart) {
         Realm realm = Realm.getDefaultInstance();
 
-        // Collect all months from first to current
+        // Collect all months from first to last (including future months if data exists)
         List<Month> months = new ArrayList<>();
         List<String> labels = new ArrayList<>();
-        Month current = new Month().getFirst();
+        Month first = new Month().getFirst();
+        Month last = new Month().getLast();
+        Month current = first;
+        
         while (current != null) {
             months.add(current);
             labels.add(current.toStringMMYY());
-            if (current.isCurrentMonth()) break;
+            if (current.getMonth() == last.getMonth() && current.getYear() == last.getYear()) break;
             Month next = new Month(current.getMonth(), current.getYear());
             next.next();
             current = next;
@@ -163,14 +151,24 @@ public class AssetTrendActivity extends AppCompatActivity {
                 if (!assetValues.containsKey(name)) {
                     assetValues.put(name, new TreeMap<>());
                 }
-                assetValues.get(name).put(i, (float) asset.getValue());
+                Map<Integer, Float> monthMap = assetValues.get(name);
+                if (monthMap != null) monthMap.put(i, (float) asset.getValue());
             }
         }
+
+        // Keep only top 10 assets by highest absolute value across all months
+        List<String> assetNames = new ArrayList<>(assetValues.keySet());
+        assetNames.sort((a, b) -> {
+            float maxA = 0, maxB = 0;
+            for (float v : assetValues.get(a).values()) maxA = Math.max(maxA, Math.abs(v));
+            for (float v : assetValues.get(b).values()) maxB = Math.max(maxB, Math.abs(v));
+            return Float.compare(maxB, maxA);
+        });
+        if (assetNames.size() > 10) assetNames = assetNames.subList(0, 10);
 
         // Build datasets — entries only for months with actual data
         List<ILineDataSet> datasets = new ArrayList<>();
         int colorIndex = 0;
-        List<String> assetNames = new ArrayList<>(assetValues.keySet());
 
         for (String name : assetNames) {
             Map<Integer, Float> indexedVals = assetValues.get(name);
@@ -186,16 +184,12 @@ public class AssetTrendActivity extends AppCompatActivity {
             LineDataSet ds = new LineDataSet(entries, name);
             ds.setColor(color);
             ds.setLineWidth(2f);
-            ds.setDrawCircles(true);
-            ds.setCircleColor(color);
-            ds.setCircleRadius(4f);
-            ds.setCircleHoleRadius(2f);
-            ds.setDrawCircleHole(true);
-            ds.setCircleHoleColor(ContextCompat.getColor(this, R.color.background));
-            ds.setDrawValues(false);
+            ds.setDrawCircles(false);         // no dots on line
+            ds.setDrawValues(false);          // no value labels
             ds.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
-            ds.setHighLightColor(Color.argb(160, 255, 255, 255));
+            ds.setHighLightColor(Color.argb(180, 255, 255, 255));
             ds.setDrawHorizontalHighlightIndicator(false);
+            ds.setDrawHighlightIndicators(true);
             ds.setHighlightLineWidth(1.5f);
 
             datasets.add(ds);

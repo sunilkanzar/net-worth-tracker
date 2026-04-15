@@ -1,6 +1,7 @@
 package com.kanzar.networthtracker.models;
 
 import android.text.TextUtils;
+import androidx.annotation.NonNull;
 import com.kanzar.networthtracker.helpers.Month;
 import com.kanzar.networthtracker.helpers.Tools;
 import io.realm.Realm;
@@ -36,7 +37,7 @@ public class Asset extends RealmObject {
     }
 
     public void updateId() {
-        this.id = year + "" + month + "" + name;
+        this.id = year + String.valueOf(month) + name;
         this.updatedAt = System.currentTimeMillis() / 1000L;
     }
 
@@ -65,23 +66,27 @@ public class Asset extends RealmObject {
     public Asset getPrevious() {
         Month prevMonth = new Month(month, year);
         prevMonth.previous();
-        
-        return Realm.getDefaultInstance().where(Asset.class)
-                .equalTo("name", name)
-                .equalTo("month", prevMonth.getMonth())
-                .equalTo("year", prevMonth.getYear())
-                .findFirst();
+        try (Realm realm = Realm.getDefaultInstance()) {
+            Asset result = realm.where(Asset.class)
+                    .equalTo("name", name)
+                    .equalTo("month", prevMonth.getMonth())
+                    .equalTo("year", prevMonth.getYear())
+                    .findFirst();
+            return result != null ? realm.copyFromRealm(result) : null;
+        }
     }
 
     public Asset getNext() {
         Month nextMonth = new Month(month, year);
         nextMonth.next();
-
-        return Realm.getDefaultInstance().where(Asset.class)
-                .equalTo("name", name)
-                .equalTo("month", nextMonth.getMonth())
-                .equalTo("year", nextMonth.getYear())
-                .findFirst();
+        try (Realm realm = Realm.getDefaultInstance()) {
+            Asset result = realm.where(Asset.class)
+                    .equalTo("name", name)
+                    .equalTo("month", nextMonth.getMonth())
+                    .equalTo("year", nextMonth.getYear())
+                    .findFirst();
+            return result != null ? realm.copyFromRealm(result) : null;
+        }
     }
 
     public static Asset fromString(String row) {
@@ -101,6 +106,7 @@ public class Asset extends RealmObject {
         }
     }
 
+    @NonNull
     @Override
     public String toString() {
         return TextUtils.join(",", new String[]{

@@ -9,8 +9,10 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -47,7 +49,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.auth.api.identity.AuthorizationRequest;
-import com.google.android.gms.auth.api.identity.AuthorizationResult;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
@@ -90,7 +91,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -105,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
     private static final int PERMISSION_EXPORT_AUTO = 2;
     private static final int PERMISSION_IMPORT = 3;
     private static final int PERMISSION_IMPORT_CSS = 4;
-    private static final int REQUEST_MONTH_PICK = 10;
 
     private AssetAdapter adapter;
     private final Month month = new Month();
@@ -128,6 +127,8 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
     private TextView headerPrevValue;
     private TextView headerAssetCount;
     private PercentView percentView;
+    private ImageView syncStatus;
+    private Animation rotation;
     private CardView tutorial;
     private boolean updatingForm = false;
 
@@ -146,6 +147,29 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
             }
         });
 
+    // Launcher for picking any CSV file from device storage
+    private final androidx.activity.result.ActivityResultLauncher<String[]> importFileLauncher =
+        registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.OpenDocument(), uri -> {
+            if (uri != null) {
+                try {
+                    LocalImport.importFromUri(uri);
+                } catch (Exception e) {
+                    Toast.makeText(this, R.string.import_empty, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+    // Launcher for MonthActivity month/year picker
+    private final androidx.activity.result.ActivityResultLauncher<Intent> monthPickerLauncher =
+        registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                Intent data = result.getData();
+                month.setMonth(data.getIntExtra("month", month.getMonth()));
+                month.setYear(data.getIntExtra("year", month.getYear()));
+                updateViews();
+            }
+        });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -153,6 +177,21 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         initViews();
         setupRecyclerView();
         credentialManager = CredentialManager.create(this);
+        drawerLayout.addDrawerListener(new androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener() {
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                // Collapse import submenu so it starts closed next time
+                View sub = findViewById(R.id.navImportSubmenu);
+                if (sub.getVisibility() == View.VISIBLE) {
+                    sub.setVisibility(View.GONE);
+                    ((TextView) findViewById(R.id.navImport)).setCompoundDrawablesRelativeWithIntrinsicBounds(
+                            androidx.core.content.ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_import),
+                            null,
+                            androidx.core.content.ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_chevron_down),
+                            null);
+                }
+            }
+        });
         viewListeners();
         handleIntent(getIntent());
         checkLogin();
@@ -174,6 +213,8 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         headerPrevValue = findViewById(R.id.headerPrevValue);
         headerAssetCount = findViewById(R.id.headerAssetCount);
         percentView = findViewById(R.id.percentView);
+        syncStatus = findViewById(R.id.syncStatus);
+        rotation = AnimationUtils.loadAnimation(this, R.anim.rotate);
         tutorial = findViewById(R.id.tutorial);
         fabScrim = findViewById(R.id.fabScrim);
         fabNoteContainer = findViewById(R.id.fabNoteContainer);
@@ -217,9 +258,6 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
             signOut();
         });
 
-        findViewById(R.id.goToWeb).setOnClickListener(v ->
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://wealthtracker.app/"))));
-
         refreshLayout.setOnRefreshListener(this::triggerSync);
 
         findViewById(R.id.navGraph).setOnClickListener(v -> {
@@ -243,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
 
         findViewById(R.id.navMonthly).setOnClickListener(v -> {
             new Events().send(new ButtonClicked("monthView"));
-            startActivityForResult(new Intent(this, MonthActivity.class), REQUEST_MONTH_PICK);
+            monthPickerLauncher.launch(new Intent(this, MonthActivity.class));
             drawerLayout.closeDrawers();
         });
 
@@ -254,11 +292,29 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
             drawerLayout.closeDrawers();
         });
 
-        findViewById(R.id.navImport).setOnClickListener(v -> {
+        View navImportSubmenu = findViewById(R.id.navImportSubmenu);
+        TextView navImport = findViewById(R.id.navImport);
+        navImport.setOnClickListener(v -> {
+            boolean open = navImportSubmenu.getVisibility() == View.VISIBLE;
+            navImportSubmenu.setVisibility(open ? View.GONE : View.VISIBLE);
+            navImport.setCompoundDrawablesRelativeWithIntrinsicBounds(
+                    androidx.core.content.ContextCompat.getDrawable(this, R.drawable.ic_import),
+                    null,
+                    androidx.core.content.ContextCompat.getDrawable(this,
+                            open ? R.drawable.ic_chevron_down : R.drawable.ic_chevron_right),
+                    null);
+        });
+
+        findViewById(R.id.navImportBackup).setOnClickListener(v -> {
             if (hasStoragePermission(PERMISSION_IMPORT)) {
                 LocalImport.startImport(this);
             }
             drawerLayout.closeDrawers();
+        });
+
+        findViewById(R.id.navImportFile).setOnClickListener(v -> {
+            drawerLayout.closeDrawers();
+            importFileLauncher.launch(new String[]{"text/*", "application/octet-stream"});
         });
 
         findViewById(R.id.previousMonth).setOnClickListener(v -> {
@@ -362,7 +418,7 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
 
         credentialManager.getCredentialAsync(
                 this, request, new android.os.CancellationSignal(), executorService,
-                new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
+                new CredentialManagerCallback<>() {
                     @Override
                     public void onResult(GetCredentialResponse result) {
                         handleSignInCredential(result.getCredential());
@@ -378,8 +434,8 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
 
     private void handleSignInCredential(androidx.credentials.Credential credential) {
         if (credential instanceof GoogleIdTokenCredential) {
-            GoogleIdTokenCredential googleCred = (GoogleIdTokenCredential) credential;
-            String email = googleCred.getId(); // getId() returns the email for GoogleIdTokenCredential
+            GoogleIdTokenCredential googleCred = GoogleIdTokenCredential.createFrom(credential.getData());
+            String email = googleCred.getId();
             Prefs.save(Prefs.PREFS_USER_EMAIL, email);
             new Events().send(new SigninCompleted());
             requestDriveAuthorizationAndSync(true);
@@ -451,7 +507,7 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                 new ClearCredentialStateRequest(),
                 new android.os.CancellationSignal(),
                 executorService,
-                new CredentialManagerCallback<Void, ClearCredentialException>() {
+                new CredentialManagerCallback<>() {
                     @Override public void onResult(Void result) {
                         runOnUiThread(() -> onSignedOut());
                     }
@@ -470,6 +526,7 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         }
 
         refreshLayout.setRefreshing(true);
+        showSyncing(true);
 
         // Get a fresh access token (returns cached token if still valid)
         AuthorizationRequest authRequest = AuthorizationRequest.builder()
@@ -481,12 +538,18 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                 .addOnSuccessListener(authResult -> {
                     if (authResult.hasResolution()) {
                         // Scope not granted — stop refresh
-                        runOnUiThread(() -> refreshLayout.setRefreshing(false));
+                        runOnUiThread(() -> {
+                            refreshLayout.setRefreshing(false);
+                            showSyncing(false);
+                        });
                         return;
                     }
                     String accessToken = authResult.getAccessToken();
                     if (accessToken == null) {
-                        runOnUiThread(() -> refreshLayout.setRefreshing(false));
+                        runOnUiThread(() -> {
+                            refreshLayout.setRefreshing(false);
+                            showSyncing(false);
+                        });
                         return;
                     }
                     try {
@@ -499,11 +562,15 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                         driveServiceHelper = new DriveServiceHelper(drive);
                         performSync();
                     } catch (Exception e) {
-                        runOnUiThread(() -> refreshLayout.setRefreshing(false));
+                        runOnUiThread(() -> {
+                            refreshLayout.setRefreshing(false);
+                            showSyncing(false);
+                        });
                     }
                 })
                 .addOnFailureListener(e -> runOnUiThread(() -> {
                     refreshLayout.setRefreshing(false);
+                    showSyncing(false);
                     Toast.makeText(this, "Sync failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }));
     }
@@ -533,16 +600,27 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                 runOnUiThread(() -> {
                     updateViews();
                     refreshLayout.setRefreshing(false);
-                    Toast.makeText(this, R.string.sync_success, Toast.LENGTH_SHORT).show();
+                    showSyncing(false);
                 });
             } catch (Exception e) {
                 Log.e("MainActivity", "Drive sync error", e);
                 runOnUiThread(() -> {
                     refreshLayout.setRefreshing(false);
+                    showSyncing(false);
                     Toast.makeText(this, "Sync failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
             }
         });
+    }
+
+    private void showSyncing(boolean syncing) {
+        if (syncing) {
+            syncStatus.setVisibility(View.VISIBLE);
+            syncStatus.startAnimation(rotation);
+        } else {
+            syncStatus.clearAnimation();
+            syncStatus.setVisibility(View.GONE);
+        }
     }
 
     // ── Login state ──────────────────────────────────────────────────────────
@@ -567,16 +645,6 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
     }
 
     // ── Permissions ──────────────────────────────────────────────────────────
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_MONTH_PICK && resultCode == RESULT_OK && data != null) {
-            month.setMonth(data.getIntExtra("month", month.getMonth()));
-            month.setYear(data.getIntExtra("year", month.getYear()));
-            updateViews();
-        }
-    }
 
     private boolean hasStoragePermission(int requestCode) {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
@@ -622,11 +690,13 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                 .setItems(new String[]{getString(R.string.menu_delete)}, (dialog, which) -> {
                     if (which == 0) {
                         new Events().send(new AssetDeleted(item));
-                        Realm.getDefaultInstance().executeTransaction(realm -> {
-                            Asset toDelete = realm.where(Asset.class).equalTo(AssetFields.ID, item.getId()).findFirst();
-                            if (toDelete != null) toDelete.deleteFromRealm();
-                        });
-                        new Events().setProperty("numberOfAssets", String.valueOf(Realm.getDefaultInstance().where(Asset.class).count()));
+                        try (Realm realm = Realm.getDefaultInstance()) {
+                            realm.executeTransaction(r -> {
+                                Asset toDelete = r.where(Asset.class).equalTo(AssetFields.ID, item.getId()).findFirst();
+                                if (toDelete != null) toDelete.deleteFromRealm();
+                            });
+                            new Events().setProperty("numberOfAssets", String.valueOf(realm.where(Asset.class).count()));
+                        }
                         updateViews();
                     }
                 })
@@ -652,8 +722,10 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         }
         Asset asset = getNewAsset();
         new Events().send(new AssetAdded(asset));
-        Realm.getDefaultInstance().executeTransaction(realm -> realm.copyToRealmOrUpdate(asset));
-        new Events().setProperty("numberOfAssets", String.valueOf(Realm.getDefaultInstance().where(Asset.class).count()));
+        try (Realm realm = Realm.getDefaultInstance()) {
+            realm.executeTransaction(r -> r.copyToRealmOrUpdate(asset));
+            new Events().setProperty("numberOfAssets", String.valueOf(realm.where(Asset.class).count()));
+        }
         updateViews();
         closeAssetView();
         if (!Prefs.getBoolean(Prefs.PREFS_AUTO_IMPORT_PERMISSION, false)) {
@@ -706,8 +778,8 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         newAssetSave.animate().rotation(0f).setDuration(200).start();
         fabScrim.animate().alpha(0f).setDuration(200)
                 .withEndAction(() -> fabScrim.setVisibility(View.GONE)).start();
-        hideFabItem(fabAssetContainer, 0);
-        hideFabItem(fabNoteContainer, 0);
+        hideFabItem(fabAssetContainer);
+        hideFabItem(fabNoteContainer);
     }
 
     private void showFabItem(android.view.ViewGroup container, long delay) {
@@ -718,9 +790,9 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                 .setStartDelay(delay).setDuration(200).start();
     }
 
-    private void hideFabItem(android.view.ViewGroup container, long delay) {
+    private void hideFabItem(android.view.ViewGroup container) {
         container.animate().alpha(0f).translationY(60f)
-                .setStartDelay(delay).setDuration(150)
+                .setDuration(150)
                 .withEndAction(() -> container.setVisibility(View.GONE)).start();
     }
 
@@ -743,16 +815,18 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
     // ── Views ────────────────────────────────────────────────────────────────
 
     private String[] getAssetNames(String name) {
-        List<Asset> results = Realm.getDefaultInstance().where(Asset.class)
-                .distinct(AssetFields.NAME)
-                .contains(AssetFields.NAME, name, Case.INSENSITIVE)
-                .findAll();
-        String[] names = new String[results.size()];
-        for (int i = 0; i < results.size(); i++) {
-            Asset a = results.get(i);
-            names[i] = (a != null && a.getName() != null) ? a.getName() : "";
+        try (Realm realm = Realm.getDefaultInstance()) {
+            List<Asset> results = realm.where(Asset.class)
+                    .distinct(AssetFields.NAME)
+                    .contains(AssetFields.NAME, name, Case.INSENSITIVE)
+                    .findAll();
+            String[] names = new String[results.size()];
+            for (int i = 0; i < results.size(); i++) {
+                Asset a = results.get(i);
+                names[i] = (a != null && a.getName() != null) ? a.getName() : "";
+            }
+            return names;
         }
-        return names;
     }
 
     @Override
@@ -783,7 +857,9 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
 
     private void updateViews() {
         List<Asset> assets = month.getAssets();
-        tutorial.setVisibility(Realm.getDefaultInstance().where(Asset.class).count() == 0 ? View.VISIBLE : View.GONE);
+        try (Realm realm = Realm.getDefaultInstance()) {
+            tutorial.setVisibility(realm.where(Asset.class).count() == 0 ? View.VISIBLE : View.GONE);
+        }
         adapter.setItems(assets);
         month.calculateValues();
         monthName.setText(month.toString());
@@ -920,7 +996,9 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                 .setTitle(title)
                 .setMessage(R.string.backup_share)
                 .setPositiveButton(R.string.backup_share_yes, (dialog, which) -> {
-                    Realm.getDefaultInstance().executeTransaction(realm -> realm.copyToRealmOrUpdate(event.getAssets()));
+                    try (Realm realm = Realm.getDefaultInstance()) {
+                        realm.executeTransaction(r -> r.copyToRealmOrUpdate(event.getAssets()));
+                    }
                     updateViews();
                 })
                 .setNegativeButton(R.string.backup_share_no, null)

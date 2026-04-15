@@ -2,7 +2,6 @@ package com.kanzar.networthtracker.views;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.util.AttributeSet;
 
 import androidx.core.content.ContextCompat;
@@ -22,7 +21,6 @@ import com.kanzar.networthtracker.helpers.Tools;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Collections;
 
 public final class MonthChart extends LineChart {
 
@@ -105,12 +103,12 @@ public final class MonthChart extends LineChart {
 
         int accentColor  = ContextCompat.getColor(getContext(), R.color.colorAccent);
         int fillColor    = ContextCompat.getColor(getContext(), R.color.colorPrimary);
-        int valueColor   = Color.WHITE;
 
         List<Entry> entries = new ArrayList<>();
         List<String> labels = new ArrayList<>();
         List<Month> months = new ArrayList<>();
 
+        Month last = new Month().getLast();
         Month current = new Month().getFirst();
         int index = 0;
         boolean hasNegative = false;
@@ -121,7 +119,7 @@ public final class MonthChart extends LineChart {
             double value = current.getValue();
             if (value < 0) hasNegative = true;
             entries.add(new Entry(index++, (float) value));
-            if (current.isCurrentMonth()) break;
+            if (current.getMonth() == last.getMonth() && current.getYear() == last.getYear()) break;
             Month next = new Month(current.getMonth(), current.getYear());
             next.next();
             current = next;
@@ -139,34 +137,20 @@ public final class MonthChart extends LineChart {
         LineDataSet dataSet = new LineDataSet(entries, "");
         dataSet.setColor(accentColor);
         dataSet.setLineWidth(2.5f);
-        dataSet.setCircleColor(accentColor);
-        dataSet.setCircleHoleColor(ContextCompat.getColor(getContext(), R.color.background));
-        dataSet.setCircleRadius(4f);
-        dataSet.setCircleHoleRadius(2f);
-        dataSet.setDrawCircleHole(true);
+        dataSet.setDrawCircles(false);        // no dots on line
+        dataSet.setDrawValues(false);         // no value labels on line
         dataSet.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
         dataSet.setDrawFilled(true);
         dataSet.setFillColor(fillColor);
         dataSet.setFillAlpha(60);
-        dataSet.setHighLightColor(Color.argb(120, 255, 255, 255));
+        dataSet.setHighLightColor(Color.argb(180, 255, 255, 255));
         dataSet.setDrawHorizontalHighlightIndicator(false);
+        // Show a single dot at the selected/highlighted point
+        dataSet.setDrawHighlightIndicators(true);
+        dataSet.setHighlightLineWidth(1.5f);
 
         LineData lineData = new LineData(dataSet);
-        lineData.setDrawValues(true);
-        lineData.setValueTextColor(valueColor);
-        lineData.setValueTextSize(9f);
-        lineData.setValueTypeface(Typeface.DEFAULT_BOLD);
-        lineData.setValueFormatter(new ValueFormatter() {
-            @Override
-            public String getFormattedValue(float value) {
-                if (Math.abs(value) >= 1_000_000) {
-                    return Tools.formatAmount(value / 1_000_000.0) + "M";
-                } else if (Math.abs(value) >= 1_000) {
-                    return String.valueOf(Math.round(value / 1_000.0)) + "k";
-                }
-                return Tools.formatAmount(value);
-            }
-        });
+        lineData.setDrawValues(false);
 
         MonthMarkerView marker = new MonthMarkerView(getContext(), months);
         marker.setChartView(this);

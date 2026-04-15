@@ -42,7 +42,7 @@
                         android:layout_height="38dp"
                         android:src="@drawable/icon_menu"
                         android:adjustViewBounds="true"
-                        android:tint="#CCFFFFFF"
+                        app:tint="#CCFFFFFF"
                         android:layout_centerVertical="true"/>
 
                     <com.kanzar.networthtracker.views.PercentView
@@ -71,14 +71,31 @@
                             android:layout_marginBottom="2dp"
                             android:text="Net Worth"/>
 
-                        <TextView
-                            android:textStyle="bold"
-                            android:textSize="32sp"
-                            android:textColor="@color/textOnPrimary"
-                            android:id="@+id/monthValue"
-                            android:letterSpacing="-0.01"
+                        <LinearLayout
+                            android:orientation="horizontal"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:textStyle="bold"
+                                android:textSize="32sp"
+                                android:textColor="@color/textOnPrimary"
+                                android:id="@+id/monthValue"
+                                android:letterSpacing="-0.01"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
+
+                            <ImageView
+                                android:id="@+id/syncStatus"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginStart="12dp"
+                                android:src="@drawable/ic_sync"
+                                android:alpha="0.6"
+                                android:visibility="gone"
+                                app:tint="@color/textOnPrimary"/>
+                        </LinearLayout>
 
                     </LinearLayout>
                 </RelativeLayout>
@@ -195,9 +212,8 @@
                 android:id="@+id/previousMonth"
                 android:layout_width="56dp"
                 android:layout_height="match_parent"
-                android:src="@drawable/icon_arrow"
-                android:rotation="90"
-                android:tint="@color/colorAccent"
+                android:src="@drawable/ic_chevron_left"
+                app:tint="@color/colorAccent"
                 android:padding="16dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:scaleType="fitCenter"
@@ -220,9 +236,8 @@
                 android:id="@+id/nextMonth"
                 android:layout_width="56dp"
                 android:layout_height="match_parent"
-                android:src="@drawable/icon_arrow"
-                android:rotation="270"
-                android:tint="@color/colorAccent"
+                android:src="@drawable/ic_chevron_right"
+                app:tint="@color/colorAccent"
                 android:padding="16dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:scaleType="fitCenter"
@@ -485,171 +500,275 @@
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <!-- ── Navigation Drawer ─────────────────────────────────────────── -->
-    <com.google.android.material.navigation.NavigationView
-        android:layout_gravity="start"
+    <LinearLayout
         android:id="@+id/navigation"
-        android:background="@color/backgroundContent"
         android:layout_width="280dp"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="@color/backgroundContent"
+        android:clickable="true"
+        android:fitsSystemWindows="true"
+        android:focusable="true"
+        android:orientation="vertical">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/header_overview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="0.1"
+                    android:paddingStart="20dp"
+                    android:paddingTop="24dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/drawer_section_overview"
+                    android:textAllCaps="true"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/navMonthly"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:drawablePadding="16dp"
+                    android:paddingStart="20dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="12dp"
+                    android:text="@string/drawer_month"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="15sp"
+                    app:drawableStartCompat="@drawable/ic_overview"
+                    app:drawableTint="@color/textSecondary" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@color/divider" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="0.1"
+                    android:paddingStart="20dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/drawer_section_graphs"
+                    android:textAllCaps="true"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/navGraph"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:drawablePadding="16dp"
+                    android:paddingStart="20dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="12dp"
+                    android:text="@string/drawer_graph"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="15sp"
+                    app:drawableStartCompat="@drawable/ic_chart"
+                    app:drawableTint="@color/textSecondary" />
+
+                <TextView
+                    android:id="@+id/navAllocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:drawablePadding="16dp"
+                    android:paddingStart="20dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="12dp"
+                    android:text="@string/drawer_allocation"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="15sp"
+                    app:drawableStartCompat="@drawable/ic_pie"
+                    app:drawableTint="@color/textSecondary" />
+
+                <TextView
+                    android:id="@+id/navAssetTrend"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:drawablePadding="16dp"
+                    android:paddingStart="20dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="12dp"
+                    android:text="@string/drawer_asset_trend"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="15sp"
+                    app:drawableStartCompat="@drawable/ic_trends"
+                    app:drawableTint="@color/textSecondary" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@color/divider" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="0.1"
+                    android:paddingStart="20dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/drawer_section_data"
+                    android:textAllCaps="true"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/navExport"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:drawablePadding="16dp"
+                    android:paddingStart="20dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="12dp"
+                    android:text="@string/drawer_export"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="15sp"
+                    app:drawableStartCompat="@drawable/ic_export"
+                    app:drawableTint="@color/textSecondary" />
+
+                <!-- Import parent (toggles sub-menu) -->
+                <TextView
+                    android:id="@+id/navImport"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:drawablePadding="16dp"
+                    android:paddingStart="20dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="20dp"
+                    android:paddingBottom="12dp"
+                    android:text="@string/drawer_import"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="15sp"
+                    app:drawableStartCompat="@drawable/ic_import"
+                    app:drawableEndCompat="@drawable/ic_chevron_down"
+                    app:drawableTint="@color/textSecondary" />
+
+                <!-- Import sub-items (hidden by default) -->
+                <LinearLayout
+                    android:id="@+id/navImportSubmenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/navImportBackup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:drawablePadding="16dp"
+                        android:paddingStart="44dp"
+                        android:paddingTop="10dp"
+                        android:paddingEnd="20dp"
+                        android:paddingBottom="10dp"
+                        android:text="@string/drawer_import_backup"
+                        android:textColor="@color/textSecondary"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/navImportFile"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:drawablePadding="16dp"
+                        android:paddingStart="44dp"
+                        android:paddingTop="10dp"
+                        android:paddingEnd="20dp"
+                        android:paddingBottom="10dp"
+                        android:text="@string/drawer_import_file"
+                        android:textColor="@color/textSecondary"
+                        android:textSize="14sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider" />
+
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/googleSignIn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="12dp" />
 
         <LinearLayout
-            android:orientation="vertical"
+            android:id="@+id/signedInLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <LinearLayout
-                android:gravity="center"
-                android:id="@+id/goToWeb"
-                android:background="@color/colorPrimary"
-                android:paddingTop="24dp"
-                android:paddingBottom="24dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp">
-
-                <TextView
-                    android:textSize="13sp"
-                    android:textColor="@color/textOnPrimary"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.14"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/app_domain"
-                    android:textAllCaps="true"/>
-
-            </LinearLayout>
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="12dp"
+            android:visibility="gone">
 
             <TextView
-                android:textSize="15sp"
-                android:textColor="@color/textPrimary"
-                android:id="@+id/navMonthly"
-                android:background="?android:attr/selectableItemBackground"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="@string/drawer_month"/>
+                android:layout_marginBottom="4dp"
+                android:letterSpacing="0.1"
+                android:text="@string/user_sign_in_as"
+                android:textAllCaps="true"
+                android:textColor="@color/textSecondary"
+                android:textSize="10sp" />
 
             <TextView
-                android:textSize="15sp"
+                android:id="@+id/userEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
                 android:textColor="@color/textPrimary"
-                android:id="@+id/navGraph"
-                android:background="?android:attr/selectableItemBackground"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
+                android:textSize="14sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/signOut"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/drawer_graph"/>
+                android:layout_marginBottom="12dp"
+                android:text="@string/user_sign_out"
+                android:textColor="@color/colorAccent"
+                app:strokeColor="@color/colorAccent" />
 
-            <TextView
-                android:textSize="15sp"
-                android:textColor="@color/textPrimary"
-                android:id="@+id/navAllocation"
-                android:background="?android:attr/selectableItemBackground"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/drawer_allocation"/>
-
-            <TextView
-                android:textSize="15sp"
-                android:textColor="@color/textPrimary"
-                android:id="@+id/navAssetTrend"
-                android:background="?android:attr/selectableItemBackground"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/drawer_asset_trend"/>
-
-            <TextView
-                android:textSize="15sp"
-                android:textColor="@color/textPrimary"
-                android:id="@+id/navExport"
-                android:background="?android:attr/selectableItemBackground"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/drawer_export"/>
-
-            <TextView
-                android:textSize="15sp"
-                android:textColor="@color/textPrimary"
-                android:id="@+id/navImport"
-                android:background="?android:attr/selectableItemBackground"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/drawer_import"/>
-
-            <View
-                android:background="@color/divider"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="12dp"/>
-
-            <com.google.android.gms.common.SignInButton
-                android:id="@+id/googleSignIn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"/>
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:id="@+id/signedInLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingStart="20dp"
-                android:paddingEnd="20dp"
-                android:paddingTop="4dp">
-
-                <TextView
-                    android:textSize="10sp"
-                    android:textColor="@color/textSecondary"
-                    android:textAllCaps="true"
-                    android:letterSpacing="0.1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
-                    android:text="@string/user_sign_in_as"/>
-
-                <TextView
-                    android:id="@+id/userEmail"
-                    android:textSize="14sp"
-                    android:textColor="@color/textPrimary"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"/>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/signOut"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/user_sign_out"
-                    android:textColor="@color/colorAccent"
-                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                    app:strokeColor="@color/colorAccent"/>
-
-            </LinearLayout>
         </LinearLayout>
-    </com.google.android.material.navigation.NavigationView>
+    </LinearLayout>
 
 </androidx.drawerlayout.widget.DrawerLayout>

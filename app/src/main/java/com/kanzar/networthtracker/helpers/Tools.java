@@ -54,6 +54,14 @@ public final class Tools {
         return Color.rgb(221, 221, 221);
     }
 
+    public static int adjustAlpha(int color, float factor) {
+        int alpha = Math.round(Color.alpha(color) * factor);
+        int red = Color.red(color);
+        int green = Color.green(color);
+        int blue = Color.blue(color);
+        return Color.argb(alpha, red, green, blue);
+    }
+
     public static String formatPercent(double price) {
         if (Double.isNaN(price)) return "0%";
         return new DecimalFormat("0.00").format(price) + "%";

@@ -2,6 +2,7 @@ package com.kanzar.networthtracker.backup;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.util.Log;
 import com.kanzar.networthtracker.R;
 import com.kanzar.networthtracker.eventbus.ImportedEvent;
 import com.kanzar.networthtracker.eventbus.MessageEvent;
@@ -77,7 +78,7 @@ public final class LocalImport {
             try {
                 importFromFile(new FileInputStream(files.get(which)));
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e("LocalImport", "Import failed", e);
             }
         });
         builder.create().show();
@@ -107,7 +108,7 @@ public final class LocalImport {
             }
             EventBus.getDefault().post(new ImportedEvent(new ArrayList<>(assets)));
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("LocalImport", "Read failed", e);
         }
     }
 }

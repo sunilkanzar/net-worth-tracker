@@ -1,7 +1,9 @@
 package com.kanzar.networthtracker.views;
 
 import android.content.Context;
+import android.util.AttributeSet;
 import android.widget.TextView;
+import java.util.Locale;
 
 import com.github.mikephil.charting.components.MarkerView;
 import com.github.mikephil.charting.data.Entry;
@@ -19,6 +21,18 @@ public class MonthMarkerView extends MarkerView {
     private final TextView tvMonth;
     private final TextView tvValue;
     private final TextView tvChange;
+
+    public MonthMarkerView(Context context) {
+        this(context, (AttributeSet) null);
+    }
+
+    public MonthMarkerView(Context context, AttributeSet attrs) {
+        super(context, R.layout.view_chart_marker);
+        this.months = new java.util.ArrayList<>();
+        tvMonth  = null;
+        tvValue  = null;
+        tvChange = null;
+    }
 
     public MonthMarkerView(Context context, List<Month> months) {
         super(context, R.layout.view_chart_marker);
@@ -42,7 +56,7 @@ public class MonthMarkerView extends MarkerView {
 
         String sign = change >= 0 ? "+" : "";
         String changeStr = sign + Tools.formatAmount(change, true);
-        String pct = String.format("%.1f%%", month.getPercent());
+        String pct = String.format(Locale.getDefault(), "%.1f%%", month.getPercent());
         tvChange.setText(changeStr + "  (" + pct + ")");
         tvChange.setTextColor(change >= 0
                 ? 0xFF00C853   // positive green

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 5-Month Data Bars (Graduated Heights & Opacities) -->
+    <path
+        android:fillColor="#4DFFFFFF"
+        android:pathData="M22,78h8v-15h-8z"/>
+    <path
+        android:fillColor="#66FFFFFF"
+        android:pathData="M35,78h8v-28h-8z"/>
+    <path
+        android:fillColor="#80FFFFFF"
+        android:pathData="M48,78h8v-20h-8z"/>
+    <path
+        android:fillColor="#B3FFFFFF"
+        android:pathData="M61,78h8v-35h-8z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M74,78h8v-50h-8z"/>
+
+    <!-- Dynamic Trend Line (Connecting the peaks) -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M26,63 L39,50 L52,58 L65,43 L78,28"/>
+
+    <!-- Current Wealth Highlight Node -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M78,28m-4,0a4,4 0,1 1,8 0a4,4 0,1 1,-8 0"/>
+
+</vector>

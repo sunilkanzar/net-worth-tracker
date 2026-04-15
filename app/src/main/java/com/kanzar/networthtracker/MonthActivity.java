@@ -28,9 +28,10 @@ public class MonthActivity extends AppCompatActivity implements MonthAdapter.OnI
 
         List<Month> months = new ArrayList<>();
         Month first = new Month().getFirst();
+        Month last = new Month().getLast();
         months.add(first);
 
-        while (!first.isCurrentMonth()) {
+        while (!(first.getMonth() == last.getMonth() && first.getYear() == last.getYear())) {
             Month nextMonth = new Month(first.getMonth(), first.getYear());
             nextMonth.next();
             months.add(nextMonth);

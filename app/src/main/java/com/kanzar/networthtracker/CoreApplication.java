@@ -9,17 +9,21 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
 public class CoreApplication extends MultiDexApplication {
-    private static Context context;
+    private static CoreApplication instance;
+
+    public static CoreApplication getInstance() {
+        return instance;
+    }
 
     public static Context getContext() {
-        return context;
+        return instance.getApplicationContext();
     }
 
     @Override
     public void onCreate() {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         super.onCreate();
-        context = getApplicationContext();
+        instance = this;
 
         Realm.init(this);
         RealmConfiguration config = new RealmConfiguration.Builder()

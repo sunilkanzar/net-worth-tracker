@@ -17,7 +17,7 @@
             android:layout_height="?attr/actionBarSize"
             app:title="@string/drawer_graph"
             app:titleTextColor="@color/textOnPrimary"
-            app:navigationIcon="@drawable/ic_keyboard_arrow_left_black_24dp"
+            app:navigationIcon="@drawable/ic_chevron_left"
             app:navigationIconTint="@color/textOnPrimary"/>
 
     </com.google.android.material.appbar.AppBarLayout>

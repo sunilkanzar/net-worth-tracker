@@ -5,58 +5,110 @@
     android:layout_height="wrap_content"
     android:layout_marginStart="12dp"
     android:layout_marginEnd="12dp"
-    android:layout_marginBottom="6dp"
+    android:layout_marginBottom="8dp"
     app:cardBackgroundColor="@color/backgroundContent"
     app:cardCornerRadius="12dp"
     app:cardElevation="0dp"
     app:strokeWidth="1dp"
     app:strokeColor="@color/divider">
 
-    <RelativeLayout
+    <!-- Root: FrameLayout so sparkline sits behind name/value -->
+    <FrameLayout
         android:id="@+id/container"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="14dp"
-        android:paddingBottom="14dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.kanzar.networthtracker.views.PercentView
-            android:id="@+id/percentView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"/>
+        <!-- Sparkline: full width, behind everything, semi-transparent -->
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/assetSparkline"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_gravity="center_vertical"
+            android:alpha="0.28" />
 
-        <TextView
-            android:textStyle="bold"
-            android:textSize="15sp"
-            android:textColor="@color/textPrimary"
-            android:id="@+id/assetName"
+        <!-- Foreground row: name on left, value on right -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toStartOf="@id/percentView"/>
+            android:orientation="horizontal"
+            android:padding="14dp"
+            android:gravity="center_vertical">
 
-        <TextView
-            android:textSize="15sp"
-            android:textColor="@color/textPrimary"
-            android:id="@+id/assetValue"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toStartOf="@id/percentView"
-            android:layout_below="@id/assetName"
-            android:layout_marginTop="3dp"/>
+            <!-- Left: name + weight pill -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-        <TextView
-            android:textSize="12sp"
-            android:textColor="@color/textSecondary"
-            android:id="@+id/assetValueChange"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toStartOf="@id/percentView"
-            android:layout_below="@id/assetValue"
-            android:layout_marginTop="1dp"/>
+                <TextView
+                    android:id="@+id/assetName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="none" />
 
-    </RelativeLayout>
+                <TextView
+                    android:id="@+id/assetWeight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_pill_asset"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="2dp"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <!-- Right: value + change -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/assetValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/assetChangeValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:id="@+id/assetChangePercent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_pill_transparent"
+                        android:paddingHorizontal="5dp"
+                        android:paddingVertical="2dp"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </FrameLayout>
 
 </com.google.android.material.card.MaterialCardView>

@@ -34,7 +34,8 @@ public class CommentActivity extends AppCompatActivity {
 
         if (saveButton != null) {
             saveButton.setOnClickListener(v -> {
-                String text = monthComment != null ? monthComment.getText().toString().trim() : "";
+                android.text.Editable editable = monthComment != null ? monthComment.getText() : null;
+                String text = editable != null ? editable.toString().trim() : "";
                 if (text.isEmpty()) {
                     Prefs.delete(noteKey);
                 } else {

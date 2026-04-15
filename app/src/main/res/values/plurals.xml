@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <plurals name="mtrl_badge_content_description">
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <plurals name="mtrl_badge_content_description" tools:override="true">
         <item quantity="one">%d new notification</item>
         <item quantity="other">%d new notifications</item>
     </plurals>
