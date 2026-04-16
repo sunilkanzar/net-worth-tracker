@@ -1,21 +1,20 @@
 package com.kanzar.networthtracker.views;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import com.kanzar.networthtracker.R;
-import com.kanzar.networthtracker.helpers.Configuration;
 import com.kanzar.networthtracker.helpers.Tools;
 
 public class PercentView extends LinearLayout {
 
     private double percent;
-    private int angle;
     private double valueChange;
 
     public PercentView(Context context) {
@@ -39,16 +38,17 @@ public class PercentView extends LinearLayout {
 
     public void init(double previous, double current) {
         this.percent = Tools.getPercent(previous, current);
-        this.angle = Tools.getAngle(this.percent, new Configuration().getMONTH_MAX_PERCENTAGE());
-        
-        ImageView percentIcon = findViewById(R.id.percentIcon);
-        percentIcon.setColorFilter(Tools.getColor(this.angle));
-        percentIcon.setRotation(this.angle);
-        
-        TextView percentValue = findViewById(R.id.percentValue);
-        percentValue.setText(Tools.formatPercent(this.percent));
-        
         this.valueChange = current - previous;
+
+        TextView percentValue = findViewById(R.id.percentValue);
+
+        String arrow = valueChange > 0 ? "▲ " : valueChange < 0 ? "▼ " : "● ";
+        percentValue.setText(arrow + Tools.formatPercent(Math.abs(this.percent)));
+
+        GradientDrawable bg = new GradientDrawable();
+        bg.setCornerRadius(24f);
+        bg.setColor(pillColor(this.percent, this.valueChange));
+        percentValue.setBackground(bg);
     }
 
     public String getValueChangeString(boolean roundUp) {
@@ -77,7 +77,26 @@ public class PercentView extends LinearLayout {
         textView.setTextColor(ContextCompat.getColor(getContext(), Tools.getTextChangeColor(this.valueChange)));
     }
 
+    // neutral #546E7A → deep green #1B5E20 or deep red #7F0000
+    // t = 0 at 0%, t = 1 at ±10% (MONTH_MAX_PERCENTAGE cap)
+    private static int pillColor(double percent, double valueChange) {
+        double t = Math.min(Math.abs(percent) / 5.0, 1.0);
+        int nr = 84, ng = 110, nb = 122; // #546E7A neutral
+        int tr, tg, tb;
+        if (valueChange > 0) {
+            tr = 27;  tg = 94;  tb = 32;  // #1B5E20 deep green
+        } else if (valueChange < 0) {
+            tr = 127; tg = 0;   tb = 0;   // #7F0000 deep red
+        } else {
+            return Color.rgb(nr, ng, nb);
+        }
+        return Color.rgb(
+            (int)(nr + t * (tr - nr)),
+            (int)(ng + t * (tg - ng)),
+            (int)(nb + t * (tb - nb))
+        );
+    }
+
     public double getPercent() { return percent; }
-    public int getAngle() { return angle; }
     public double getValueChange() { return valueChange; }
 }

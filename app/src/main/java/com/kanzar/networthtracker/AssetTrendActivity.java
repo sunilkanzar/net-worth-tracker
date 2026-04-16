@@ -186,7 +186,7 @@ public class AssetTrendActivity extends AppCompatActivity {
             ds.setLineWidth(2f);
             ds.setDrawCircles(false);         // no dots on line
             ds.setDrawValues(false);          // no value labels
-            ds.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
+            ds.setMode(LineDataSet.Mode.LINEAR);
             ds.setHighLightColor(Color.argb(180, 255, 255, 255));
             ds.setDrawHorizontalHighlightIndicator(false);
             ds.setDrawHighlightIndicators(true);

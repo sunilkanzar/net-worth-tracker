@@ -50,6 +50,8 @@
         <activity android:name="com.kanzar.networthtracker.ChartActivity" android:exported="false"/>
         <activity android:name="com.kanzar.networthtracker.AllocationActivity" android:exported="false"/>
         <activity android:name="com.kanzar.networthtracker.AssetTrendActivity" android:exported="false"/>
+        <activity android:name="com.kanzar.networthtracker.GoalActivity" android:exported="false"/>
+        <activity android:name="com.kanzar.networthtracker.PreferencesActivity" android:exported="false"/>
 
         <receiver
             android:name="com.kanzar.networthtracker.widget.OverviewWidget"

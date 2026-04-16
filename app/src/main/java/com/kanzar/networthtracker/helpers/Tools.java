@@ -4,9 +4,7 @@ import android.graphics.Color;
 import com.kanzar.networthtracker.R;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
 import java.util.Calendar;
-import java.util.Locale;
 
 public final class Tools {
 
@@ -73,14 +71,20 @@ public final class Tools {
 
     public static String formatAmount(double amount, boolean roundUp) {
         double value = roundUp ? Math.round(amount) : amount;
-        NumberFormat numberFormat = NumberFormat.getInstance(Locale.US);
-        if (!(numberFormat instanceof DecimalFormat)) {
-            return String.valueOf(value);
+        String format = Prefs.getString(Prefs.PREFS_NUMBER_FORMAT, "NONE");
+        String sep = Prefs.getString(Prefs.PREFS_NUMBER_SEPARATOR, " ");
+        String currency = Prefs.getString(Prefs.PREFS_CURRENCY, "");
+        String formatted;
+        if ("NONE".equals(format)) {
+            formatted = new DecimalFormat("0.##").format(value);
+        } else {
+            String pattern = "IN".equals(format) ? "#,##,##,###.##" : "#,###.##";
+            DecimalFormat df = new DecimalFormat(pattern);
+            DecimalFormatSymbols symbols = df.getDecimalFormatSymbols();
+            symbols.setGroupingSeparator(sep.charAt(0));
+            df.setDecimalFormatSymbols(symbols);
+            formatted = df.format(value);
         }
-        DecimalFormat decimalFormat = (DecimalFormat) numberFormat;
-        DecimalFormatSymbols symbols = decimalFormat.getDecimalFormatSymbols();
-        symbols.setGroupingSeparator(' ');
-        decimalFormat.setDecimalFormatSymbols(symbols);
-        return decimalFormat.format(value);
+        return currency.isEmpty() ? formatted : currency + " " + formatted;
     }
 }

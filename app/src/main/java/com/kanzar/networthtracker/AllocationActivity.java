@@ -1,7 +1,8 @@
 package com.kanzar.networthtracker;
 
-import android.app.AlertDialog;
 import android.graphics.Color;
+import android.view.Gravity;
+import androidx.appcompat.app.AlertDialog;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
@@ -155,12 +156,17 @@ public class AllocationActivity extends AppCompatActivity {
 
         LinearLayout container = new LinearLayout(this);
         container.setOrientation(LinearLayout.HORIZONTAL);
-        container.setPadding(32, 16, 32, 16);
-        container.addView(monthPicker);
-        container.addView(yearPicker);
+        container.setGravity(Gravity.CENTER);
+        int pad = (int) (24 * getResources().getDisplayMetrics().density);
+        container.setPadding(pad, pad / 2, pad, 0);
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        container.addView(monthPicker, params);
+        container.addView(yearPicker, params);
 
         new AlertDialog.Builder(this)
-                .setTitle(null)
+                .setTitle("Go to month")
                 .setView(container)
                 .setPositiveButton("Go", (dialog, which) -> {
                     month.setYear(yearPicker.getValue());

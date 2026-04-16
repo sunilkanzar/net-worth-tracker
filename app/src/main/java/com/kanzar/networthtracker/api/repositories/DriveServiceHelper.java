@@ -63,6 +63,13 @@ public class DriveServiceHelper {
         });
     }
 
+    public Task<Void> deleteFile(String fileId) {
+        return Tasks.call(mExecutor, () -> {
+            mDriveService.files().delete(fileId).execute();
+            return null;
+        });
+    }
+
     public Task<String> searchFile(String fileName) {
         return Tasks.call(mExecutor, () -> {
             FileList result = mDriveService.files().list()

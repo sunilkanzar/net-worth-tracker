@@ -10,8 +10,8 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
+import android.animation.ObjectAnimator;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -39,6 +39,7 @@ import androidx.core.view.GravityCompat;
 import androidx.credentials.ClearCredentialStateRequest;
 import androidx.credentials.CredentialManager;
 import androidx.credentials.CredentialManagerCallback;
+import androidx.credentials.CustomCredential;
 import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.ClearCredentialException;
@@ -126,9 +127,9 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
     private TextView monthValueChange;
     private TextView headerPrevValue;
     private TextView headerAssetCount;
+    private com.kanzar.networthtracker.views.MiniBarView miniBarChart;
     private PercentView percentView;
-    private ImageView syncStatus;
-    private Animation rotation;
+    private ObjectAnimator syncAnim;
     private CardView tutorial;
     private boolean updatingForm = false;
 
@@ -212,9 +213,8 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         monthValueChange = findViewById(R.id.monthValueChange);
         headerPrevValue = findViewById(R.id.headerPrevValue);
         headerAssetCount = findViewById(R.id.headerAssetCount);
+        miniBarChart = findViewById(R.id.miniBarChart);
         percentView = findViewById(R.id.percentView);
-        syncStatus = findViewById(R.id.syncStatus);
-        rotation = AnimationUtils.loadAnimation(this, R.anim.rotate);
         tutorial = findViewById(R.id.tutorial);
         fabScrim = findViewById(R.id.fabScrim);
         fabNoteContainer = findViewById(R.id.fabNoteContainer);
@@ -258,7 +258,22 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
             signOut();
         });
 
-        refreshLayout.setOnRefreshListener(this::triggerSync);
+        refreshLayout.setOnRefreshListener(() -> {
+            refreshLayout.setRefreshing(false);
+            triggerSync();
+        });
+
+        findViewById(R.id.navGoals).setOnClickListener(v -> {
+            drawerLayout.closeDrawers();
+            Intent goalsIntent = new Intent(this, GoalActivity.class);
+            goalsIntent.putExtra("current_net_worth", month.getValue());
+            startActivity(goalsIntent);
+        });
+
+        findViewById(R.id.navPreferences).setOnClickListener(v -> {
+            drawerLayout.closeDrawers();
+            startActivity(new Intent(this, PreferencesActivity.class));
+        });
 
         findViewById(R.id.navGraph).setOnClickListener(v -> {
             new Events().send(new ButtonClicked("chartView"));
@@ -315,6 +330,12 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         findViewById(R.id.navImportFile).setOnClickListener(v -> {
             drawerLayout.closeDrawers();
             importFileLauncher.launch(new String[]{"text/*", "application/octet-stream"});
+        });
+
+
+        findViewById(R.id.navClearAllData).setOnClickListener(v -> {
+            drawerLayout.closeDrawers();
+            confirmClearAllData();
         });
 
         findViewById(R.id.previousMonth).setOnClickListener(v -> {
@@ -401,6 +422,12 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
 
         // Scrim: dismiss on tap outside
         fabScrim.setOnClickListener(v -> collapseFab());
+
+        findViewById(R.id.editGoals).setOnClickListener(v -> {
+            Intent goalsIntent = new Intent(this, GoalActivity.class);
+            goalsIntent.putExtra("current_net_worth", month.getValue());
+            startActivity(goalsIntent);
+        });
     }
 
     // ── Authentication ──────────────────────────────────────────────────────
@@ -427,19 +454,40 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                     public void onError(@NonNull GetCredentialException e) {
                         Log.e("MainActivity", "Sign in failed", e);
                         runOnUiThread(() ->
-                            Toast.makeText(MainActivity.this, "Sign in failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                            Toast.makeText(MainActivity.this, "Sign in failed. Please try again.", Toast.LENGTH_SHORT).show());
                     }
                 });
     }
 
     private void handleSignInCredential(androidx.credentials.Credential credential) {
+        GoogleIdTokenCredential googleCred = null;
         if (credential instanceof GoogleIdTokenCredential) {
-            GoogleIdTokenCredential googleCred = GoogleIdTokenCredential.createFrom(credential.getData());
-            String email = googleCred.getId();
-            Prefs.save(Prefs.PREFS_USER_EMAIL, email);
-            new Events().send(new SigninCompleted());
-            requestDriveAuthorizationAndSync(true);
+            googleCred = (GoogleIdTokenCredential) credential;
+        } else if (credential instanceof CustomCredential) {
+            CustomCredential custom = (CustomCredential) credential;
+            if (GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL.equals(custom.getType())) {
+                try {
+                    googleCred = GoogleIdTokenCredential.createFrom(custom.getData());
+                } catch (Exception e) {
+                    Log.e("MainActivity", "Failed to parse Google credential", e);
+                }
+            }
         }
+
+        if (googleCred == null) {
+            Log.w("MainActivity", "Unrecognized credential type: " + credential.getClass().getName());
+            return;
+        }
+
+        String email = googleCred.getId();
+        Prefs.save(Prefs.PREFS_USER_EMAIL, email);
+        Prefs.save(Prefs.PREFS_TOKEN, "signed_in");
+        new Events().send(new SigninCompleted());
+        runOnUiThread(() -> {
+            checkLogin();
+            Toast.makeText(this, "Signed in as " + email, Toast.LENGTH_SHORT).show();
+        });
+        requestDriveAuthorizationAndSync(false);
     }
 
     private void requestDriveAuthorizationAndSync(boolean showToast) {
@@ -464,7 +512,7 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                     } else {
                         String accessToken = authResult.getAccessToken();
                         if (accessToken != null) {
-                            initDriveServiceAndSync(accessToken, showToast);
+                            initDriveServiceAndSync(accessToken);
                         }
                     }
                 })
@@ -472,7 +520,7 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                     Log.e("MainActivity", "Drive authorization failed", e));
     }
 
-    private void initDriveServiceAndSync(String accessToken, boolean showToast) {
+    private void initDriveServiceAndSync(String accessToken) {
         try {
             Drive drive = new Drive.Builder(
                     new NetHttpTransport(),
@@ -482,16 +530,7 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                     .build();
 
             driveServiceHelper = new DriveServiceHelper(drive);
-            Prefs.save(Prefs.PREFS_TOKEN, "signed_in");
-
-            runOnUiThread(() -> {
-                checkLogin();
-                if (showToast) {
-                    Toast.makeText(this,
-                        "Signed in as " + Prefs.getString(Prefs.PREFS_USER_EMAIL, ""),
-                        Toast.LENGTH_SHORT).show();
-                }
-            });
+            performSync();
         } catch (Exception e) {
             Log.e("MainActivity", "Drive init failed", e);
         }
@@ -521,11 +560,9 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
 
     private void triggerSync() {
         if (!isSignedIn()) {
-            refreshLayout.setRefreshing(false);
             return;
         }
 
-        refreshLayout.setRefreshing(true);
         showSyncing(true);
 
         // Get a fresh access token (returns cached token if still valid)
@@ -537,19 +574,12 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                 .authorize(authRequest)
                 .addOnSuccessListener(authResult -> {
                     if (authResult.hasResolution()) {
-                        // Scope not granted — stop refresh
-                        runOnUiThread(() -> {
-                            refreshLayout.setRefreshing(false);
-                            showSyncing(false);
-                        });
+                        runOnUiThread(() -> showSyncing(false));
                         return;
                     }
                     String accessToken = authResult.getAccessToken();
                     if (accessToken == null) {
-                        runOnUiThread(() -> {
-                            refreshLayout.setRefreshing(false);
-                            showSyncing(false);
-                        });
+                        runOnUiThread(() -> showSyncing(false));
                         return;
                     }
                     try {
@@ -562,16 +592,12 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                         driveServiceHelper = new DriveServiceHelper(drive);
                         performSync();
                     } catch (Exception e) {
-                        runOnUiThread(() -> {
-                            refreshLayout.setRefreshing(false);
-                            showSyncing(false);
-                        });
+                        runOnUiThread(() -> showSyncing(false));
                     }
                 })
                 .addOnFailureListener(e -> runOnUiThread(() -> {
-                    refreshLayout.setRefreshing(false);
                     showSyncing(false);
-                    Toast.makeText(this, "Sync failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.sync_failed, Toast.LENGTH_SHORT).show();
                 }));
     }
 
@@ -580,7 +606,10 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
             try (Realm realm = Realm.getDefaultInstance()) {
                 String fileId = Tasks.await(driveServiceHelper.searchFile("assets.json"));
 
-                if (fileId != null) {
+                // Pull from Drive only when local is empty (new install / new device).
+                // If local has data, local is the source of truth — never overwrite with Drive.
+                boolean localEmpty = realm.where(Asset.class).count() == 0;
+                if (fileId != null && localEmpty) {
                     String json = Tasks.await(driveServiceHelper.readFile(fileId));
                     List<Asset> remoteAssets = new Gson().fromJson(json, new TypeToken<List<Asset>>(){}.getType());
                     if (remoteAssets != null && !remoteAssets.isEmpty()) {
@@ -588,6 +617,7 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                     }
                 }
 
+                // Always push local state to Drive
                 List<Asset> localAssets = realm.where(Asset.class).findAll();
                 String localJson = new Gson().toJson(realm.copyFromRealm(localAssets));
 
@@ -599,27 +629,72 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
 
                 runOnUiThread(() -> {
                     updateViews();
-                    refreshLayout.setRefreshing(false);
                     showSyncing(false);
                 });
             } catch (Exception e) {
                 Log.e("MainActivity", "Drive sync error", e);
                 runOnUiThread(() -> {
-                    refreshLayout.setRefreshing(false);
                     showSyncing(false);
-                    Toast.makeText(this, "Sync failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.sync_failed, Toast.LENGTH_SHORT).show();
                 });
             }
         });
     }
 
+    private void confirmClearAllData() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.clear_all_data_confirm_title)
+                .setMessage(R.string.clear_all_data_confirm_msg)
+                .setPositiveButton(android.R.string.ok, (d, w) -> performClearAllData())
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void performClearAllData() {
+        showSyncing(true);
+        executorService.execute(() -> {
+            // 1. Clear local Realm data
+            try (Realm realm = Realm.getDefaultInstance()) {
+                realm.executeTransaction(r -> r.deleteAll());
+            } catch (Exception e) {
+                Log.e("MainActivity", "Clear local data error", e);
+            }
+
+            // 2. Delete Drive file if signed in
+            if (driveServiceHelper != null) {
+                try {
+                    String fileId = Tasks.await(driveServiceHelper.searchFile("assets.json"));
+                    if (fileId != null) {
+                        Tasks.await(driveServiceHelper.deleteFile(fileId));
+                    }
+                } catch (Exception e) {
+                    Log.e("MainActivity", "Clear Drive data error", e);
+                }
+            }
+
+            runOnUiThread(() -> {
+                showSyncing(false);
+                updateViews();
+                Toast.makeText(this, R.string.clear_all_data_success, Toast.LENGTH_SHORT).show();
+            });
+        });
+    }
+
+
     private void showSyncing(boolean syncing) {
         if (syncing) {
-            syncStatus.setVisibility(View.VISIBLE);
-            syncStatus.startAnimation(rotation);
+            syncAnim = ObjectAnimator.ofFloat(monthValue, "alpha", 1f, 0.25f);
+            syncAnim.setDuration(600);
+            syncAnim.setRepeatMode(ObjectAnimator.REVERSE);
+            syncAnim.setRepeatCount(ObjectAnimator.INFINITE);
+            syncAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+            syncAnim.start();
         } else {
-            syncStatus.clearAnimation();
-            syncStatus.setVisibility(View.GONE);
+            if (syncAnim != null) {
+                syncAnim.cancel();
+                syncAnim = null;
+            }
+            monthValue.setAlpha(1f);
         }
     }
 
@@ -902,6 +977,22 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
 
         updateWidget();
         getCommentPreview();
+        updateGoalProgress();
+        updateMiniBar();
+    }
+
+    private void updateMiniBar() {
+        executorService.execute(() -> {
+            java.util.ArrayList<Float> history = new java.util.ArrayList<>();
+            // Get 6 months including current
+            for (int i = 5; i >= 0; i--) {
+                Month m = new Month(month.getMonth(), month.getYear());
+                for (int j = 0; j < i; j++) m.previous();
+                m.calculateValues();
+                history.add((float) m.getValue());
+            }
+            runOnUiThread(() -> miniBarChart.setData(history, 5));
+        });
     }
 
     private void updateWidget() {
@@ -922,6 +1013,43 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         } else {
             preview.setVisibility(View.GONE);
         }
+    }
+
+    private void updateGoalProgress() {
+        float g1 = Prefs.getFloat(Prefs.PREFS_GOAL_1Y, 0f);
+        float g3 = Prefs.getFloat(Prefs.PREFS_GOAL_3Y, 0f);
+        float g5 = Prefs.getFloat(Prefs.PREFS_GOAL_5Y, 0f);
+
+        boolean anyGoal = g1 > 0 || g3 > 0 || g5 > 0;
+        int goalVis = anyGoal ? View.VISIBLE : View.GONE;
+        findViewById(R.id.goalsCard).setVisibility(goalVis);
+        findViewById(R.id.goalsDivider).setVisibility(goalVis);
+        if (!anyGoal) return;
+
+        double current = month.getValue();
+        int setYear = Prefs.getInt(Prefs.PREFS_GOAL_SET_YEAR, Calendar.getInstance().get(Calendar.YEAR));
+
+        updateGoalRow(R.id.goal1yRow, R.id.goal1yLabel, R.id.goal1yBar, R.id.goal1yPercent,
+                g1, current, "1-Year", setYear + 1);
+        updateGoalRow(R.id.goal3yRow, R.id.goal3yLabel, R.id.goal3yBar, R.id.goal3yPercent,
+                g3, current, "3-Year", setYear + 3);
+        updateGoalRow(R.id.goal5yRow, R.id.goal5yLabel, R.id.goal5yBar, R.id.goal5yPercent,
+                g5, current, "5-Year", setYear + 5);
+    }
+
+    private void updateGoalRow(int rowId, int labelId, int barId, int percentId,
+                                float goal, double current, String title, int targetYear) {
+        View row = findViewById(rowId);
+        if (goal <= 0) {
+            row.setVisibility(View.GONE);
+            return;
+        }
+        row.setVisibility(View.VISIBLE);
+        ((TextView) findViewById(labelId)).setText(title + " · " + targetYear);
+
+        int progress = (int) Math.min(Math.max(current / goal * 100, 0), 100);
+        ((android.widget.ProgressBar) findViewById(barId)).setProgress(progress);
+        ((TextView) findViewById(percentId)).setText(progress + "%");
     }
 
     private void showMonthYearPicker() {
@@ -1034,7 +1162,8 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
     }
 
     private String formatStringValue(double d) {
-        String s = String.valueOf(d);
-        return s.endsWith(".0") ? s.substring(0, s.length() - 2) : s;
+        if (Double.isInfinite(d) || Double.isNaN(d)) return "0";
+        java.math.BigDecimal bd = java.math.BigDecimal.valueOf(d);
+        return bd.stripTrailingZeros().toPlainString();
     }
 }

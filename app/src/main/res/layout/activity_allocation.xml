@@ -27,6 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:paddingBottom="56dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <!-- Assets section -->
@@ -125,53 +126,53 @@
 
         </LinearLayout>
 
-        <!-- Bottom month navigation bar -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:orientation="horizontal"
-            android:background="@color/surfaceElevated"
-            android:gravity="center_vertical"
-            android:elevation="8dp">
+    </LinearLayout>
 
-            <ImageView
-                android:id="@+id/previousMonth"
-                android:layout_width="56dp"
-                android:layout_height="match_parent"
-                android:src="@drawable/icon_arrow"
-                android:rotation="90"
-                app:tint="@color/colorAccent"
-                android:padding="16dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:scaleType="fitCenter"
-                android:adjustViewBounds="true"/>
+    <!-- Bottom month navigation bar (floats at bottom, matches main screen) -->
+    <LinearLayout
+        android:id="@+id/bottomAppBar"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:background="@color/surfaceElevated"
+        android:gravity="center_vertical"
+        android:elevation="8dp">
 
-            <TextView
-                android:id="@+id/monthName"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="@color/textPrimary"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"/>
+        <ImageView
+            android:id="@+id/previousMonth"
+            android:layout_width="56dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_chevron_left"
+            app:tint="@color/colorAccent"
+            android:padding="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"/>
 
-            <ImageView
-                android:id="@+id/nextMonth"
-                android:layout_width="56dp"
-                android:layout_height="match_parent"
-                android:src="@drawable/icon_arrow"
-                android:rotation="270"
-                app:tint="@color/colorAccent"
-                android:padding="16dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:scaleType="fitCenter"
-                android:adjustViewBounds="true"/>
+        <TextView
+            android:id="@+id/monthName"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/textPrimary"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"/>
 
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/nextMonth"
+            android:layout_width="56dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_chevron_right"
+            app:tint="@color/colorAccent"
+            android:padding="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"/>
 
     </LinearLayout>
 

@@ -139,7 +139,7 @@ public final class MonthChart extends LineChart {
         dataSet.setLineWidth(2.5f);
         dataSet.setDrawCircles(false);        // no dots on line
         dataSet.setDrawValues(false);         // no value labels on line
-        dataSet.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
+        dataSet.setMode(LineDataSet.Mode.LINEAR);
         dataSet.setDrawFilled(true);
         dataSet.setFillColor(fillColor);
         dataSet.setFillAlpha(60);
