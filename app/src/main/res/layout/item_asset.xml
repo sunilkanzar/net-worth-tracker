@@ -5,110 +5,106 @@
     android:layout_height="wrap_content"
     android:layout_marginStart="12dp"
     android:layout_marginEnd="12dp"
-    android:layout_marginBottom="8dp"
-    app:cardBackgroundColor="@color/backgroundContent"
-    app:cardCornerRadius="12dp"
+    android:layout_marginBottom="4dp"
+    app:cardBackgroundColor="@color/surface"
+    app:cardCornerRadius="8dp"
     app:cardElevation="0dp"
-    app:strokeWidth="1dp"
+    app:strokeWidth="0.5dp"
     app:strokeColor="@color/divider">
 
-    <!-- Root: FrameLayout so sparkline sits behind name/value -->
-    <FrameLayout
+    <LinearLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="12dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="10dp">
 
-        <!-- Sparkline: full width, behind everything, semi-transparent -->
-        <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/assetSparkline"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_gravity="center_vertical"
-            android:alpha="0.28" />
-
-        <!-- Foreground row: name on left, value on right -->
+        <!-- Left: name + weight pill -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/nameContainer"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="14dp"
-            android:gravity="center_vertical">
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-            <!-- Left: name + weight pill -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/assetName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="15sp"
-                    android:textStyle="bold"
-                    android:maxLines="1"
-                    android:ellipsize="none" />
-
-                <TextView
-                    android:id="@+id/assetWeight"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:background="@drawable/bg_pill_asset"
-                    android:paddingHorizontal="6dp"
-                    android:paddingVertical="2dp"
-                    android:textColor="@color/colorAccent"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <!-- Right: value + change -->
-            <LinearLayout
+            <TextView
+                android:id="@+id/assetName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="end"
-                android:orientation="vertical">
+                android:textColor="@color/textPrimary"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:maxLines="1"
+                android:ellipsize="end" />
 
-                <TextView
-                    android:id="@+id/assetValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/assetChangeValue"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
-                        android:textSize="11sp" />
-
-                    <TextView
-                        android:id="@+id/assetChangePercent"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_pill_transparent"
-                        android:paddingHorizontal="5dp"
-                        android:paddingVertical="2dp"
-                        android:textSize="10sp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-            </LinearLayout>
+            <TextView
+                android:id="@+id/assetWeight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="1dp"
+                android:textColor="@color/colorAccent"
+                android:textSize="9sp"
+                android:letterSpacing="0.1"
+                android:textAllCaps="true"
+                android:fontFamily="sans-serif-black"
+                android:background="@drawable/bg_pill_asset" />
 
         </LinearLayout>
 
-    </FrameLayout>
+        <!-- Center: Sparkline -->
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/assetSparkline"
+            android:layout_width="60dp"
+            android:layout_height="20dp"
+            android:layout_marginHorizontal="8dp"
+            android:alpha="0.8" />
+
+        <!-- Right: value + change -->
+        <LinearLayout
+            android:id="@+id/valueContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/assetValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/textPrimary"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-black" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/assetChangeValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:textSize="10sp"
+                    android:fontFamily="sans-serif-light" />
+
+                <TextView
+                    android:id="@+id/assetChangePercent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="9sp"
+                    android:fontFamily="sans-serif-medium" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

@@ -969,7 +969,6 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         monthValue.setText(Tools.formatAmount(month.getValue()));
         percentView.init(month.getPreviousMonth().getValue(), month.getValue());
         percentView.fillValueChange(monthValueChange);
-        ((TextView) findViewById(R.id.percentValue)).setTextColor(ContextCompat.getColor(this, R.color.textOnPrimary));
 
         // Previous month value
         double prevValue = month.getPreviousMonth().getValue();

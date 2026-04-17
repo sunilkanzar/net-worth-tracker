@@ -81,6 +81,13 @@ public class AssetTrendActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_trend, menu);
+        
+        // Tint filter icon based on theme
+        MenuItem filterItem = menu.findItem(R.id.action_select_assets);
+        if (filterItem != null && filterItem.getIcon() != null) {
+            filterItem.getIcon().setTint(ContextCompat.getColor(this, R.color.textPrimary));
+        }
+
         return true;
     }
 

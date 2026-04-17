@@ -42,19 +42,24 @@ public class PercentView extends LinearLayout {
 
         TextView percentValue = findViewById(R.id.percentValue);
 
-        String arrow = valueChange > 0 ? "▲ " : valueChange < 0 ? "▼ " : "● ";
+        String arrow = valueChange >= 0 ? "▲ " : "▼ ";
         percentValue.setText(arrow + Tools.formatPercent(Math.abs(this.percent)));
 
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(24f);
-        bg.setColor(pillColor(this.percent, this.valueChange));
+        int color = pillColor(this.percent, this.valueChange);
+        bg.setColor(color);
         percentValue.setBackground(bg);
+
+        // Ensure text color is vibrant and matches the state
+        percentValue.setTextColor(valueChange >= 0 ? 
+                ContextCompat.getColor(getContext(), R.color.positive) : 
+                ContextCompat.getColor(getContext(), R.color.negative));
     }
 
     public String getValueChangeString(boolean roundUp) {
-        String sign = (this.valueChange > 0) ? "+" : "";
         double val = roundUp ? Math.round(this.valueChange) : this.valueChange;
-        return sign + Tools.formatAmount(val);
+        return Tools.formatAmount(val);
     }
 
     private int getValueVisibility() {
@@ -77,24 +82,13 @@ public class PercentView extends LinearLayout {
         textView.setTextColor(ContextCompat.getColor(getContext(), Tools.getTextChangeColor(this.valueChange)));
     }
 
-    // neutral #546E7A → deep green #1B5E20 or deep red #7F0000
-    // t = 0 at 0%, t = 1 at ±10% (MONTH_MAX_PERCENTAGE cap)
-    private static int pillColor(double percent, double valueChange) {
-        double t = Math.min(Math.abs(percent) / 5.0, 1.0);
-        int nr = 84, ng = 110, nb = 122; // #546E7A neutral
-        int tr, tg, tb;
-        if (valueChange > 0) {
-            tr = 27;  tg = 94;  tb = 32;  // #1B5E20 deep green
-        } else if (valueChange < 0) {
-            tr = 127; tg = 0;   tb = 0;   // #7F0000 deep red
-        } else {
-            return Color.rgb(nr, ng, nb);
-        }
-        return Color.rgb(
-            (int)(nr + t * (tr - nr)),
-            (int)(ng + t * (tg - ng)),
-            (int)(nb + t * (tb - nb))
-        );
+    private int pillColor(double percent, double valueChange) {
+        if (valueChange == 0) return 0xFF546E7A;
+        int colorRes = valueChange > 0 ? R.color.positive : R.color.negative;
+        int baseColor = ContextCompat.getColor(getContext(), colorRes);
+        // Calculate a subtle shade by using 15% opacity of the base color
+        // This creates a "tinted" background that matches the theme's premium look
+        return Tools.adjustAlpha(baseColor, 0.15f);
     }
 
     public double getPercent() { return percent; }

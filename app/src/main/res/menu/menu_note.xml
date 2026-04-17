@@ -5,6 +5,6 @@
         android:id="@+id/action_save_note"
         android:icon="@drawable/icon_save"
         android:title="Save"
-        app:iconTint="@color/textOnPrimary"
+        app:iconTint="@color/textPrimary"
         app:showAsAction="always"/>
 </menu>

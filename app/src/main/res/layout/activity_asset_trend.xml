@@ -9,17 +9,17 @@
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
-        android:elevation="6dp">
+        android:background="@color/background"
+        app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:title="@string/drawer_asset_trend"
-            app:titleTextColor="@color/textOnPrimary"
-            app:navigationIcon="@drawable/ic_keyboard_arrow_left_black_24dp"
-            app:navigationIconTint="@color/textOnPrimary"/>
+            app:titleTextColor="@color/textPrimary"
+            app:navigationIcon="@drawable/ic_chevron_left"
+            app:navigationIconTint="@color/textPrimary"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 

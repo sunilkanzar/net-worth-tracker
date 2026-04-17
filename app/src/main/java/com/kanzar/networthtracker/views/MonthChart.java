@@ -47,9 +47,9 @@ public final class MonthChart extends LineChart {
 
         setTouchEnabled(true);
         setDragEnabled(true);
-        setScaleEnabled(true);
-        setPinchZoom(true);
-        setDoubleTapToZoomEnabled(true);
+        setScaleEnabled(false);
+        setPinchZoom(false);
+        setDoubleTapToZoomEnabled(false);
         setBackgroundColor(Color.TRANSPARENT);
         setGridBackgroundColor(Color.TRANSPARENT);
         setDrawGridBackground(false);
@@ -61,7 +61,7 @@ public final class MonthChart extends LineChart {
 
         getLegend().setEnabled(false);
 
-        setExtraOffsets(8f, 16f, 8f, 8f);
+        setExtraOffsets(12f, 16f, 12f, 16f);
 
         // X axis
         XAxis xAxis = getXAxis();
@@ -69,18 +69,21 @@ public final class MonthChart extends LineChart {
         xAxis.setDrawGridLines(false);
         xAxis.setDrawAxisLine(false);
         xAxis.setTextColor(labelColor);
-        xAxis.setTextSize(10f);
+        xAxis.setTextSize(9f);
         xAxis.setGranularity(1.0f);
         xAxis.setAvoidFirstLastClipping(true);
+        xAxis.setYOffset(10f);
 
         // Y axis (left)
         YAxis axisLeft = getAxisLeft();
         axisLeft.setDrawAxisLine(false);
+        axisLeft.setDrawGridLines(true);
         axisLeft.setTextColor(labelColor);
-        axisLeft.setTextSize(10f);
+        axisLeft.setTextSize(9f);
         axisLeft.setGridColor(gridColor);
-        axisLeft.setGridLineWidth(1f);
-        axisLeft.setLabelCount(6, false);
+        axisLeft.setGridLineWidth(0.5f);
+        axisLeft.setLabelCount(5, false);
+        axisLeft.setXOffset(10f);
         axisLeft.setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
@@ -135,18 +138,18 @@ public final class MonthChart extends LineChart {
 
         LineDataSet dataSet = new LineDataSet(entries, "");
         dataSet.setColor(accentColor);
-        dataSet.setLineWidth(2.5f);
+        dataSet.setLineWidth(2.0f);
         dataSet.setDrawCircles(false);        // no dots on line
         dataSet.setDrawValues(false);         // no value labels on line
-        dataSet.setMode(LineDataSet.Mode.LINEAR);
+        dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
         dataSet.setDrawFilled(true);
-        dataSet.setFillColor(fillColor);
-        dataSet.setFillAlpha(60);
-        dataSet.setHighLightColor(ContextCompat.getColor(getContext(), R.color.colorAccent));
+        dataSet.setFillColor(accentColor);
+        dataSet.setFillAlpha(30);
+        dataSet.setHighLightColor(accentColor);
         dataSet.setDrawHorizontalHighlightIndicator(false);
         // Show a single dot at the selected/highlighted point
         dataSet.setDrawHighlightIndicators(true);
-        dataSet.setHighlightLineWidth(1.5f);
+        dataSet.setHighlightLineWidth(1.0f);
 
         LineData lineData = new LineData(dataSet);
         lineData.setDrawValues(false);

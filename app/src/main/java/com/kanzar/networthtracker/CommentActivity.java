@@ -4,6 +4,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.kanzar.networthtracker.helpers.Month;
 import com.kanzar.networthtracker.helpers.Prefs;
 import com.kanzar.networthtracker.models.AssetFields;
 
@@ -25,6 +26,9 @@ public class CommentActivity extends AppCompatActivity {
         monthComment.setText(Prefs.getString(noteKey, ""));
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        Month currentMonth = new Month(month, year);
+        toolbar.setTitle("Note For " + currentMonth.toString());
+
         toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
         toolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.action_save_note) {

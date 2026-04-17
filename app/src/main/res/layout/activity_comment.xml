@@ -10,12 +10,12 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorPrimary"
-        android:elevation="4dp"
+        android:background="@color/background"
+        app:elevation="0dp"
         app:title="Month Note"
-        app:titleTextColor="@color/textOnPrimary"
-        app:navigationIcon="@drawable/ic_keyboard_arrow_left_black_24dp"
-        app:navigationIconTint="@color/textOnPrimary"
+        app:titleTextColor="@color/textPrimary"
+        app:navigationIcon="@drawable/ic_chevron_left"
+        app:navigationIconTint="@color/textPrimary"
         app:menu="@menu/menu_note"/>
 
     <com.google.android.material.textfield.TextInputEditText

@@ -60,7 +60,7 @@ public class TrendMarkerView extends MarkerView {
         tvAsset.setText(assetName);
         tvMonth.setText(monthLabel);
         tvValue.setText(Tools.formatAmount(value, true));
-        tvValue.setTextColor(isLiability ? 0xFFFF5252 : 0xFF00C853);
+        tvValue.setTextColor(isLiability ? 0xFFFF5252 : 0xFF00E5FF);
 
         super.refreshContent(e, highlight);
     }

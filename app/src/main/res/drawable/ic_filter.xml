@@ -4,7 +4,8 @@
     android:height="24dp"
     android:viewportWidth="24"
     android:viewportHeight="24">
+    <!-- Modern "Sliders" style filter icon -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M3,4h18v2.586l-7,7V20l-4,-2v-6.414L3,4.586V4zM5.414,6L10,10.586V17l4,2v-8.414L18.586,6H5.414z"/>
+        android:pathData="M3,17h12v2H3V17z M3,5h18v2H3V5z M3,11h18v2H3V11z M19,15h2v6h-2V15z M15,9h2v6h-2V9z M7,3h2v6H7V3z"/>
 </vector>

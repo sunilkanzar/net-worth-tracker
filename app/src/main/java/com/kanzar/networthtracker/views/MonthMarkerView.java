@@ -13,6 +13,8 @@ import com.kanzar.networthtracker.R;
 import com.kanzar.networthtracker.helpers.Month;
 import com.kanzar.networthtracker.helpers.Tools;
 
+import androidx.core.content.ContextCompat;
+
 import java.util.List;
 
 public class MonthMarkerView extends MarkerView {
@@ -54,13 +56,10 @@ public class MonthMarkerView extends MarkerView {
         tvMonth.setText(month.toString());
         tvValue.setText(Tools.formatAmount(value, true));
 
-        String sign = change >= 0 ? "+" : "";
-        String changeStr = sign + Tools.formatAmount(change, true);
-        String pct = String.format(Locale.getDefault(), "%.1f%%", month.getPercent());
+        String changeStr = Tools.formatAmount(change, true);
+        String pct = String.format(Locale.getDefault(), "%.1f%%", Math.abs(month.getPercent()));
         tvChange.setText(changeStr + "  (" + pct + ")");
-        tvChange.setTextColor(change >= 0
-                ? 0xFF00C853   // positive green
-                : 0xFFFF5252); // negative red
+        tvChange.setTextColor(ContextCompat.getColor(getContext(), Tools.getTextChangeColor(change)));
 
         super.refreshContent(e, highlight);
     }

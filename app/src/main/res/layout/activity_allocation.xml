@@ -8,17 +8,17 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
-        android:elevation="6dp">
+        android:background="@color/background"
+        app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:title="@string/drawer_allocation"
-            app:titleTextColor="@color/textOnPrimary"
-            app:navigationIcon="@drawable/ic_keyboard_arrow_left_black_24dp"
-            app:navigationIconTint="@color/textOnPrimary"/>
+            app:titleTextColor="@color/textPrimary"
+            app:navigationIcon="@drawable/ic_chevron_left"
+            app:navigationIconTint="@color/textPrimary"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -52,18 +52,18 @@
                     android:layout_weight="1"
                     android:text="@string/allocation_assets"
                     android:textColor="@color/textSecondary"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
+                    android:textSize="10sp"
+                    android:fontFamily="sans-serif-black"
                     android:textAllCaps="true"
-                    android:letterSpacing="0.08"/>
+                    android:letterSpacing="0.2"/>
 
                 <TextView
                     android:id="@+id/assetTotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/colorAccent"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-black"/>
 
             </LinearLayout>
 
@@ -103,18 +103,18 @@
                     android:layout_weight="1"
                     android:text="@string/allocation_liabilities"
                     android:textColor="@color/textSecondary"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
+                    android:textSize="10sp"
+                    android:fontFamily="sans-serif-black"
                     android:textAllCaps="true"
-                    android:letterSpacing="0.08"/>
+                    android:letterSpacing="0.2"/>
 
                 <TextView
                     android:id="@+id/liabilityTotal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="#FF5252"
-                    android:textSize="16sp"
-                    android:textStyle="bold"/>
+                    android:textColor="@color/negative"
+                    android:textSize="14sp"
+                    android:fontFamily="sans-serif-black"/>
 
             </LinearLayout>
 
@@ -129,51 +129,60 @@
     </LinearLayout>
 
     <!-- Bottom month navigation bar (floats at bottom, matches main screen) -->
-    <LinearLayout
-        android:id="@+id/bottomAppBar"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="48dp"
         android:layout_gravity="bottom"
-        android:orientation="horizontal"
-        android:background="@color/surfaceElevated"
-        android:gravity="center_vertical"
-        android:elevation="8dp">
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="12dp"
+        app:cardBackgroundColor="@color/surface"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="4dp"
+        app:strokeWidth="0.5dp"
+        app:strokeColor="#33FFFFFF">
 
-        <ImageView
-            android:id="@+id/previousMonth"
-            android:layout_width="56dp"
+        <LinearLayout
+            android:id="@+id/bottomAppBar"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_chevron_left"
-            app:tint="@color/colorAccent"
-            android:padding="16dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:scaleType="fitCenter"
-            android:adjustViewBounds="true"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-        <TextView
-            android:id="@+id/monthName"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="@color/textPrimary"
-            android:background="?attr/selectableItemBackground"
-            android:clickable="true"
-            android:focusable="true"/>
+            <ImageView
+                android:id="@+id/previousMonth"
+                android:layout_width="56dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_chevron_left"
+                app:tint="@color/colorAccent"
+                android:padding="16dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:scaleType="fitCenter" />
 
-        <ImageView
-            android:id="@+id/nextMonth"
-            android:layout_width="56dp"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_chevron_right"
-            app:tint="@color/colorAccent"
-            android:padding="16dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:scaleType="fitCenter"
-            android:adjustViewBounds="true"/>
+            <TextView
+                android:id="@+id/monthName"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/textPrimary"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true" />
 
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/nextMonth"
+                android:layout_width="56dp"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_chevron_right"
+                app:tint="@color/colorAccent"
+                android:padding="16dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:scaleType="fitCenter" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

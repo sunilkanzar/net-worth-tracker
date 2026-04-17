@@ -1,30 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Light Mode Colors (Defaults) -->
-    <color name="colorPrimary">#1976D2</color>
-    <color name="colorPrimaryDark">#1565C0</color>
-    <color name="colorPrimaryLight">#42A5F5</color>
-    <color name="colorAccent">#1E88E5</color>
+    <!-- Light Mode: CRED-Inspired Premium -->
+    <color name="colorPrimary">#000000</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorPrimaryLight">#1A1A1A</color>
+    <color name="colorAccent">#00E5FF</color> <!-- CRED Cyan -->
 
-    <color name="background">#F5F7FA</color>
+    <color name="background">#F4F5F7</color>
     <color name="backgroundContent">#FFFFFF</color>
-    <color name="backgroundHelper">#EDF2F7</color>
+    <color name="backgroundHelper">#EDF0F2</color>
     <color name="surface">#FFFFFF</color>
     <color name="surfaceElevated">#FFFFFF</color>
 
-    <color name="textPrimary">#1E3A5F</color>
-    <color name="textSecondary">#546E7A</color>
+    <color name="textPrimary">#121212</color>
+    <color name="textSecondary">#5E5E5E</color>
     <color name="textOnPrimary">#FFFFFF</color>
-    <color name="textHint">#90A4AE</color>
+    <color name="textHint">#ADADAD</color>
 
-    <color name="positive">#00C853</color>
-    <color name="negative">#D32F2F</color>
+    <color name="positive">#00AB55</color>
+    <color name="negative">#FF4842</color>
 
-    <color name="divider">#CFD8DC</color>
-    <color name="empty_directory_hint">#B0BEC5</color>
-    <color name="ic_launcher_background">#1565C0</color>
+    <color name="divider">#E0E0E0</color>
+    <color name="empty_directory_hint">#ADADAD</color>
+    <color name="ic_launcher_background">#000000</color>
     <color name="transparent">#00000000</color>
 
     <!-- Legacy -->
-    <color name="text">#1E3A5F</color>
+    <color name="text">#121212</color>
+    <color name="textHeader">#5E5E5E</color>
 </resources>

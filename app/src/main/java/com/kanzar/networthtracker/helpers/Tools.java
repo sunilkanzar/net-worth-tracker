@@ -11,9 +11,8 @@ public final class Tools {
     private Tools() {}
 
     public static int getTextChangeColor(double valueChange) {
-        if (valueChange > 0) return R.color.positive;
-        if (valueChange < 0) return R.color.negative;
-        return R.color.text;
+        if (valueChange >= 0) return R.color.positive;
+        return R.color.negative;
     }
 
     public static double getPercent(double previous, double current) {
@@ -62,7 +61,7 @@ public final class Tools {
 
     public static String formatPercent(double price) {
         if (Double.isNaN(price)) return "0%";
-        return new DecimalFormat("0.00").format(price) + "%";
+        return new DecimalFormat("#.##").format(price) + "%";
     }
 
     public static String formatAmount(double amount) {
@@ -76,7 +75,7 @@ public final class Tools {
         String currency = Prefs.getString(Prefs.PREFS_CURRENCY, "");
         String formatted;
         if ("NONE".equals(format)) {
-            formatted = new DecimalFormat("0.##").format(value);
+            formatted = new DecimalFormat("#.##").format(value);
         } else {
             String pattern = "IN".equals(format) ? "#,##,##,###.##" : "#,###.##";
             DecimalFormat df = new DecimalFormat(pattern);

@@ -19,12 +19,17 @@ import com.kanzar.networthtracker.helpers.Month;
 import io.realm.Realm;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> {
+public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+    private static final int TYPE_HEADER = 0;
+    private static final int TYPE_ITEM = 1;
 
     private final Context context;
-    private List<? extends Asset> items;
+    private List<Object> displayItems = new ArrayList<>();
+    private List<? extends Asset> originalItems;
     private final OnItemClickListener listener;
 
     public interface OnItemClickListener {
@@ -40,25 +45,63 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
 
     @SuppressWarnings("unchecked")
     public List<Asset> getItems() {
-        return (List<Asset>) items;
+        return (List<Asset>) originalItems;
     }
 
     public void setItems(List<? extends Asset> items) {
-        this.items = items;
+        this.originalItems = items;
+        this.displayItems = new ArrayList<>();
+
+        if (items != null && !items.isEmpty()) {
+            List<Asset> assets = new ArrayList<>();
+            List<Asset> liabilities = new ArrayList<>();
+
+            for (Asset asset : items) {
+                if (asset.getValue() >= 0) {
+                    assets.add(asset);
+                } else {
+                    liabilities.add(asset);
+                }
+            }
+
+            Comparator<Asset> valueComparator = (a1, a2) -> Double.compare(Math.abs(a2.getValue()), Math.abs(a1.getValue()));
+            Collections.sort(assets, valueComparator);
+            Collections.sort(liabilities, valueComparator);
+
+            if (!assets.isEmpty()) {
+                displayItems.add("ASSETS");
+                displayItems.addAll(assets);
+            }
+            if (!liabilities.isEmpty()) {
+                displayItems.add("LIABILITIES");
+                displayItems.addAll(liabilities);
+            }
+        }
+
         notifyDataSetChanged();
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return displayItems.get(position) instanceof String ? TYPE_HEADER : TYPE_ITEM;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_asset, parent, false);
-        return new ViewHolder(v);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == TYPE_HEADER) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_header, parent, false);
+            return new HeaderViewHolder(v);
+        } else {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_asset, parent, false);
+            return new ViewHolder(v);
+        }
     }
 
     private double getTotalAssets() {
         double sum = 0.0;
-        if (items != null) {
-            for (Asset asset : items) {
+        if (originalItems != null) {
+            for (Asset asset : originalItems) {
                 if (!asset.isHelper() && asset.getValue() > 0) {
                     sum += asset.getValue();
                 }
@@ -69,8 +112,8 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
 
     private double getTotalLiabilities() {
         double sum = 0.0;
-        if (items != null) {
-            for (Asset asset : items) {
+        if (originalItems != null) {
+            for (Asset asset : originalItems) {
                 if (!asset.isHelper() && asset.getValue() < 0) {
                     sum += asset.getValue();
                 }
@@ -80,27 +123,41 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        final Asset asset = items.get(position);
-        holder.bind(asset, context, getTotalAssets(), getTotalLiabilities());
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        Object item = displayItems.get(position);
+        if (holder instanceof HeaderViewHolder) {
+            ((HeaderViewHolder) holder).headerText.setText((String) item);
+        } else if (holder instanceof ViewHolder) {
+            final Asset asset = (Asset) item;
+            ((ViewHolder) holder).bind(asset, context, getTotalAssets(), getTotalLiabilities());
 
-        holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onItemClick(asset);
-            }
-        });
+            holder.itemView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onItemClick(asset);
+                }
+            });
 
-        holder.itemView.setOnLongClickListener(v -> {
-            if (listener != null) {
-                listener.onItemLongClick(asset);
-            }
-            return true;
-        });
+            holder.itemView.setOnLongClickListener(v -> {
+                if (listener != null) {
+                    listener.onItemLongClick(asset);
+                }
+                return true;
+            });
+        }
     }
 
     @Override
     public int getItemCount() {
-        return items != null ? items.size() : 0;
+        return displayItems.size();
+    }
+
+    public static class HeaderViewHolder extends RecyclerView.ViewHolder {
+        TextView headerText;
+
+        public HeaderViewHolder(@NonNull View itemView) {
+            super(itemView);
+            headerText = (TextView) itemView.findViewById(R.id.headerText);
+        }
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -143,7 +200,7 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
             double prevVal = previous != null ? previous.getValue() : 0.0;
 
             if (asset.isHelper()) {
-                container.setBackgroundColor(ContextCompat.getColor(context, R.color.backgroundHelper));
+                container.setBackgroundColor(ContextCompat.getColor(context, R.color.transparent));
                 assetValue.setVisibility(View.GONE);
                 assetWeight.setVisibility(View.GONE);
                 assetChangeValue.setVisibility(View.VISIBLE);
@@ -152,9 +209,9 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
 
                 String helperText = context.getString(R.string.helper_text, asset.getName());
                 assetChangeValue.setText(helperText);
-                assetChangeValue.setTextColor(ContextCompat.getColor(context, R.color.text));
+                assetChangeValue.setTextColor(ContextCompat.getColor(context, R.color.textSecondary));
             } else {
-                container.setBackgroundColor(ContextCompat.getColor(context, R.color.backgroundContent));
+                container.setBackgroundColor(ContextCompat.getColor(context, R.color.transparent));
                 assetValue.setVisibility(View.VISIBLE);
                 assetWeight.setVisibility(View.VISIBLE);
                 assetChangeValue.setVisibility(View.VISIBLE);
@@ -166,12 +223,11 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
                 int color = ContextCompat.getColor(context, Tools.getTextChangeColor(change));
                 
                 assetValue.setText(Tools.formatAmount(asset.getValue()));
-                assetChangeValue.setText((change >= 0 ? "+" : "") + Tools.formatAmount(change));
+                assetChangeValue.setText(Tools.formatAmount(change));
                 assetChangeValue.setTextColor(color);
                 
-                assetChangePercent.setText(Tools.formatPercent(Tools.getPercent(prevVal, asset.getValue())));
+                assetChangePercent.setText(Tools.formatPercent(Math.abs(Tools.getPercent(prevVal, asset.getValue()))));
                 assetChangePercent.setTextColor(color);
-                assetChangePercent.getBackground().setTint(Tools.adjustAlpha(color, 0.1f));
 
                 // Weight Row
                 boolean isAsset = asset.getValue() >= 0;
@@ -182,7 +238,7 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
                 assetWeight.setTextColor(ContextCompat.getColor(context, isAsset ? R.color.colorAccent : R.color.negative));
 
                 // Sparkline Data
-                int chartColor = ContextCompat.getColor(context, R.color.colorAccent);
+                int chartColor = isAsset ? ContextCompat.getColor(context, R.color.colorAccent) : ContextCompat.getColor(context, R.color.negative);
                 loadSparklineData(asset, chartColor);
             }
         }
