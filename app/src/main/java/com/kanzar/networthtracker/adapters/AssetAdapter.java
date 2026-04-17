@@ -37,12 +37,8 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
         this.listener = (OnItemClickListener) context;
     }
 
-    public AssetAdapter(List<? extends Asset> items, Context context, OnItemClickListener listener) {
-        this.items = items;
-        this.context = context;
-        this.listener = listener;
-    }
 
+    @SuppressWarnings("unchecked")
     public List<Asset> getItems() {
         return (List<Asset>) items;
     }
@@ -196,15 +192,17 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
             Month m = new Month(asset.getMonth(), asset.getYear());
             
             // Get last 12 months
-            for (int i = 0; i < 12; i++) {
-                Asset historical = Realm.getDefaultInstance().where(Asset.class)
-                        .equalTo("name", asset.getName())
-                        .equalTo("month", m.getMonth())
-                        .equalTo("year", m.getYear())
-                        .findFirst();
-                
-                entries.add(new Entry(11 - i, (float) (historical != null ? historical.getValue() : 0.0)));
-                m.previous();
+            try (Realm realm = Realm.getDefaultInstance()) {
+                for (int i = 0; i < 12; i++) {
+                    Asset historical = realm.where(Asset.class)
+                            .equalTo("name", asset.getName())
+                            .equalTo("month", m.getMonth())
+                            .equalTo("year", m.getYear())
+                            .findFirst();
+
+                    entries.add(new Entry(11 - i, (float) (historical != null ? historical.getValue() : 0.0)));
+                    m.previous();
+                }
             }
             
             Collections.reverse(entries);
@@ -215,13 +213,11 @@ public class AssetAdapter extends RecyclerView.Adapter<AssetAdapter.ViewHolder> 
 
             LineDataSet dataSet = new LineDataSet(entries, "");
             dataSet.setColor(color);
-            dataSet.setLineWidth(2f);
+            dataSet.setLineWidth(1f);
             dataSet.setDrawCircles(false);
             dataSet.setDrawValues(false);
             dataSet.setMode(LineDataSet.Mode.LINEAR);
-            dataSet.setDrawFilled(true);
-            dataSet.setFillColor(color);
-            dataSet.setFillAlpha(30);
+            dataSet.setDrawFilled(false);
 
             assetSparkline.setData(new LineData(dataSet));
             assetSparkline.invalidate();

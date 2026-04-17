@@ -16,6 +16,7 @@ public final class Prefs {
     public static final String PREFS_CURRENCY = "currency_symbol";
     public static final String PREFS_NUMBER_FORMAT = "number_format";
     public static final String PREFS_NUMBER_SEPARATOR = "number_separator";
+    public static final String PREFS_THEME = "app_theme";
     private static final String CORE_PREFS = "CORE_PREFS";
 
     private Prefs() {}

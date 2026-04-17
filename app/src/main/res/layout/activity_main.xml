@@ -559,7 +559,7 @@
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="GOALS"
+                            android:text="@string/goal_header"
                             android:textAllCaps="true"
                             android:letterSpacing="0.12"
                             android:textColor="@color/colorAccent"
@@ -590,10 +590,12 @@
 
                         <TextView
                             android:id="@+id/goal1yLabel"
-                            android:layout_width="60dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="@color/textSecondary"
-                            android:textSize="10sp"/>
+                            android:textSize="10sp"
+                            android:maxLines="1"
+                            android:ellipsize="end"/>
 
                         <ProgressBar
                             android:id="@+id/goal1yBar"
@@ -630,10 +632,12 @@
 
                         <TextView
                             android:id="@+id/goal3yLabel"
-                            android:layout_width="60dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="@color/textSecondary"
-                            android:textSize="10sp"/>
+                            android:textSize="10sp"
+                            android:maxLines="1"
+                            android:ellipsize="end"/>
 
                         <ProgressBar
                             android:id="@+id/goal3yBar"
@@ -669,10 +673,12 @@
 
                         <TextView
                             android:id="@+id/goal5yLabel"
-                            android:layout_width="60dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="@color/textSecondary"
-                            android:textSize="10sp"/>
+                            android:textSize="10sp"
+                            android:maxLines="1"
+                            android:ellipsize="end"/>
 
                         <ProgressBar
                             android:id="@+id/goal5yBar"
@@ -752,22 +758,6 @@
                     android:textColor="@color/textPrimary"
                     android:textSize="15sp"
                     app:drawableStartCompat="@drawable/ic_overview"
-                    app:drawableTint="@color/textSecondary" />
-
-                <TextView
-                    android:id="@+id/navPreferences"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="?android:attr/selectableItemBackground"
-                    android:drawablePadding="16dp"
-                    android:paddingStart="20dp"
-                    android:paddingTop="12dp"
-                    android:paddingEnd="20dp"
-                    android:paddingBottom="12dp"
-                    android:text="@string/drawer_preferences"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="15sp"
-                    app:drawableStartCompat="@drawable/ic_settings"
                     app:drawableTint="@color/textSecondary" />
 
                 <View
@@ -930,8 +920,29 @@
 
                 </LinearLayout>
 
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@color/divider" />
+
                 <TextView
-                    android:id="@+id/navClearAllData"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="0.1"
+                    android:paddingStart="20dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:text="@string/drawer_section_other"
+                    android:textAllCaps="true"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/navPreferences"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="?android:attr/selectableItemBackground"
@@ -940,12 +951,11 @@
                     android:paddingTop="12dp"
                     android:paddingEnd="20dp"
                     android:paddingBottom="12dp"
-                    android:text="@string/drawer_clear_all_data"
-                    android:textColor="#CF6679"
+                    android:text="@string/drawer_preferences"
+                    android:textColor="@color/textPrimary"
                     android:textSize="15sp"
-                    app:drawableStartCompat="@drawable/ic_delete"
-                    app:drawableTint="#CF6679" />
-
+                    app:drawableStartCompat="@drawable/ic_settings"
+                    app:drawableTint="@color/textSecondary" />
 
             </LinearLayout>
         </ScrollView>

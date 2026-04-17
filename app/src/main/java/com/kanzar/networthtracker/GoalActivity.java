@@ -36,12 +36,9 @@ public class GoalActivity extends AppCompatActivity {
         // Target year labels
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
         int setYear = Prefs.getInt(Prefs.PREFS_GOAL_SET_YEAR, currentYear);
-        ((TextView) findViewById(R.id.label1y)).setText(
-                getString(R.string.goal_1y_label) + " · " + (setYear + 1));
-        ((TextView) findViewById(R.id.label3y)).setText(
-                getString(R.string.goal_3y_label) + " · " + (setYear + 3));
-        ((TextView) findViewById(R.id.label5y)).setText(
-                getString(R.string.goal_5y_label) + " · " + (setYear + 5));
+        ((TextView) findViewById(R.id.label1y)).setText(getString(R.string.goal_1y_label_with_year, setYear + 1));
+        ((TextView) findViewById(R.id.label3y)).setText(getString(R.string.goal_3y_label_with_year, setYear + 3));
+        ((TextView) findViewById(R.id.label5y)).setText(getString(R.string.goal_5y_label_with_year, setYear + 5));
 
         // Pre-fill existing goals
         float g1 = Prefs.getFloat(Prefs.PREFS_GOAL_1Y, 0f);

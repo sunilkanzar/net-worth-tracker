@@ -51,7 +51,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/allocation_assets"
-                    android:textColor="@color/textOnPrimary"
+                    android:textColor="@color/textSecondary"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:textAllCaps="true"
@@ -79,7 +79,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#20FFFFFF"/>
+            android:background="@color/divider"/>
 
         <!-- Liabilities section -->
         <LinearLayout
@@ -102,7 +102,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/allocation_liabilities"
-                    android:textColor="@color/textOnPrimary"
+                    android:textColor="@color/textSecondary"
                     android:textSize="13sp"
                     android:textStyle="bold"
                     android:textAllCaps="true"

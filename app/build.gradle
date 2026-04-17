@@ -57,13 +57,9 @@ dependencies {
     implementation 'org.greenrobot:eventbus:3.3.1'
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
     implementation 'com.amplitude:android-sdk:3.35.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
 
     implementation 'com.google.code.gson:gson:2.13.2'
-    implementation 'com.squareup.retrofit2:retrofit:3.0.0'
-    implementation 'com.squareup.retrofit2:converter-gson:3.0.0'
-    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.14'
-    implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.14'
-    debugImplementation 'com.facebook.stetho:stetho-okhttp3:1.6.0'
 
     implementation 'androidx.activity:activity:1.13.0'
 }

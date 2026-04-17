@@ -11,7 +11,7 @@
         android:id="@+id/markerMonth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/textOnPrimary"
         android:textSize="12sp"
         android:textStyle="bold"
         android:alpha="0.7"/>
@@ -20,7 +20,7 @@
         android:id="@+id/markerValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/textOnPrimary"
         android:textSize="16sp"
         android:textStyle="bold"
         android:layout_marginTop="2dp"/>

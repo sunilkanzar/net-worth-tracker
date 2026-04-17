@@ -9,16 +9,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
-        android:elevation="6dp">
+        android:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="@string/pref_activity_title"
-            app:titleTextColor="@color/textOnPrimary"
             app:navigationIcon="@drawable/ic_chevron_left"
-            app:navigationIconTint="@color/textOnPrimary" />
+            app:navigationIconTint="@color/textOnPrimary"
+            app:title="@string/pref_activity_title"
+            app:titleTextColor="@color/textOnPrimary" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -31,262 +31,91 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:orientation="vertical">
 
-            <!-- Preview Card -->
-            <androidx.cardview.widget.CardView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/colorPrimary"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp">
+                android:orientation="vertical"
+                android:padding="16dp">
 
-                <LinearLayout
+                <!-- SECTION: NUMBER -->
+                <TextView
+                    style="@style/PreferenceSectionHeader"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
+                    android:text="@string/pref_section_number" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
-                        android:letterSpacing="0.12"
-                        android:text="@string/pref_preview_label"
-                        android:textAllCaps="true"
-                        android:textColor="#80FFFFFF"
-                        android:textSize="10sp" />
-
-                    <TextView
-                        android:id="@+id/previewAmount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/textOnPrimary"
-                        android:textSize="28sp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Currency Symbol Card -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/backgroundContent"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        android:letterSpacing="0.12"
-                        android:text="@string/pref_currency_label"
-                        android:textAllCaps="true"
-                        android:textColor="@color/colorAccent"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
-
-                    <RadioGroup
-                        android:id="@+id/rgCurrency"
+                <androidx.cardview.widget.CardView style="@style/PreferenceCard">
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
 
-                        <RadioButton
-                            android:id="@+id/rbCurrencyNone"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:padding="8dp"
-                            android:text="@string/pref_currency_none"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="15sp" />
+                        <include
+                            android:id="@+id/rowCurrency"
+                            layout="@layout/item_preference_row" />
 
-                        <RadioButton
-                            android:id="@+id/rbCurrencyInr"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:padding="8dp"
-                            android:text="@string/pref_currency_inr"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="15sp" />
+                        <View style="@style/PreferenceDivider" />
 
-                        <RadioButton
-                            android:id="@+id/rbCurrencyUsd"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:padding="8dp"
-                            android:text="@string/pref_currency_usd"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="15sp" />
+                        <include
+                            android:id="@+id/rowFormat"
+                            layout="@layout/item_preference_row" />
 
-                        <RadioButton
-                            android:id="@+id/rbCurrencyEur"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:padding="8dp"
-                            android:text="@string/pref_currency_eur"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="15sp" />
+                        <View style="@style/PreferenceDivider" />
 
-                        <RadioButton
-                            android:id="@+id/rbCurrencyGbp"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:padding="8dp"
-                            android:text="@string/pref_currency_gbp"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="15sp" />
+                        <include
+                            android:id="@+id/rowSeparator"
+                            layout="@layout/item_preference_row" />
 
-                        <RadioButton
-                            android:id="@+id/rbCurrencyJpy"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:padding="8dp"
-                            android:text="@string/pref_currency_jpy"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="15sp" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
 
-                    </RadioGroup>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Number Format Card -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/backgroundContent"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp">
-
-                <LinearLayout
+                <!-- SECTION: APPEARANCE -->
+                <TextView
+                    style="@style/PreferenceSectionHeader"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
+                    android:layout_marginTop="24dp"
+                    android:text="@string/pref_section_appearance" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        android:letterSpacing="0.12"
-                        android:text="@string/pref_format_label"
-                        android:textAllCaps="true"
-                        android:textColor="@color/colorAccent"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                <androidx.cardview.widget.CardView style="@style/PreferenceCard">
 
-                    <RadioGroup
-                        android:id="@+id/rgFormat"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                    <include
+                        android:id="@+id/rowTheme"
+                        layout="@layout/item_preference_row" />
 
-                        <RadioButton
-                            android:id="@+id/rbFormatNone"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:padding="8dp"
-                            android:text="@string/pref_format_none"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="15sp" />
+                </androidx.cardview.widget.CardView>
 
-                        <RadioButton
-                            android:id="@+id/rbFormatIn"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:padding="8dp"
-                            android:text="@string/pref_format_in"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="15sp" />
-
-                        <RadioButton
-                            android:id="@+id/rbFormatInt"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:padding="8dp"
-                            android:text="@string/pref_format_int"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="15sp" />
-
-                    </RadioGroup>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Separator Card -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardBackgroundColor="@color/backgroundContent"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp">
-
-                <LinearLayout
+                <!-- SECTION: OTHER -->
+                <TextView
+                    style="@style/PreferenceSectionHeader"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
+                    android:layout_marginTop="24dp"
+                    android:text="@string/pref_section_other" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="12dp"
-                        android:letterSpacing="0.12"
-                        android:text="@string/pref_separator_label"
-                        android:textAllCaps="true"
-                        android:textColor="@color/colorAccent"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                <androidx.cardview.widget.CardView style="@style/PreferenceCard">
 
-                    <RadioGroup
-                        android:id="@+id/rgSeparator"
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnClearAll"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:layout_height="64dp"
+                        android:gravity="start|center_vertical"
+                        android:paddingStart="16dp"
+                        android:paddingEnd="16dp"
+                        android:text="@string/pref_clear_all_data"
+                        android:textColor="#CF6679"
+                        android:textSize="16sp"
+                        app:icon="@drawable/ic_delete"
+                        app:iconPadding="16dp"
+                        app:iconTint="#CF6679"
+                        app:rippleColor="#20CF6679" />
 
-                        <RadioButton
-                            android:id="@+id/rbSepSpace"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:padding="8dp"
-                            android:text="@string/pref_sep_space"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="15sp" />
+                </androidx.cardview.widget.CardView>
 
-                        <RadioButton
-                            android:id="@+id/rbSepComma"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:padding="8dp"
-                            android:text="@string/pref_sep_comma"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="15sp" />
-
-                    </RadioGroup>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSavePrefs"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:text="@string/pref_save"
-                android:textColor="@color/textOnPrimary"
-                android:textSize="15sp"
-                app:backgroundTint="@color/colorPrimary"
-                app:cornerRadius="10dp" />
-
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 

@@ -263,16 +263,15 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
             triggerSync();
         });
 
-        findViewById(R.id.navGoals).setOnClickListener(v -> {
-            drawerLayout.closeDrawers();
-            Intent goalsIntent = new Intent(this, GoalActivity.class);
-            goalsIntent.putExtra("current_net_worth", month.getValue());
-            startActivity(goalsIntent);
-        });
-
         findViewById(R.id.navPreferences).setOnClickListener(v -> {
             drawerLayout.closeDrawers();
             startActivity(new Intent(this, PreferencesActivity.class));
+        });
+
+        findViewById(R.id.navMonthly).setOnClickListener(v -> {
+            new Events().send(new ButtonClicked("monthView"));
+            monthPickerLauncher.launch(new Intent(this, MonthActivity.class));
+            drawerLayout.closeDrawers();
         });
 
         findViewById(R.id.navGraph).setOnClickListener(v -> {
@@ -291,12 +290,6 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
 
         findViewById(R.id.navAssetTrend).setOnClickListener(v -> {
             startActivity(new Intent(this, AssetTrendActivity.class));
-            drawerLayout.closeDrawers();
-        });
-
-        findViewById(R.id.navMonthly).setOnClickListener(v -> {
-            new Events().send(new ButtonClicked("monthView"));
-            monthPickerLauncher.launch(new Intent(this, MonthActivity.class));
             drawerLayout.closeDrawers();
         });
 
@@ -330,12 +323,6 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         findViewById(R.id.navImportFile).setOnClickListener(v -> {
             drawerLayout.closeDrawers();
             importFileLauncher.launch(new String[]{"text/*", "application/octet-stream"});
-        });
-
-
-        findViewById(R.id.navClearAllData).setOnClickListener(v -> {
-            drawerLayout.closeDrawers();
-            confirmClearAllData();
         });
 
         findViewById(R.id.previousMonth).setOnClickListener(v -> {
@@ -642,12 +629,53 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
     }
 
     private void confirmClearAllData() {
-        new AlertDialog.Builder(this)
+        int a = (int) (Math.random() * 9) + 1;
+        int b = (int) (Math.random() * 9) + 1;
+        int answer = a + b;
+
+        int dp = (int) getResources().getDisplayMetrics().density;
+
+        android.widget.LinearLayout container = new android.widget.LinearLayout(this);
+        container.setOrientation(android.widget.LinearLayout.VERTICAL);
+        container.setPadding(24 * dp, 8 * dp, 24 * dp, 8 * dp);
+
+        android.widget.TextView label = new android.widget.TextView(this);
+        label.setText("To confirm, solve: " + a + " + " + b + " = ?");
+        label.setTextSize(13f);
+        label.setTextColor(0xFF888888);
+        label.setPadding(0, 0, 0, 6 * dp);
+        container.addView(label);
+
+        android.widget.EditText input = new android.widget.EditText(this);
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+        input.setHint("Your answer");
+        input.setTextAlignment(android.view.View.TEXT_ALIGNMENT_CENTER);
+        input.setTextSize(18f);
+        container.addView(input);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.clear_all_data_confirm_title)
                 .setMessage(R.string.clear_all_data_confirm_msg)
-                .setPositiveButton(android.R.string.ok, (d, w) -> performClearAllData())
+                .setView(container)
+                .setPositiveButton(android.R.string.ok, null)
                 .setNegativeButton(android.R.string.cancel, null)
-                .show();
+                .create();
+
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String entered = input.getText().toString().trim();
+            if (entered.isEmpty()) {
+                input.setError("Enter the answer");
+                return;
+            }
+            if (Integer.parseInt(entered) != answer) {
+                input.setError("Wrong answer, try again");
+                return;
+            }
+            dialog.dismiss();
+            performClearAllData();
+        }));
+
+        dialog.show();
     }
 
     private void performClearAllData() {
@@ -947,7 +975,7 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         double prevValue = month.getPreviousMonth().getValue();
         if (prevValue != 0) {
             headerPrevValue.setVisibility(View.VISIBLE);
-            headerPrevValue.setText("Prev: " + Tools.formatAmount(prevValue));
+            headerPrevValue.setText(getString(R.string.header_prev_value, Tools.formatAmount(prevValue)));
         } else {
             headerPrevValue.setVisibility(View.GONE);
         }
@@ -963,11 +991,11 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         if (assetCount > 0 || liabilityCount > 0) {
             StringBuilder countStr = new StringBuilder();
             if (assetCount > 0) {
-                countStr.append(assetCount).append(assetCount == 1 ? " asset" : " assets");
+                countStr.append(getString(assetCount == 1 ? R.string.asset_count_one : R.string.asset_count_many, assetCount));
             }
             if (liabilityCount > 0) {
-                if (countStr.length() > 0) countStr.append("  •  ");
-                countStr.append(liabilityCount).append(liabilityCount == 1 ? " liability" : " liabilities");
+                if (countStr.length() > 0) countStr.append(getString(R.string.count_separator));
+                countStr.append(getString(liabilityCount == 1 ? R.string.liability_count_one : R.string.liability_count_many, liabilityCount));
             }
             headerAssetCount.setVisibility(View.VISIBLE);
             headerAssetCount.setText(countStr.toString());
@@ -1024,32 +1052,34 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         int goalVis = anyGoal ? View.VISIBLE : View.GONE;
         findViewById(R.id.goalsCard).setVisibility(goalVis);
         findViewById(R.id.goalsDivider).setVisibility(goalVis);
+        // Show "Set Goals" nav item only when no goals exist; once set, user edits via the card
+        findViewById(R.id.navGoals).setVisibility(anyGoal ? View.GONE : View.VISIBLE);
         if (!anyGoal) return;
 
         double current = month.getValue();
         int setYear = Prefs.getInt(Prefs.PREFS_GOAL_SET_YEAR, Calendar.getInstance().get(Calendar.YEAR));
 
         updateGoalRow(R.id.goal1yRow, R.id.goal1yLabel, R.id.goal1yBar, R.id.goal1yPercent,
-                g1, current, "1-Year", setYear + 1);
+                g1, current, setYear + 1);
         updateGoalRow(R.id.goal3yRow, R.id.goal3yLabel, R.id.goal3yBar, R.id.goal3yPercent,
-                g3, current, "3-Year", setYear + 3);
+                g3, current, setYear + 3);
         updateGoalRow(R.id.goal5yRow, R.id.goal5yLabel, R.id.goal5yBar, R.id.goal5yPercent,
-                g5, current, "5-Year", setYear + 5);
+                g5, current, setYear + 5);
     }
 
     private void updateGoalRow(int rowId, int labelId, int barId, int percentId,
-                                float goal, double current, String title, int targetYear) {
+                                float goal, double current, int targetYear) {
         View row = findViewById(rowId);
         if (goal <= 0) {
             row.setVisibility(View.GONE);
             return;
         }
         row.setVisibility(View.VISIBLE);
-        ((TextView) findViewById(labelId)).setText(title + " · " + targetYear);
+        ((TextView) findViewById(labelId)).setText(String.valueOf(targetYear));
 
         int progress = (int) Math.min(Math.max(current / goal * 100, 0), 100);
         ((android.widget.ProgressBar) findViewById(barId)).setProgress(progress);
-        ((TextView) findViewById(percentId)).setText(progress + "%");
+        ((TextView) findViewById(percentId)).setText(getString(R.string.helper_text, String.valueOf(progress)).replace("Click to add ", "").replace(" to this month", "%"));
     }
 
     private void showMonthYearPicker() {
@@ -1068,7 +1098,7 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         monthPicker.setWrapSelectorWheel(true);
 
         NumberPicker yearPicker = new NumberPicker(this);
-        yearPicker.setMinValue(2000);
+        yearPicker.setMinValue(1970);
         yearPicker.setMaxValue(currentYear + 5);
         yearPicker.setValue(month.getYear());
         yearPicker.setWrapSelectorWheel(false);

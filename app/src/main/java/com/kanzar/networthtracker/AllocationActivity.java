@@ -94,46 +94,48 @@ public class AllocationActivity extends AppCompatActivity {
     private void loadData() {
         monthName.setText(month.toString());
 
-        List<Asset> all = Realm.getDefaultInstance()
-                .where(Asset.class)
-                .equalTo(AssetFields.MONTH, month.getMonth())
-                .equalTo(AssetFields.YEAR, month.getYear())
-                .sort(AssetFields.VALUE, Sort.DESCENDING)
-                .findAll();
+        try (Realm realm = Realm.getDefaultInstance()) {
+            List<Asset> all = realm
+                    .where(Asset.class)
+                    .equalTo(AssetFields.MONTH, month.getMonth())
+                    .equalTo(AssetFields.YEAR, month.getYear())
+                    .sort(AssetFields.VALUE, Sort.DESCENDING)
+                    .findAll();
 
-        List<PieEntry> assetEntries     = new ArrayList<>();
-        List<PieEntry> liabilityEntries = new ArrayList<>();
-        double assetTotal     = 0;
-        double liabilityTotal = 0;
+            List<PieEntry> assetEntries = new ArrayList<>();
+            List<PieEntry> liabilityEntries = new ArrayList<>();
+            double assetTotal = 0;
+            double liabilityTotal = 0;
 
-        for (Asset asset : all) {
-            double val = asset.getValue();
-            if (val > 0) {
-                assetEntries.add(new PieEntry((float) val, asset.getName()));
-                assetTotal += val;
-            } else if (val < 0) {
-                liabilityEntries.add(new PieEntry((float) Math.abs(val), asset.getName()));
-                liabilityTotal += Math.abs(val);
+            for (Asset asset : all) {
+                double val = asset.getValue();
+                if (val > 0) {
+                    assetEntries.add(new PieEntry((float) val, asset.getName()));
+                    assetTotal += val;
+                } else if (val < 0) {
+                    liabilityEntries.add(new PieEntry((float) Math.abs(val), asset.getName()));
+                    liabilityTotal += Math.abs(val);
+                }
             }
-        }
 
-        if (assetEntries.isEmpty()) {
-            assetChart.setVisibility(View.INVISIBLE);
-            assetTotalView.setText("—");
-        } else {
-            assetChart.setVisibility(View.VISIBLE);
-            assetTotalView.setText(Tools.formatAmount(assetTotal, true));
-            setupDonut(assetChart, assetEntries, ASSET_COLORS, Tools.formatAmount(assetTotal, true));
-        }
+            if (assetEntries.isEmpty()) {
+                assetChart.setVisibility(View.INVISIBLE);
+                assetTotalView.setText("—");
+            } else {
+                assetChart.setVisibility(View.VISIBLE);
+                assetTotalView.setText(Tools.formatAmount(assetTotal, true));
+                setupDonut(assetChart, assetEntries, ASSET_COLORS, Tools.formatAmount(assetTotal, true));
+            }
 
-        if (liabilityEntries.isEmpty()) {
-            liabilityChart.setVisibility(View.INVISIBLE);
-            liabilityTotalView.setText("—");
-        } else {
-            liabilityChart.setVisibility(View.VISIBLE);
-            liabilityTotalView.setText("-" + Tools.formatAmount(liabilityTotal, true));
-            setupDonut(liabilityChart, liabilityEntries, LIABILITY_COLORS,
-                    "-" + Tools.formatAmount(liabilityTotal, true));
+            if (liabilityEntries.isEmpty()) {
+                liabilityChart.setVisibility(View.INVISIBLE);
+                liabilityTotalView.setText("—");
+            } else {
+                liabilityChart.setVisibility(View.VISIBLE);
+                liabilityTotalView.setText("-" + Tools.formatAmount(liabilityTotal, true));
+                setupDonut(liabilityChart, liabilityEntries, LIABILITY_COLORS,
+                        "-" + Tools.formatAmount(liabilityTotal, true));
+            }
         }
     }
 
@@ -150,7 +152,7 @@ public class AllocationActivity extends AppCompatActivity {
         monthPicker.setWrapSelectorWheel(true);
 
         NumberPicker yearPicker = new NumberPicker(this);
-        yearPicker.setMinValue(2000);
+        yearPicker.setMinValue(1970);
         yearPicker.setMaxValue(currentYear + 5);
         yearPicker.setValue(month.getYear());
 
@@ -178,6 +180,9 @@ public class AllocationActivity extends AppCompatActivity {
     }
 
     private void setupDonut(PieChart chart, List<PieEntry> entries, int[] colors, String centerText) {
+        int labelColor = androidx.core.content.ContextCompat.getColor(this, R.color.textPrimary);
+        int secondaryLabelColor = androidx.core.content.ContextCompat.getColor(this, R.color.textSecondary);
+
         chart.setUsePercentValues(true);
         chart.setDrawHoleEnabled(true);
         chart.setHoleColor(Color.TRANSPARENT);
@@ -186,7 +191,7 @@ public class AllocationActivity extends AppCompatActivity {
         chart.setTransparentCircleColor(Color.argb(30, 255, 255, 255));
         chart.setDrawCenterText(true);
         chart.setCenterText(centerText);
-        chart.setCenterTextColor(Color.WHITE);
+        chart.setCenterTextColor(labelColor);
         chart.setCenterTextSize(13f);
         chart.setCenterTextTypeface(Typeface.DEFAULT_BOLD);
         chart.setRotationEnabled(true);
@@ -201,7 +206,7 @@ public class AllocationActivity extends AppCompatActivity {
 
         Legend legend = chart.getLegend();
         legend.setEnabled(true);
-        legend.setTextColor(Color.argb(200, 255, 255, 255));
+        legend.setTextColor(secondaryLabelColor);
         legend.setTextSize(11f);
         legend.setForm(Legend.LegendForm.CIRCLE);
         legend.setFormSize(10f);
@@ -226,12 +231,12 @@ public class AllocationActivity extends AppCompatActivity {
         dataSet.setValueLinePart1Length(0.4f);
         dataSet.setValueLinePart2Length(0.3f);
         dataSet.setYValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
-        dataSet.setValueLineColor(Color.argb(120, 255, 255, 255));
+        dataSet.setValueLineColor(secondaryLabelColor);
 
         PieData pieData = new PieData(dataSet);
         pieData.setValueFormatter(new PercentFormatter(chart));
         pieData.setValueTextSize(10f);
-        pieData.setValueTextColor(Color.WHITE);
+        pieData.setValueTextColor(labelColor);
         pieData.setValueTypeface(Typeface.DEFAULT_BOLD);
 
         chart.setData(pieData);

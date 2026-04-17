@@ -40,11 +40,10 @@ public final class MonthChart extends LineChart {
     protected void init() {
         super.init();
         setRenderer(new SelectionHighlightRenderer(this, mAnimator, mViewPortHandler,
-                ContextCompat.getColor(getContext(), R.color.background)));
+                ContextCompat.getColor(getContext(), R.color.backgroundContent)));
 
-        int white      = Color.WHITE;
-        int gridColor  = Color.argb(40, 255, 255, 255);  // very subtle white grid
-        int labelColor = Color.argb(180, 255, 255, 255); // readable white labels
+        int labelColor = ContextCompat.getColor(getContext(), R.color.textSecondary);
+        int gridColor  = ContextCompat.getColor(getContext(), R.color.divider);
 
         setTouchEnabled(true);
         setDragEnabled(true);
@@ -143,7 +142,7 @@ public final class MonthChart extends LineChart {
         dataSet.setDrawFilled(true);
         dataSet.setFillColor(fillColor);
         dataSet.setFillAlpha(60);
-        dataSet.setHighLightColor(Color.argb(180, 255, 255, 255));
+        dataSet.setHighLightColor(ContextCompat.getColor(getContext(), R.color.colorAccent));
         dataSet.setDrawHorizontalHighlightIndicator(false);
         // Show a single dot at the selected/highlighted point
         dataSet.setDrawHighlightIndicators(true);

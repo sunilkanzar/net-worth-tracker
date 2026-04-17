@@ -4,6 +4,7 @@ import android.content.Context;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.multidex.MultiDexApplication;
 import com.amplitude.api.Amplitude;
+import com.kanzar.networthtracker.helpers.Prefs;
 import com.kanzar.networthtracker.realm.RealmMigrations;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -21,9 +22,12 @@ public class CoreApplication extends MultiDexApplication {
 
     @Override
     public void onCreate() {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         super.onCreate();
         instance = this;
+
+        // Load theme preference
+        int theme = Prefs.getInt(Prefs.PREFS_THEME, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        AppCompatDelegate.setDefaultNightMode(theme);
 
         Realm.init(this);
         RealmConfiguration config = new RealmConfiguration.Builder()

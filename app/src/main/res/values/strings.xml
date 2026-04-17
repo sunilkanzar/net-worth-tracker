@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_close">Close</string>
-    <string name="app_domain">WealthTracker.app</string>
     <string name="app_name">Net Worth Tracker</string>
     <string name="backup_autosave">autosave</string>
     <string name="backup_permission">We need that permission :/</string>
@@ -21,12 +20,10 @@
     <string name="drawer_section_overview">Overview</string>
     <string name="drawer_section_graphs">Analytics</string>
     <string name="drawer_section_data">Data Management</string>
+    <string name="drawer_section_other">Other</string>
     <string name="allocation_assets">Assets</string>
     <string name="allocation_liabilities">Liabilities</string>
-    <string name="drawer_support">Support</string>
-    <string name="empty_directory_hint">Empty directory</string>
     <string name="helper_text">Click to add %1$s to this month</string>
-    <string name="icon_content_description" tools:override="true">Dialog Icon</string>
     <string name="import_choose_file">Choose backup</string>
     <string name="import_confirmation">Do you want to import %1$d items, existing will be overwritten</string>
     <string name="import_empty">No entries found, check format</string>
@@ -49,22 +46,13 @@
     <string name="tutorial_intro">Start by adding your assets and liabilities monthly bases</string>
     <string name="tutorial_liability">Liabilities are added with minus, everything else in the view is same as assets</string>
     <string name="tutorial_year">Month overview shows you all the filled months without asset details</string>
-    <string name="type_apk">APK</string>
-    <string name="type_archive">Archive</string>
-    <string name="type_certificate">Certificate</string>
-    <string name="type_directory">Directory</string>
-    <string name="type_document">File</string>
-    <string name="type_drawing">Picture</string>
-    <string name="type_excel">Spreadsheet</string>
-    <string name="type_image">Image</string>
-    <string name="type_music">Music</string>
-    <string name="type_pdf">PDF document</string>
-    <string name="type_power_point">Presentation</string>
-    <string name="type_video">Video</string>
-    <string name="type_word">Document</string>
     <string name="user_sign_in_as">Signed in as</string>
     <string name="user_sign_out">Sign Out</string>
+    <string name="goal_1y_label_with_year">%1$d</string>
+    <string name="goal_3y_label_with_year">%1$d</string>
+    <string name="goal_5y_label_with_year">%1$d</string>
     <string name="drawer_goals">Net Worth Goals</string>
+    <string name="goal_header">GOAL</string>
     <string name="goal_activity_title">Net Worth Goals</string>
     <string name="goal_current_worth_label">YOUR CURRENT NET WORTH</string>
     <string name="goal_section_label">SET YOUR TARGETS</string>
@@ -74,8 +62,8 @@
     <string name="goal_save">Save Goals</string>
     <string name="goal_saved">Goals saved</string>
     <string name="goal_achieved">Achieved!</string>
-    <string name="drawer_preferences">Display Preferences</string>
-    <string name="pref_activity_title">Display Preferences</string>
+    <string name="drawer_preferences">Settings</string>
+    <string name="pref_activity_title">Settings</string>
     <string name="pref_preview_label">Preview</string>
     <string name="pref_currency_label">Currency Symbol</string>
     <string name="pref_currency_none">None</string>
@@ -93,12 +81,34 @@
     <string name="pref_sep_comma">Comma  (12,34,567)</string>
     <string name="pref_save">Save</string>
     <string name="pref_saved">Preferences saved</string>
+    <string name="pref_theme_label">App Theme</string>
+    <string name="pref_theme_system">System Default</string>
+    <string name="pref_theme_light">Light</string>
+    <string name="pref_theme_dark">Dark</string>
+    <string name="pref_clear_all_data">Clear All Data</string>
     <string name="drawer_clear_all_data">Clear All Data</string>
     <string name="clear_all_data_confirm_title">Clear All Data?</string>
-    <string name="clear_all_data_confirm_msg">This will permanently delete all your asset data from this device and from Google Drive. Local backup files will not be affected.</string>
+    <string name="clear_all_data_confirm_msg">This will permanently delete all your asset data from this device and from Google Drive. Local backup files will not be affected if any. It is recommended to take manual export.</string>
     <string name="clear_all_data_success">All data cleared</string>
+    <string name="header_prev_value">Prev: %1$s</string>
+    <string name="asset_count_one">%1$d asset</string>
+    <string name="asset_count_many">%1$d assets</string>
+    <string name="liability_count_one">%1$d liability</string>
+    <string name="liability_count_many">%1$d liabilities</string>
+    <string name="count_separator">  •  </string>
     <string name="sync_failed">Sync failed. Check your connection and try again.</string>
     <string name="sync_success">Sync successful</string>
+    <string name="trend_select_assets">Select Assets</string>
+    <string name="trend_select_title">Select assets to plot</string>
+    <string name="trend_select_none">Select at least one asset</string>
+    <string name="trend_show">Show</string>
+    <string name="trend_search_hint">Search…</string>
+    <string name="trend_select_all">Select All</string>
+    <string name="trend_clear_all">Clear All</string>
     <string name="widget_growth">Growth</string>
     <string name="widget_no_entries">No entries</string>
+
+    <string name="pref_section_number">Number</string>
+    <string name="pref_section_appearance">Appearance</string>
+    <string name="pref_section_other">Other</string>
 </resources>
