@@ -790,8 +790,15 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
     public void onItemLongClick(Asset item) {
         new AlertDialog.Builder(this)
                 .setTitle(R.string.menu)
-                .setItems(new String[]{getString(R.string.menu_delete)}, (dialog, which) -> {
+                .setItems(new String[]{
+                        getString(R.string.menu_view_trend),
+                        getString(R.string.menu_delete)
+                }, (dialog, which) -> {
                     if (which == 0) {
+                        Intent intent = new Intent(this, AssetTrendActivity.class);
+                        intent.putExtra(AssetTrendActivity.EXTRA_PINNED_ASSET, item.getName());
+                        startActivity(intent);
+                    } else if (which == 1) {
                         new Events().send(new AssetDeleted(item));
                         try (Realm realm = Realm.getDefaultInstance()) {
                             realm.executeTransaction(r -> {

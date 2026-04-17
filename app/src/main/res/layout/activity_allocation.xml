@@ -67,11 +67,24 @@
 
             </LinearLayout>
 
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/assetChart"
+            <!-- Chart container: PieChart + TreemapView stacked -->
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"/>
+                android:layout_weight="1">
+
+                <com.github.mikephil.charting.charts.PieChart
+                    android:id="@+id/assetChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+
+                <com.kanzar.networthtracker.views.TreemapView
+                    android:id="@+id/assetTreemap"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone"/>
+
+            </FrameLayout>
 
         </LinearLayout>
 
@@ -118,17 +131,30 @@
 
             </LinearLayout>
 
-            <com.github.mikephil.charting.charts.PieChart
-                android:id="@+id/liabilityChart"
+            <!-- Chart container: PieChart + TreemapView stacked -->
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1"/>
+                android:layout_weight="1">
+
+                <com.github.mikephil.charting.charts.PieChart
+                    android:id="@+id/liabilityChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+
+                <com.kanzar.networthtracker.views.TreemapView
+                    android:id="@+id/liabilityTreemap"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone"/>
+
+            </FrameLayout>
 
         </LinearLayout>
 
     </LinearLayout>
 
-    <!-- Bottom month navigation bar (floats at bottom, matches main screen) -->
+    <!-- Bottom month navigation bar -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="48dp"

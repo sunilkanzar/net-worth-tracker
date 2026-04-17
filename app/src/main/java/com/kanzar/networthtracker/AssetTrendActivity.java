@@ -50,6 +50,8 @@ import io.realm.RealmResults;
 
 public class AssetTrendActivity extends AppCompatActivity {
 
+    public static final String EXTRA_PINNED_ASSET = "pinned_asset";
+
     private static final int[] LINE_COLORS = {
         0xFF42A5F5, 0xFFEF5350, 0xFF66BB6A, 0xFFFFCA28,
         0xFFAB47BC, 0xFF26C6DA, 0xFFFF7043, 0xFF9CCC65,
@@ -62,14 +64,20 @@ public class AssetTrendActivity extends AppCompatActivity {
     private List<String> allAssetNames = new ArrayList<>();
     private Map<String, Map<Integer, Float>> rawAssetValues = new LinkedHashMap<>();
     private Set<String> selectedAssets = new HashSet<>();
+    private String pinnedAsset = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_asset_trend);
 
+        pinnedAsset = getIntent().getStringExtra(EXTRA_PINNED_ASSET);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if (pinnedAsset != null) {
+            toolbar.setTitle(pinnedAsset);
+        }
         toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
         chart = findViewById(R.id.trendChart);
@@ -283,15 +291,20 @@ public class AssetTrendActivity extends AppCompatActivity {
             allAssetNames = new ArrayList<>(nameSet);
             Collections.sort(allAssetNames);
 
-            // Pre-select top 10 by peak absolute value
-            List<String> byValue = new ArrayList<>(allAssetNames);
-            byValue.sort((a, b) -> {
-                float maxA = 0, maxB = 0;
-                for (float v : rawAssetValues.get(a).values()) maxA = Math.max(maxA, Math.abs(v));
-                for (float v : rawAssetValues.get(b).values()) maxB = Math.max(maxB, Math.abs(v));
-                return Float.compare(maxB, maxA);
-            });
-            selectedAssets = new HashSet<>(byValue.subList(0, Math.min(10, byValue.size())));
+            if (pinnedAsset != null && allAssetNames.contains(pinnedAsset)) {
+                // Opened from asset long-press: show only that asset
+                selectedAssets = new HashSet<>(Collections.singletonList(pinnedAsset));
+            } else {
+                // Pre-select top 10 by peak absolute value
+                List<String> byValue = new ArrayList<>(allAssetNames);
+                byValue.sort((a, b) -> {
+                    float maxA = 0, maxB = 0;
+                    for (float v : rawAssetValues.get(a).values()) maxA = Math.max(maxA, Math.abs(v));
+                    for (float v : rawAssetValues.get(b).values()) maxB = Math.max(maxB, Math.abs(v));
+                    return Float.compare(maxB, maxA);
+                });
+                selectedAssets = new HashSet<>(byValue.subList(0, Math.min(10, byValue.size())));
+            }
 
             int labelCount = Math.min(xLabels.size(), 8);
             chart.getXAxis().setLabelCount(labelCount, false);
