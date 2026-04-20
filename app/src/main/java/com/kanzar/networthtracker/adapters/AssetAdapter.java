@@ -1,6 +1,8 @@
 package com.kanzar.networthtracker.adapters;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,11 +23,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ITEM = 1;
+
+    private static final ExecutorService sparklineExecutor = Executors.newSingleThreadExecutor();
+    private static final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     private final Context context;
     private List<Object> displayItems = new ArrayList<>();
@@ -40,6 +47,11 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public AssetAdapter(Context context) {
         this.context = context;
         this.listener = (OnItemClickListener) context;
+    }
+
+    public AssetAdapter(Context context, OnItemClickListener listener) {
+        this.context = context;
+        this.listener = listener;
     }
 
 
@@ -168,6 +180,7 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         private final TextView assetChangePercent;
         private final LineChart assetSparkline;
         private final android.view.ViewGroup container;
+        private String boundAssetKey = "";
 
         public ViewHolder(View v) {
             super(v);
@@ -239,44 +252,47 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
                 // Sparkline Data
                 int chartColor = isAsset ? ContextCompat.getColor(context, R.color.colorAccent) : ContextCompat.getColor(context, R.color.negative);
-                loadSparklineData(asset, chartColor);
+                assetSparkline.clear();
+                loadSparklineDataAsync(asset, chartColor);
             }
         }
 
-        private void loadSparklineData(Asset asset, int color) {
-            List<Entry> entries = new ArrayList<>();
-            Month m = new Month(asset.getMonth(), asset.getYear());
-            
-            // Get last 12 months
-            try (Realm realm = Realm.getDefaultInstance()) {
-                for (int i = 0; i < 12; i++) {
-                    Asset historical = realm.where(Asset.class)
-                            .equalTo("name", asset.getName())
-                            .equalTo("month", m.getMonth())
-                            .equalTo("year", m.getYear())
-                            .findFirst();
+        private void loadSparklineDataAsync(Asset asset, int color) {
+            final String key = asset.getName() + asset.getMonth() + asset.getYear();
+            boundAssetKey = key;
 
-                    entries.add(new Entry(11 - i, (float) (historical != null ? historical.getValue() : 0.0)));
-                    m.previous();
+            sparklineExecutor.execute(() -> {
+                List<Entry> entries = new ArrayList<>();
+                int mo = asset.getMonth(), yr = asset.getYear();
+                try (Realm realm = Realm.getDefaultInstance()) {
+                    for (int i = 0; i < 12; i++) {
+                        Asset historical = realm.where(Asset.class)
+                                .equalTo("name", asset.getName())
+                                .equalTo("month", mo)
+                                .equalTo("year", yr)
+                                .findFirst();
+                        entries.add(new Entry(i, (float) (historical != null ? historical.getValue() : 0.0)));
+                        if (mo == 1) { mo = 12; yr--; } else { mo--; }
+                    }
                 }
-            }
-            
-            Collections.reverse(entries);
-            // Re-index x to 0-11
-            for(int i=0; i<entries.size(); i++) {
-                entries.get(i).setX(i);
-            }
+                Collections.reverse(entries);
+                for (int i = 0; i < entries.size(); i++) entries.get(i).setX(i);
 
-            LineDataSet dataSet = new LineDataSet(entries, "");
-            dataSet.setColor(color);
-            dataSet.setLineWidth(1f);
-            dataSet.setDrawCircles(false);
-            dataSet.setDrawValues(false);
-            dataSet.setMode(LineDataSet.Mode.LINEAR);
-            dataSet.setDrawFilled(false);
+                LineDataSet dataSet = new LineDataSet(entries, "");
+                dataSet.setColor(color);
+                dataSet.setLineWidth(1f);
+                dataSet.setDrawCircles(false);
+                dataSet.setDrawValues(false);
+                dataSet.setMode(LineDataSet.Mode.LINEAR);
+                dataSet.setDrawFilled(false);
+                LineData lineData = new LineData(dataSet);
 
-            assetSparkline.setData(new LineData(dataSet));
-            assetSparkline.invalidate();
+                mainHandler.post(() -> {
+                    if (!key.equals(boundAssetKey)) return; // view recycled
+                    assetSparkline.setData(lineData);
+                    assetSparkline.invalidate();
+                });
+            });
         }
     }
 }

@@ -91,9 +91,9 @@ public class Month {
     }
 
     public Month getPreviousMonth() {
-        Month prev = new Month(this.month, this.year);
-        prev.previous();
-        return prev;
+        int pm = month == 1 ? 12 : month - 1;
+        int py = month == 1 ? year - 1 : year;
+        return new Month(pm, py);
     }
 
 

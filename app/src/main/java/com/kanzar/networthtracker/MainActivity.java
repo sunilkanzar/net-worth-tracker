@@ -10,6 +10,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import androidx.viewpager2.widget.ViewPager2;
 import android.animation.ObjectAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageView;
@@ -100,38 +101,31 @@ import java.util.concurrent.Executors;
 import io.realm.Case;
 import io.realm.Realm;
 
-public class MainActivity extends AppCompatActivity implements AssetAdapter.OnItemClickListener {
+public class MainActivity extends AppCompatActivity implements MonthPageFragment.Listener {
 
     private static final int PERMISSION_EXPORT = 1;
     private static final int PERMISSION_EXPORT_AUTO = 2;
     private static final int PERMISSION_IMPORT = 3;
     private static final int PERMISSION_IMPORT_CSS = 4;
 
-    private AssetAdapter adapter;
-    private final Month month = new Month();
+    private Month month = new Month();
     private CredentialManager credentialManager;
     private DriveServiceHelper driveServiceHelper;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     // View bindings
-    private RecyclerView assetList;
+    private ViewPager2 viewPager;
+    private MonthPagerAdapter pagerAdapter;
     private DrawerLayout drawerLayout;
-    private SwipeRefreshLayout refreshLayout;
     private CardView newAssetLayout;
     private AutoCompleteTextView newAssetName;
     private EditText newAssetValue;
     private EditText newAssetChange;
     private FloatingActionButton newAssetSave;
     private TextView monthName;
-    private TextView monthValue;
-    private TextView monthValueChange;
-    private TextView headerPrevValue;
-    private TextView headerAssetCount;
-    private com.kanzar.networthtracker.views.MiniBarView miniBarChart;
-    private PercentView percentView;
     private ObjectAnimator syncAnim;
-    private CardView tutorial;
     private boolean updatingForm = false;
+    private boolean firstResume = true;
 
     // Speed-dial FAB
     private View fabScrim;
@@ -165,9 +159,9 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         registerForActivityResult(new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                 Intent data = result.getData();
-                month.setMonth(data.getIntExtra("month", month.getMonth()));
-                month.setYear(data.getIntExtra("year", month.getYear()));
-                updateViews();
+                int m = data.getIntExtra("month", month.getMonth());
+                int y = data.getIntExtra("year", month.getYear());
+                viewPager.setCurrentItem(MonthPagerAdapter.positionOf(m, y), false);
             }
         });
 
@@ -176,7 +170,7 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initViews();
-        setupRecyclerView();
+        setupViewPager();
         credentialManager = CredentialManager.create(this);
         drawerLayout.addDrawerListener(new androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener() {
             @Override
@@ -200,22 +194,14 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
     }
 
     private void initViews() {
-        assetList = findViewById(R.id.assetList);
+        viewPager = findViewById(R.id.viewPager);
         drawerLayout = findViewById(R.id.drawerLayout);
-        refreshLayout = findViewById(R.id.refreshLayout);
         newAssetLayout = findViewById(R.id.newAssetLayout);
         newAssetName = findViewById(R.id.newAssetName);
         newAssetValue = findViewById(R.id.newAssetValue);
         newAssetChange = findViewById(R.id.newAssetChange);
         newAssetSave = findViewById(R.id.newAssetSave);
         monthName = findViewById(R.id.monthName);
-        monthValue = findViewById(R.id.monthValue);
-        monthValueChange = findViewById(R.id.monthValueChange);
-        headerPrevValue = findViewById(R.id.headerPrevValue);
-        headerAssetCount = findViewById(R.id.headerAssetCount);
-        miniBarChart = findViewById(R.id.miniBarChart);
-        percentView = findViewById(R.id.percentView);
-        tutorial = findViewById(R.id.tutorial);
         fabScrim = findViewById(R.id.fabScrim);
         fabNoteContainer = findViewById(R.id.fabNoteContainer);
         fabAssetContainer = findViewById(R.id.fabAssetContainer);
@@ -237,15 +223,36 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         }
     }
 
-    private void setupRecyclerView() {
-        adapter = new AssetAdapter(this);
-        assetList.setLayoutManager(new LinearLayoutManager(this));
-        assetList.setAdapter(adapter);
+    private void setupViewPager() {
+        pagerAdapter = new MonthPagerAdapter(this);
+        viewPager.setAdapter(pagerAdapter);
+        viewPager.setOffscreenPageLimit(ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT);
+        int startPos = MonthPagerAdapter.positionOf(month.getMonth(), month.getYear());
+        viewPager.setCurrentItem(startPos, false);
+        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                int[] my = MonthPagerAdapter.monthYearAt(position);
+                month = new Month(my[0], my[1]);
+                monthName.setText(month.toString());
+                closeAssetView();
+            }
+        });
+    }
+
+    private MonthPageFragment getCurrentFragment() {
+        return (MonthPageFragment) getSupportFragmentManager()
+                .findFragmentByTag("f" + viewPager.getCurrentItem());
+    }
+
+    private void refreshCurrentPage() {
+        MonthPageFragment f = getCurrentFragment();
+        if (f != null) f.refresh();
+        updateGoalProgress();
+        updateWidget();
     }
 
     private void viewListeners() {
-        findViewById(R.id.menu).setOnClickListener(v -> drawerLayout.openDrawer(GravityCompat.START));
-
         monthName.setOnClickListener(v -> showMonthYearPicker());
 
         findViewById(R.id.googleSignIn).setOnClickListener(v -> {
@@ -258,12 +265,7 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
             signOut();
         });
 
-        refreshLayout.setOnRefreshListener(() -> {
-            refreshLayout.setRefreshing(false);
-            triggerSync();
-        });
-
-        findViewById(R.id.navPreferences).setOnClickListener(v -> {
+findViewById(R.id.navPreferences).setOnClickListener(v -> {
             drawerLayout.closeDrawers();
             startActivity(new Intent(this, PreferencesActivity.class));
         });
@@ -327,16 +329,12 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
 
         findViewById(R.id.previousMonth).setOnClickListener(v -> {
             new Events().send(new ButtonClicked("previousMonth"));
-            month.previous();
-            closeAssetView();
-            updateViews();
+            viewPager.setCurrentItem(viewPager.getCurrentItem() - 1, true);
         });
 
         findViewById(R.id.nextMonth).setOnClickListener(v -> {
             new Events().send(new ButtonClicked("nextMonth"));
-            month.next();
-            closeAssetView();
-            updateViews();
+            viewPager.setCurrentItem(viewPager.getCurrentItem() + 1, true);
         });
 
         newAssetName.addTextChangedListener(new TextWatcher() {
@@ -410,11 +408,13 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         // Scrim: dismiss on tap outside
         fabScrim.setOnClickListener(v -> collapseFab());
 
-        findViewById(R.id.editGoals).setOnClickListener(v -> {
+        View.OnClickListener openGoals = v -> {
             Intent goalsIntent = new Intent(this, GoalActivity.class);
             goalsIntent.putExtra("current_net_worth", month.getValue());
             startActivity(goalsIntent);
-        });
+        };
+        findViewById(R.id.editGoals).setOnClickListener(openGoals);
+        findViewById(R.id.navGoals).setOnClickListener(openGoals);
     }
 
     // ── Authentication ──────────────────────────────────────────────────────
@@ -615,7 +615,7 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                 }
 
                 runOnUiThread(() -> {
-                    updateViews();
+                    refreshCurrentPage();
                     showSyncing(false);
                 });
             } catch (Exception e) {
@@ -702,7 +702,7 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
 
             runOnUiThread(() -> {
                 showSyncing(false);
-                updateViews();
+                refreshCurrentPage();
                 Toast.makeText(this, R.string.clear_all_data_success, Toast.LENGTH_SHORT).show();
             });
         });
@@ -710,9 +710,13 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
 
 
     private void showSyncing(boolean syncing) {
+        com.google.android.material.card.MaterialCardView navCard =
+                findViewById(R.id.bottomAppBarCard);
         if (syncing) {
-            syncAnim = ObjectAnimator.ofFloat(monthValue, "alpha", 1f, 0.25f);
-            syncAnim.setDuration(600);
+            int from = ContextCompat.getColor(this, R.color.divider);
+            int to   = ContextCompat.getColor(this, R.color.colorAccent);
+            syncAnim = ObjectAnimator.ofArgb(navCard, "strokeColor", from, to);
+            syncAnim.setDuration(700);
             syncAnim.setRepeatMode(ObjectAnimator.REVERSE);
             syncAnim.setRepeatCount(ObjectAnimator.INFINITE);
             syncAnim.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -722,7 +726,8 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                 syncAnim.cancel();
                 syncAnim = null;
             }
-            monthValue.setAlpha(1f);
+            if (navCard != null)
+                navCard.setStrokeColor(ContextCompat.getColor(this, R.color.divider));
         }
     }
 
@@ -779,15 +784,25 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         }
     }
 
-    // ── Asset interactions ───────────────────────────────────────────────────
+    // ── MonthPageFragment.Listener ───────────────────────────────────────────
 
     @Override
-    public void onItemClick(Asset item) {
+    public void onOpenDrawer() {
+        drawerLayout.openDrawer(GravityCompat.START);
+    }
+
+    @Override
+    public void onRequestSync() {
+        triggerSync();
+    }
+
+    @Override
+    public void onEditAsset(Asset item) {
         openAssetView(item.getName(), item.getValue());
     }
 
     @Override
-    public void onItemLongClick(Asset item) {
+    public void onLongPressAsset(Asset item) {
         new AlertDialog.Builder(this)
                 .setTitle(R.string.menu)
                 .setItems(new String[]{
@@ -807,10 +822,23 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                             });
                             new Events().setProperty("numberOfAssets", String.valueOf(realm.where(Asset.class).count()));
                         }
-                        updateViews();
+                        refreshCurrentPage();
                     }
                 })
                 .show();
+    }
+
+    @Override
+    public void onMonthReady(Month m) {
+        int[] current = MonthPagerAdapter.monthYearAt(viewPager.getCurrentItem());
+        if (m.getMonth() != current[0] || m.getYear() != current[1]) return;
+        month = m;
+        monthName.setText(m.toString());
+        updateGoalProgress();
+        updateWidget();
+        if (viewPager.getOffscreenPageLimit() == ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT) {
+            viewPager.setOffscreenPageLimit(2);
+        }
     }
 
     private Asset getNewAsset() {
@@ -836,7 +864,7 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
             realm.executeTransaction(r -> r.copyToRealmOrUpdate(asset));
             new Events().setProperty("numberOfAssets", String.valueOf(realm.where(Asset.class).count()));
         }
-        updateViews();
+        refreshCurrentPage();
         closeAssetView();
         if (!Prefs.getBoolean(Prefs.PREFS_AUTO_IMPORT_PERMISSION, false)) {
             if (hasStoragePermission(PERMISSION_EXPORT_AUTO)) {
@@ -942,7 +970,11 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
     @Override
     protected void onResume() {
         super.onResume();
-        updateViews();
+        if (firstResume) {
+            firstResume = false;
+            return;
+        }
+        refreshCurrentPage();
     }
 
     @Override
@@ -965,88 +997,12 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
         executorService.shutdown();
     }
 
-    private void updateViews() {
-        List<Asset> assets = month.getAssets();
-        try (Realm realm = Realm.getDefaultInstance()) {
-            tutorial.setVisibility(realm.where(Asset.class).count() == 0 ? View.VISIBLE : View.GONE);
-        }
-        adapter.setItems(assets);
-        month.calculateValues();
-        monthName.setText(month.toString());
-        monthValue.setText(Tools.formatAmount(month.getValue()));
-        percentView.init(month.getPreviousMonth().getValue(), month.getValue());
-        percentView.fillValueChange(monthValueChange);
-
-        // Previous month value
-        double prevValue = month.getPreviousMonth().getValue();
-        if (prevValue != 0) {
-            headerPrevValue.setVisibility(View.VISIBLE);
-            headerPrevValue.setText(getString(R.string.header_prev_value, Tools.formatAmount(prevValue)));
-        } else {
-            headerPrevValue.setVisibility(View.GONE);
-        }
-
-        // Asset / liability count (real entries only, skip helpers)
-        int assetCount = 0, liabilityCount = 0;
-        for (Asset a : assets) {
-            if (!a.isHelper()) {
-                if (a.getValue() >= 0) assetCount++;
-                else liabilityCount++;
-            }
-        }
-        if (assetCount > 0 || liabilityCount > 0) {
-            StringBuilder countStr = new StringBuilder();
-            if (assetCount > 0) {
-                countStr.append(getString(assetCount == 1 ? R.string.asset_count_one : R.string.asset_count_many, assetCount));
-            }
-            if (liabilityCount > 0) {
-                if (countStr.length() > 0) countStr.append(getString(R.string.count_separator));
-                countStr.append(getString(liabilityCount == 1 ? R.string.liability_count_one : R.string.liability_count_many, liabilityCount));
-            }
-            headerAssetCount.setVisibility(View.VISIBLE);
-            headerAssetCount.setText(countStr.toString());
-        } else {
-            headerAssetCount.setVisibility(View.GONE);
-        }
-
-        updateWidget();
-        getCommentPreview();
-        updateGoalProgress();
-        updateMiniBar();
-    }
-
-    private void updateMiniBar() {
-        executorService.execute(() -> {
-            java.util.ArrayList<Float> history = new java.util.ArrayList<>();
-            // Get 6 months including current
-            for (int i = 5; i >= 0; i--) {
-                Month m = new Month(month.getMonth(), month.getYear());
-                for (int j = 0; j < i; j++) m.previous();
-                m.calculateValues();
-                history.add((float) m.getValue());
-            }
-            runOnUiThread(() -> miniBarChart.setData(history, 5));
-        });
-    }
-
     private void updateWidget() {
         Intent intent = new Intent(this, OverviewWidget.class);
         intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
         int[] ids = AppWidgetManager.getInstance(getApplication()).getAppWidgetIds(new ComponentName(getApplication(), OverviewWidget.class));
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
         sendBroadcast(intent);
-    }
-
-    private void getCommentPreview() {
-        String note = Prefs.getString(
-                com.kanzar.networthtracker.CommentActivity.noteKey(month.getMonth(), month.getYear()), "");
-        TextView preview = findViewById(R.id.monthCommentPreview);
-        if (!note.isEmpty()) {
-            preview.setVisibility(View.VISIBLE);
-            preview.setText(note);
-        } else {
-            preview.setVisibility(View.GONE);
-        }
     }
 
     private void updateGoalProgress() {
@@ -1126,10 +1082,8 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                 .setPositiveButton("Go", (dialog, which) -> {
                     int selectedMonth = monthPicker.getValue() + 1;
                     int selectedYear  = yearPicker.getValue();
-                    month.setYear(selectedYear);
-                    month.setMonth(selectedMonth);
+                    viewPager.setCurrentItem(MonthPagerAdapter.positionOf(selectedMonth, selectedYear), false);
                     closeAssetView();
-                    updateViews();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -1163,7 +1117,7 @@ public class MainActivity extends AppCompatActivity implements AssetAdapter.OnIt
                     try (Realm realm = Realm.getDefaultInstance()) {
                         realm.executeTransaction(r -> r.copyToRealmOrUpdate(event.getAssets()));
                     }
-                    updateViews();
+                    refreshCurrentPage();
                 })
                 .setNegativeButton(R.string.backup_share_no, null)
                 .show();

@@ -12,190 +12,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
-            android:orientation="vertical"
+        <!-- ViewPager2: swipeable month pages -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:paddingBottom="64dp">
-
-            <!-- ── Modern Header ──────────────────────────────────────── -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="12dp"
-                app:cardBackgroundColor="@color/colorPrimary"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
-                app:strokeWidth="0.5dp"
-                app:strokeColor="#33FFFFFF">
-
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:clipToPadding="false"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <!-- Top Row: Menu | Amount | Percent -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:id="@+id/menu"
-                            android:background="?android:attr/selectableItemBackgroundBorderless"
-                            android:padding="6dp"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:src="@drawable/icon_menu"
-                            app:tint="#FFFFFF" />
-
-                        <TextView
-                            android:id="@+id/monthValue"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginEnd="8dp"
-                            android:minHeight="52dp"
-                            android:paddingBottom="8dp"
-                            android:textColor="#FFFFFF"
-                            android:fontFamily="sans-serif-black"
-                            android:gravity="start|center_vertical"
-                            app:autoSizeTextType="uniform"
-                            app:autoSizeMinTextSize="18sp"
-                            app:autoSizeMaxTextSize="28sp"
-                            android:maxLines="1"/>
-
-                        <com.kanzar.networthtracker.views.PercentView
-                            android:id="@+id/percentView"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-                    </LinearLayout>
-
-                    <!-- Middle Row: Change Value | Previous Month Label -->
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp">
-
-                        <TextView
-                            android:id="@+id/monthValueChange"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="15sp"
-                            android:fontFamily="sans-serif-medium"
-                            android:textColor="#FFFFFF"
-                            android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true"/>
-
-                        <TextView
-                            android:id="@+id/headerPrevValue"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:textColor="#B3FFFFFF"
-                            android:textSize="11sp"
-                            android:fontFamily="sans-serif-medium"/>
-                    </RelativeLayout>
-
-                    <!-- Bottom Row: (Assets/Liabilities + Note) | Graph -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="12dp">
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/headerAssetCount"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="#80FFFFFF"
-                                android:fontFamily="sans-serif-medium"
-                                android:textSize="11sp"/>
-
-                            <TextView
-                                android:id="@+id/monthCommentPreview"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:textColor="#99FFFFFF"
-                                android:textSize="11sp"
-                                android:maxLines="2"
-                                android:ellipsize="end"
-                                android:fontFamily="sans-serif-light"
-                                android:visibility="gone"/>
-                        </LinearLayout>
-
-                        <com.kanzar.networthtracker.views.MiniBarView
-                            android:id="@+id/miniBarChart"
-                            android:layout_width="100dp"
-                            android:layout_height="48dp"
-                            android:layout_marginStart="8dp"
-                            android:layout_gravity="bottom"
-                            android:alpha="0.9"/>
-                    </LinearLayout>
-
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:textColor="#99FFFFFF"
-                        android:textSize="12sp"
-                        android:maxLines="2"
-                        android:ellipsize="end"
-                        android:visibility="gone"/>
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- ── Asset list ──────────────────────────────────────────── -->
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
-
-                <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                    android:id="@+id/refreshLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/assetList"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@android:color/transparent"
-                        android:clipToPadding="false"
-                        android:paddingTop="8dp"
-                        android:paddingBottom="100dp"/>
-
-                </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/tutorial"
-                    android:visibility="gone"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginStart="12dp"
-                    android:layout_marginEnd="12dp"
-                    android:layout_alignTop="@id/refreshLayout"
-                    app:cardBackgroundColor="@color/backgroundContent"
-                    app:cardElevation="6dp"
-                    app:cardCornerRadius="12dp">
-                    <include layout="@layout/activity_tutorial"/>
-                </androidx.cardview.widget.CardView>
-
-            </RelativeLayout>
-        </LinearLayout>
+            android:layout_height="match_parent"/>
 
         <!-- ── Floating Bottom bar ─────────────────────────── -->
         <com.google.android.material.card.MaterialCardView
@@ -373,7 +194,7 @@
             android:layout_gravity="bottom|center_horizontal"
             android:layout_marginStart="0dp"
             android:layout_marginEnd="0dp"
-            android:layout_marginBottom="56dp"
+            android:layout_marginBottom="0dp"
             app:cardBackgroundColor="@color/surfaceElevated"
             app:cardElevation="24dp"
             app:cardCornerRadius="20dp">
@@ -490,7 +311,6 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Save button inside form -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSaveAsset"
                     android:layout_width="match_parent"
@@ -546,7 +366,6 @@
                     android:paddingTop="16dp"
                     android:paddingBottom="8dp">
 
-                    <!-- Header -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -577,7 +396,6 @@
 
                     </LinearLayout>
 
-                    <!-- 1-Year: label | bar | % -->
                     <LinearLayout
                         android:id="@+id/goal1yRow"
                         android:layout_width="match_parent"
@@ -619,7 +437,6 @@
 
                     </LinearLayout>
 
-                    <!-- 3-Year: label | bar | % -->
                     <LinearLayout
                         android:id="@+id/goal3yRow"
                         android:layout_width="match_parent"
@@ -661,7 +478,6 @@
 
                     </LinearLayout>
 
-                    <!-- 5-Year: label | bar | % -->
                     <LinearLayout
                         android:id="@+id/goal5yRow"
                         android:layout_width="match_parent"
@@ -863,7 +679,6 @@
                     app:drawableStartCompat="@drawable/ic_export"
                     app:drawableTint="@color/textSecondary" />
 
-                <!-- Import parent (toggles sub-menu) -->
                 <TextView
                     android:id="@+id/navImport"
                     android:layout_width="match_parent"
@@ -881,7 +696,6 @@
                     app:drawableEndCompat="@drawable/ic_chevron_down"
                     app:drawableTint="@color/textSecondary" />
 
-                <!-- Import sub-items (hidden by default) -->
                 <LinearLayout
                     android:id="@+id/navImportSubmenu"
                     android:layout_width="match_parent"
@@ -918,7 +732,6 @@
                         android:textSize="14sp" />
 
                 </LinearLayout>
-
 
                 <View
                     android:layout_width="match_parent"

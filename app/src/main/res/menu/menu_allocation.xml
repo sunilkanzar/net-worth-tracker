@@ -3,6 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_filter_allocation"
+        android:title="Filter"
+        android:icon="@drawable/ic_filter"
+        app:showAsAction="always"
+        app:iconTint="@color/textPrimary"/>
+
+    <item
         android:id="@+id/action_toggle_chart"
         android:title="Toggle Chart"
         android:icon="@drawable/ic_treemap"

@@ -1,18 +1,24 @@
 package com.kanzar.networthtracker;
 
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-
-import androidx.appcompat.app.AlertDialog;
-import android.graphics.Typeface;
-import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -35,7 +41,11 @@ import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import io.realm.Realm;
 import io.realm.Sort;
@@ -54,7 +64,6 @@ public class AllocationActivity extends AppCompatActivity {
         0xFFE53935, 0xFFF4511E, 0xFFFFAB00, 0xFFC62828
     };
 
-
     private Month month;
     private PieChart assetChart;
     private PieChart liabilityChart;
@@ -66,6 +75,15 @@ public class AllocationActivity extends AppCompatActivity {
 
     private boolean isTreemapMode = false;
     private MenuItem toggleMenuItem;
+
+    // Full data for current month (unmanaged Realm copies)
+    private List<Asset> allAssets      = new ArrayList<>();
+    private List<Asset> allLiabilities = new ArrayList<>();
+    private Map<String, Double> prevValues = new HashMap<>();
+
+    // Active filter sets (names)
+    private Set<String> selectedAssetNames     = new HashSet<>();
+    private Set<String> selectedLiabilityNames = new HashSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,13 +98,13 @@ public class AllocationActivity extends AppCompatActivity {
         int selectedYear  = getIntent().getIntExtra("year",  new Month().getYear());
         month = new Month(selectedMonth, selectedYear);
 
-        assetChart        = findViewById(R.id.assetChart);
-        liabilityChart    = findViewById(R.id.liabilityChart);
-        assetTreemap      = findViewById(R.id.assetTreemap);
-        liabilityTreemap  = findViewById(R.id.liabilityTreemap);
-        assetTotalView    = findViewById(R.id.assetTotal);
+        assetChart         = findViewById(R.id.assetChart);
+        liabilityChart     = findViewById(R.id.liabilityChart);
+        assetTreemap       = findViewById(R.id.assetTreemap);
+        liabilityTreemap   = findViewById(R.id.liabilityTreemap);
+        assetTotalView     = findViewById(R.id.assetTotal);
         liabilityTotalView = findViewById(R.id.liabilityTotal);
-        monthName         = findViewById(R.id.monthName);
+        monthName          = findViewById(R.id.monthName);
 
         findViewById(R.id.previousMonth).setOnClickListener(v -> { month.previous(); loadData(); });
         findViewById(R.id.nextMonth).setOnClickListener(v -> { month.next(); loadData(); });
@@ -94,6 +112,8 @@ public class AllocationActivity extends AppCompatActivity {
 
         loadData();
     }
+
+    // ── Menu ─────────────────────────────────────────────────────────────────
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -104,9 +124,13 @@ public class AllocationActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_toggle_chart) {
+        int id = item.getItemId();
+        if (id == R.id.action_toggle_chart) {
             isTreemapMode = !isTreemapMode;
             applyChartMode();
+            return true;
+        } else if (id == R.id.action_filter_allocation) {
+            showFilterDialog();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -114,40 +138,28 @@ public class AllocationActivity extends AppCompatActivity {
 
     private void applyChartMode() {
         if (toggleMenuItem != null) {
-            toggleMenuItem.setIcon(isTreemapMode
-                    ? R.drawable.ic_donut
-                    : R.drawable.ic_treemap);
+            toggleMenuItem.setIcon(isTreemapMode ? R.drawable.ic_donut : R.drawable.ic_treemap);
         }
-        if (isTreemapMode) {
-            assetChart.setVisibility(View.GONE);
-            liabilityChart.setVisibility(View.GONE);
-            assetTreemap.setVisibility(View.VISIBLE);
-            liabilityTreemap.setVisibility(View.VISIBLE);
-        } else {
-            assetChart.setVisibility(View.VISIBLE);
-            liabilityChart.setVisibility(View.VISIBLE);
-            assetTreemap.setVisibility(View.GONE);
-            liabilityTreemap.setVisibility(View.GONE);
-        }
+        boolean assetsEmpty      = selectedAssetNames.isEmpty()     || allAssets.isEmpty();
+        boolean liabilitiesEmpty = selectedLiabilityNames.isEmpty() || allLiabilities.isEmpty();
+
+        assetChart.setVisibility((!isTreemapMode && !assetsEmpty) ? View.VISIBLE : View.GONE);
+        assetTreemap.setVisibility((isTreemapMode && !assetsEmpty) ? View.VISIBLE : View.GONE);
+        liabilityChart.setVisibility((!isTreemapMode && !liabilitiesEmpty) ? View.VISIBLE : View.GONE);
+        liabilityTreemap.setVisibility((isTreemapMode && !liabilitiesEmpty) ? View.VISIBLE : View.GONE);
     }
+
+    // ── Data loading ─────────────────────────────────────────────────────────
 
     private void loadData() {
         monthName.setText(month.toString());
 
-        // Previous month for change calculation
         Month prevMonth = new Month(month.getMonth(), month.getYear());
         prevMonth.previous();
 
         try (Realm realm = Realm.getDefaultInstance()) {
-            List<Asset> all = realm
-                    .where(Asset.class)
-                    .equalTo(AssetFields.MONTH, month.getMonth())
-                    .equalTo(AssetFields.YEAR, month.getYear())
-                    .sort(AssetFields.VALUE, Sort.DESCENDING)
-                    .findAll();
-
-            // Build previous month lookup: name → raw value
-            java.util.Map<String, Double> prevValues = new java.util.HashMap<>();
+            // Previous month lookup
+            prevValues.clear();
             for (Asset a : realm.where(Asset.class)
                     .equalTo(AssetFields.MONTH, prevMonth.getMonth())
                     .equalTo(AssetFields.YEAR, prevMonth.getYear())
@@ -155,127 +167,232 @@ public class AllocationActivity extends AppCompatActivity {
                 prevValues.put(a.getName(), a.getValue());
             }
 
-            List<PieEntry> assetPieEntries     = new ArrayList<>();
-            List<PieEntry> liabilityPieEntries = new ArrayList<>();
-            List<Asset>    assetList           = new ArrayList<>();
-            List<Asset>    liabilityList       = new ArrayList<>();
-            double assetTotal = 0, liabilityTotal = 0;
+            // Current month — sorted descending by value
+            List<Asset> all = realm.copyFromRealm(
+                    realm.where(Asset.class)
+                            .equalTo(AssetFields.MONTH, month.getMonth())
+                            .equalTo(AssetFields.YEAR, month.getYear())
+                            .sort(AssetFields.VALUE, Sort.DESCENDING)
+                            .findAll());
 
-            for (Asset asset : all) {
-                double val = asset.getValue();
-                if (val > 0) {
-                    assetPieEntries.add(new PieEntry((float) val, asset.getName()));
-                    assetList.add(realm.copyFromRealm(asset));
-                    assetTotal += val;
-                } else if (val < 0) {
-                    liabilityPieEntries.add(new PieEntry((float) Math.abs(val), asset.getName()));
-                    liabilityList.add(realm.copyFromRealm(asset));
-                    liabilityTotal += Math.abs(val);
-                }
+            allAssets.clear();
+            allLiabilities.clear();
+            for (Asset a : all) {
+                if (a.getValue() > 0)      allAssets.add(a);
+                else if (a.getValue() < 0) allLiabilities.add(a);
             }
+            // Liabilities: sort by abs value desc
+            allLiabilities.sort((x, y) ->
+                    Double.compare(Math.abs(y.getValue()), Math.abs(x.getValue())));
+        }
 
-            // Assets
-            if (assetPieEntries.isEmpty()) {
-                assetChart.setVisibility(View.INVISIBLE);
-                assetTreemap.setVisibility(View.INVISIBLE);
-                assetTotalView.setText("—");
-            } else {
-                assetTotalView.setText(Tools.formatAmount(assetTotal, true));
-                setupDonut(assetChart, assetPieEntries, ASSET_COLORS,
-                        Tools.formatAmount(assetTotal, true));
-                assetTreemap.setItems(buildTreemapItems(assetList, prevValues, true));
-                if (isTreemapMode) {
-                    assetChart.setVisibility(View.GONE);
-                    assetTreemap.setVisibility(View.VISIBLE);
-                } else {
-                    assetChart.setVisibility(View.VISIBLE);
-                    assetTreemap.setVisibility(View.GONE);
-                }
-            }
+        // Select all by default on each month load
+        selectedAssetNames.clear();
+        for (Asset a : allAssets) selectedAssetNames.add(a.getName());
+        selectedLiabilityNames.clear();
+        for (Asset a : allLiabilities) selectedLiabilityNames.add(a.getName());
 
-            // Liabilities
-            if (liabilityPieEntries.isEmpty()) {
-                liabilityChart.setVisibility(View.INVISIBLE);
-                liabilityTreemap.setVisibility(View.INVISIBLE);
-                liabilityTotalView.setText("—");
-            } else {
-                liabilityTotalView.setText("-" + Tools.formatAmount(liabilityTotal, true));
-                setupDonut(liabilityChart, liabilityPieEntries, LIABILITY_COLORS,
-                        "-" + Tools.formatAmount(liabilityTotal, true));
-                liabilityTreemap.setItems(buildTreemapItems(liabilityList, prevValues, false));
-                if (isTreemapMode) {
-                    liabilityChart.setVisibility(View.GONE);
-                    liabilityTreemap.setVisibility(View.VISIBLE);
-                } else {
-                    liabilityChart.setVisibility(View.VISIBLE);
-                    liabilityTreemap.setVisibility(View.GONE);
-                }
+        rebuildCharts();
+    }
+
+    private void rebuildCharts() {
+        // ── Assets ──
+        List<Asset> filteredAssets = new ArrayList<>();
+        for (Asset a : allAssets) {
+            if (selectedAssetNames.contains(a.getName())) filteredAssets.add(a);
+        }
+
+        if (filteredAssets.isEmpty()) {
+            assetChart.setVisibility(View.INVISIBLE);
+            assetTreemap.setVisibility(View.INVISIBLE);
+            assetTotalView.setText("—");
+        } else {
+            double assetTotal = 0;
+            List<PieEntry> assetEntries = new ArrayList<>();
+            for (Asset a : filteredAssets) {
+                assetEntries.add(new PieEntry((float) a.getValue(), a.getName()));
+                assetTotal += a.getValue();
             }
+            assetTotalView.setText(Tools.formatAmount(assetTotal, true));
+            setupDonut(assetChart, assetEntries, ASSET_COLORS, Tools.formatAmount(assetTotal, true));
+            assetTreemap.setItems(buildTreemapItems(filteredAssets, true));
+            applyChartMode();
+        }
+
+        // ── Liabilities ──
+        List<Asset> filteredLiabilities = new ArrayList<>();
+        for (Asset a : allLiabilities) {
+            if (selectedLiabilityNames.contains(a.getName())) filteredLiabilities.add(a);
+        }
+
+        if (filteredLiabilities.isEmpty()) {
+            liabilityChart.setVisibility(View.INVISIBLE);
+            liabilityTreemap.setVisibility(View.INVISIBLE);
+            liabilityTotalView.setText("—");
+        } else {
+            double liabilityTotal = 0;
+            List<PieEntry> liabilityEntries = new ArrayList<>();
+            for (Asset a : filteredLiabilities) {
+                liabilityEntries.add(new PieEntry((float) Math.abs(a.getValue()), a.getName()));
+                liabilityTotal += Math.abs(a.getValue());
+            }
+            liabilityTotalView.setText("-" + Tools.formatAmount(liabilityTotal, true));
+            setupDonut(liabilityChart, liabilityEntries, LIABILITY_COLORS,
+                    "-" + Tools.formatAmount(liabilityTotal, true));
+            liabilityTreemap.setItems(buildTreemapItems(filteredLiabilities, false));
+            applyChartMode();
         }
     }
 
-    /**
-     * Box size  = absolute value (weight/allocation).
-     * Box color = % change vs previous month:
-     *   green = gained value (asset up, liability down)
-     *   red   = lost value   (asset down, liability up)
-     *   intensity = magnitude of % change, capped at ±15%
-     */
-    private List<TreemapView.Item> buildTreemapItems(
-            List<Asset> assets,
-            java.util.Map<String, Double> prevValues,
-            boolean isAsset) {
+    // ── Filter dialog ────────────────────────────────────────────────────────
 
+    private void showFilterDialog() {
+        if (allAssets.isEmpty() && allLiabilities.isEmpty()) return;
+
+        // Build combined display list: assets first, then liabilities with prefix
+        // allItemNames[i] = display name
+        // masterChecked[i] = checked state
+        // isLiabilityItem[i] = whether it's a liability
+        // realName[i] = actual asset name (no prefix)
+
+        final List<String> allItemNames   = new ArrayList<>();
+        final List<String> realNames      = new ArrayList<>();
+        final List<Boolean> isLiability   = new ArrayList<>();
+
+        for (Asset a : allAssets) {
+            allItemNames.add(a.getName());
+            realNames.add(a.getName());
+            isLiability.add(false);
+        }
+        for (Asset a : allLiabilities) {
+            allItemNames.add("[L]  " + a.getName());
+            realNames.add(a.getName());
+            isLiability.add(true);
+        }
+
+        final boolean[] masterChecked = new boolean[allItemNames.size()];
+        for (int i = 0; i < allItemNames.size(); i++) {
+            Set<String> sel = isLiability.get(i) ? selectedLiabilityNames : selectedAssetNames;
+            masterChecked[i] = sel.contains(realNames.get(i));
+        }
+
+        // filteredIndices: ListView row → index in allItemNames
+        final List<Integer> filteredIndices = new ArrayList<>();
+        for (int i = 0; i < allItemNames.size(); i++) filteredIndices.add(i);
+
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_asset_select, null);
+        EditText search     = dialogView.findViewById(R.id.searchAsset);
+        ListView listView   = dialogView.findViewById(R.id.assetList);
+        Button btnSelectAll = dialogView.findViewById(R.id.btnSelectAll);
+        Button btnClearAll  = dialogView.findViewById(R.id.btnClearAll);
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_list_item_multiple_choice);
+        for (int idx : filteredIndices) adapter.add(allItemNames.get(idx));
+        listView.setAdapter(adapter);
+
+        for (int row = 0; row < filteredIndices.size(); row++) {
+            listView.setItemChecked(row, masterChecked[filteredIndices.get(row)]);
+        }
+
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            if (position < filteredIndices.size()) {
+                masterChecked[filteredIndices.get(position)] = listView.isItemChecked(position);
+            }
+        });
+
+        search.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
+            @Override public void afterTextChanged(Editable s) {}
+            @Override
+            public void onTextChanged(CharSequence s, int st, int before, int count) {
+                String q = s.toString().toLowerCase().trim();
+                filteredIndices.clear();
+                for (int i = 0; i < allItemNames.size(); i++) {
+                    if (q.isEmpty() || allItemNames.get(i).toLowerCase().contains(q))
+                        filteredIndices.add(i);
+                }
+                adapter.clear();
+                for (int idx : filteredIndices) adapter.add(allItemNames.get(idx));
+                adapter.notifyDataSetChanged();
+                for (int row = 0; row < filteredIndices.size(); row++) {
+                    listView.setItemChecked(row, masterChecked[filteredIndices.get(row)]);
+                }
+            }
+        });
+
+        btnSelectAll.setOnClickListener(v -> {
+            for (int row = 0; row < filteredIndices.size(); row++) {
+                masterChecked[filteredIndices.get(row)] = true;
+                listView.setItemChecked(row, true);
+            }
+        });
+
+        btnClearAll.setOnClickListener(v -> {
+            for (int row = 0; row < filteredIndices.size(); row++) {
+                masterChecked[filteredIndices.get(row)] = false;
+                listView.setItemChecked(row, false);
+            }
+        });
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.trend_select_title)
+                .setView(dialogView)
+                .setPositiveButton(R.string.trend_show, (dialog, which) -> {
+                    Set<String> newAssets      = new HashSet<>();
+                    Set<String> newLiabilities = new HashSet<>();
+                    for (int i = 0; i < allItemNames.size(); i++) {
+                        if (!masterChecked[i]) continue;
+                        if (isLiability.get(i)) newLiabilities.add(realNames.get(i));
+                        else                    newAssets.add(realNames.get(i));
+                    }
+                    if (newAssets.isEmpty() && newLiabilities.isEmpty()) {
+                        Toast.makeText(this, R.string.trend_select_none, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    selectedAssetNames     = newAssets;
+                    selectedLiabilityNames = newLiabilities;
+                    rebuildCharts();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    // ── Treemap helpers ───────────────────────────────────────────────────────
+
+    private List<TreemapView.Item> buildTreemapItems(List<Asset> assets, boolean isAsset) {
         List<TreemapView.Item> items = new ArrayList<>();
         for (Asset a : assets) {
-            double current  = a.getValue();          // raw (negative for liabilities)
-            double prev     = prevValues.containsKey(a.getName())
-                    ? prevValues.get(a.getName()) : 0.0;
-
-            // % change on absolute value
-            double absCurrent = Math.abs(current);
-            double absPrev    = Math.abs(prev);
+            double current  = a.getValue();
+            double prev     = prevValues.containsKey(a.getName()) ? prevValues.get(a.getName()) : 0.0;
+            double absCurr  = Math.abs(current);
+            double absPrev  = Math.abs(prev);
             double pctChange;
             if (absPrev > 0) {
-                pctChange = (absCurrent - absPrev) / absPrev * 100.0;
+                pctChange = (absCurr - absPrev) / absPrev * 100.0;
             } else {
-                pctChange = absCurrent > 0 ? 15.0 : 0.0; // brand-new entry → treat as +15%
+                pctChange = absCurr > 0 ? 15.0 : 0.0;
             }
-
-            // For liabilities: debt growing is BAD (red), shrinking is GOOD (green) → invert
             double effectivePct = isAsset ? pctChange : -pctChange;
-
-            int color = changeToColor(effectivePct);
-            items.add(new TreemapView.Item(a.getName(), (float) absCurrent, color));
+            items.add(new TreemapView.Item(a.getName(), (float) absCurr, changeToColor(effectivePct)));
         }
         return items;
     }
 
-    /**
-     * Maps % change to a color, stock-market heatmap style.
-     *
-     *  pct > 0  → green family:  small gain = #4CAF50, large gain = #1B5E20
-     *  pct < 0  → red family:    small loss = #EF5350, large loss = #7F0000
-     *  pct == 0 → dark grey      #424242
-     *
-     * Intensity capped at ±15% for full saturation.
-     */
     private int changeToColor(double pct) {
         if (pct == 0.0) return 0xFF424242;
         float t = (float) Math.min(Math.abs(pct) / 15.0, 1.0);
-        if (pct > 0) {
-            // light green → deep green
-            return TreemapView.lerpColor(0xFF4CAF50, 0xFF1B5E20, t);
-        } else {
-            // light red → deep red
-            return TreemapView.lerpColor(0xFFEF5350, 0xFF7F0000, t);
-        }
+        return pct > 0
+                ? TreemapView.lerpColor(0xFF4CAF50, 0xFF1B5E20, t)
+                : TreemapView.lerpColor(0xFFEF5350, 0xFF7F0000, t);
     }
 
+    // ── Month picker ──────────────────────────────────────────────────────────
+
     private void showMonthYearPicker() {
-        String[] allMonths = new DateFormatSymbols().getMonths();
+        String[] allMonths  = new DateFormatSymbols().getMonths();
         String[] monthNames = Arrays.copyOf(allMonths, 12);
-        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+        int currentYear     = Calendar.getInstance().get(Calendar.YEAR);
 
         NumberPicker monthPicker = new NumberPicker(this);
         monthPicker.setMinValue(0);
@@ -312,8 +429,10 @@ public class AllocationActivity extends AppCompatActivity {
                 .show();
     }
 
+    // ── Donut setup ───────────────────────────────────────────────────────────
+
     private void setupDonut(PieChart chart, List<PieEntry> entries, int[] colors, String centerText) {
-        int labelColor = ContextCompat.getColor(this, R.color.textPrimary);
+        int labelColor          = ContextCompat.getColor(this, R.color.textPrimary);
         int secondaryLabelColor = ContextCompat.getColor(this, R.color.textSecondary);
 
         chart.setUsePercentValues(true);

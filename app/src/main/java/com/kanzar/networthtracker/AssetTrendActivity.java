@@ -209,7 +209,7 @@ public class AssetTrendActivity extends AppCompatActivity {
         chart.setDoubleTapToZoomEnabled(true);
         chart.setBackgroundColor(Color.TRANSPARENT);
         chart.setDrawGridBackground(false);
-        chart.setHighlightPerDragEnabled(false);
+        chart.setHighlightPerDragEnabled(true);
 
         Description desc = new Description();
         desc.setText("");
