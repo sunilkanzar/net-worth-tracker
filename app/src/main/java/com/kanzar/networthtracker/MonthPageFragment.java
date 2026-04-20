@@ -50,7 +50,8 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
     private TextView monthValue, monthValueChange, headerPrevValue, headerAssetCount, commentPreview;
     private PercentView percentView;
     private MiniBarView miniBarChart;
-    private View tutorial;
+    private View tutorial, mainContent;
+    private com.facebook.shimmer.ShimmerFrameLayout shimmerView;
 
     public static MonthPageFragment newInstance(int month, int year) {
         MonthPageFragment f = new MonthPageFragment();
@@ -92,6 +93,8 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
         percentView      = view.findViewById(R.id.percentView);
         miniBarChart     = view.findViewById(R.id.miniBarChart);
         tutorial         = view.findViewById(R.id.tutorial);
+        mainContent      = view.findViewById(R.id.mainContent);
+        shimmerView      = view.findViewById(R.id.shimmerView);
 
         view.findViewById(R.id.menu).setOnClickListener(v -> listener.onOpenDrawer());
 
@@ -110,7 +113,17 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
     }
 
     public void refresh() {
+        refresh(true);
+    }
+
+    public void refresh(boolean showShimmer) {
         if (!isAdded() || getView() == null) return;
+
+        if (showShimmer) {
+            shimmerView.setVisibility(View.VISIBLE);
+            shimmerView.startShimmer();
+            mainContent.setVisibility(View.GONE);
+        }
 
         executor.execute(() -> {
             List<Asset> assets = month.getAssets();
@@ -174,6 +187,11 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
                 }
 
                 miniBarChart.setData(history, 5);
+
+                shimmerView.stopShimmer();
+                shimmerView.setVisibility(View.GONE);
+                mainContent.setVisibility(View.VISIBLE);
+
                 listener.onMonthReady(month);
             });
         });

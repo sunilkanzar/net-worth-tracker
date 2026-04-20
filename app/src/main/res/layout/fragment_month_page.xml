@@ -6,8 +6,24 @@
     android:layout_height="match_parent"
     android:background="@color/background">
 
-    <!-- Modern Header -->
-    <com.google.android.material.card.MaterialCardView
+    <!-- Shimmer Loader -->
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/shimmerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible">
+        <include layout="@layout/layout_month_shimmer" />
+    </com.facebook.shimmer.ShimmerFrameLayout>
+
+    <LinearLayout
+        android:id="@+id/mainContent"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <!-- Modern Header -->
+        <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="12dp"
@@ -171,5 +187,7 @@
         </androidx.cardview.widget.CardView>
 
     </RelativeLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

@@ -247,13 +247,21 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
 
     private void refreshCurrentPage() {
         MonthPageFragment f = getCurrentFragment();
-        if (f != null) f.refresh();
+        if (f != null) f.refresh(false);
         updateGoalProgress();
         updateWidget();
     }
 
     private void viewListeners() {
         monthName.setOnClickListener(v -> showMonthYearPicker());
+        monthName.setOnLongClickListener(v -> {
+            Calendar now = Calendar.getInstance();
+            int pos = MonthPagerAdapter.positionOf(now.get(Calendar.MONTH) + 1, now.get(Calendar.YEAR));
+            if (viewPager.getCurrentItem() != pos) {
+                viewPager.setCurrentItem(pos, true);
+            }
+            return true;
+        });
 
         findViewById(R.id.googleSignIn).setOnClickListener(v -> {
             new Events().send(new SigninClicked());

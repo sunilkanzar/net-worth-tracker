@@ -203,6 +203,7 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             assetSparkline.setDrawGridBackground(false);
             assetSparkline.setTouchEnabled(false);
             assetSparkline.setViewPortOffsets(0, 0, 0, 0);
+            assetSparkline.setNoDataText("");
         }
 
         public void bind(Asset asset, Context context, double totalAssets, double totalLiabilities) {
