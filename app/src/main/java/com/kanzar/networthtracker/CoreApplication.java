@@ -26,7 +26,7 @@ public class CoreApplication extends MultiDexApplication {
         instance = this;
 
         // Load theme preference
-        int theme = Prefs.getInt(Prefs.PREFS_THEME, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        int theme = Prefs.getInt(Prefs.PREFS_THEME, Prefs.DEFAULT_THEME);
         AppCompatDelegate.setDefaultNightMode(theme);
 
         Realm.init(this);

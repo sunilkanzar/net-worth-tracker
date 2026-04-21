@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.kanzar.networthtracker.databinding.ActivityGoalBinding;
 import com.kanzar.networthtracker.helpers.Prefs;
 import com.kanzar.networthtracker.helpers.Tools;
 
@@ -18,54 +19,46 @@ import java.util.Locale;
 
 public class GoalActivity extends AppCompatActivity {
 
-    private EditText goal1y, goal3y, goal5y;
-    private TextView rate1y, rate3y, rate5y;
+    private ActivityGoalBinding binding;
     private double currentNetWorth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_goal);
+        binding = ActivityGoalBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
-
-        goal1y = findViewById(R.id.goal1y);
-        goal3y = findViewById(R.id.goal3y);
-        goal5y = findViewById(R.id.goal5y);
-        rate1y = findViewById(R.id.rate1y);
-        rate3y = findViewById(R.id.rate3y);
-        rate5y = findViewById(R.id.rate5y);
+        binding.toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
         // Current net worth passed from MainActivity
         currentNetWorth = getIntent().getDoubleExtra("current_net_worth", 0.0);
-        ((TextView) findViewById(R.id.currentNetWorth)).setText(Tools.formatAmount(currentNetWorth));
+        binding.currentNetWorth.setText(Tools.formatAmount(currentNetWorth));
 
         // Target year labels
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
         int setYear = Prefs.getInt(Prefs.PREFS_GOAL_SET_YEAR, currentYear);
-        ((TextView) findViewById(R.id.label1y)).setText(getString(R.string.goal_1y_label_with_year, setYear + 1));
-        ((TextView) findViewById(R.id.label3y)).setText(getString(R.string.goal_3y_label_with_year, setYear + 3));
-        ((TextView) findViewById(R.id.label5y)).setText(getString(R.string.goal_5y_label_with_year, setYear + 5));
+        binding.label1y.setText(getString(R.string.goal_1y_label_with_year, setYear + 1));
+        binding.label3y.setText(getString(R.string.goal_3y_label_with_year, setYear + 3));
+        binding.label5y.setText(getString(R.string.goal_5y_label_with_year, setYear + 5));
 
         // Pre-fill existing goals
         float g1 = Prefs.getFloat(Prefs.PREFS_GOAL_1Y, 0f);
         float g3 = Prefs.getFloat(Prefs.PREFS_GOAL_3Y, 0f);
         float g5 = Prefs.getFloat(Prefs.PREFS_GOAL_5Y, 0f);
-        if (g1 > 0) goal1y.setText(formatGoalValue(g1));
-        if (g3 > 0) goal3y.setText(formatGoalValue(g3));
-        if (g5 > 0) goal5y.setText(formatGoalValue(g5));
+        if (g1 > 0) binding.goal1y.setText(formatGoalValue(g1));
+        if (g3 > 0) binding.goal3y.setText(formatGoalValue(g3));
+        if (g5 > 0) binding.goal5y.setText(formatGoalValue(g5));
 
-        goal1y.addTextChangedListener(rateWatcher(rate1y, 1));
-        goal3y.addTextChangedListener(rateWatcher(rate3y, 3));
-        goal5y.addTextChangedListener(rateWatcher(rate5y, 5));
+        binding.goal1y.addTextChangedListener(rateWatcher(binding.rate1y, 1));
+        binding.goal3y.addTextChangedListener(rateWatcher(binding.rate3y, 3));
+        binding.goal5y.addTextChangedListener(rateWatcher(binding.rate5y, 5));
 
         // Show rates for pre-filled values
-        updateRateHint(rate1y, g1, 1);
-        updateRateHint(rate3y, g3, 3);
-        updateRateHint(rate5y, g5, 5);
+        updateRateHint(binding.rate1y, g1, 1);
+        updateRateHint(binding.rate3y, g3, 3);
+        updateRateHint(binding.rate5y, g5, 5);
 
-        findViewById(R.id.btnSaveGoals).setOnClickListener(v -> saveGoals());
+        binding.btnSaveGoals.setOnClickListener(v -> saveGoals());
     }
 
     private TextWatcher rateWatcher(TextView rateView, int years) {
@@ -113,9 +106,9 @@ public class GoalActivity extends AppCompatActivity {
     }
 
     private void saveGoals() {
-        float g1 = parseInput(goal1y);
-        float g3 = parseInput(goal3y);
-        float g5 = parseInput(goal5y);
+        float g1 = parseInput(binding.goal1y);
+        float g3 = parseInput(binding.goal3y);
+        float g5 = parseInput(binding.goal5y);
 
         Prefs.save(Prefs.PREFS_GOAL_1Y, g1);
         Prefs.save(Prefs.PREFS_GOAL_3Y, g3);

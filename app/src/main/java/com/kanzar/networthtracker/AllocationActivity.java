@@ -31,6 +31,8 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.PercentFormatter;
+import com.kanzar.networthtracker.databinding.ActivityAllocationBinding;
+import com.kanzar.networthtracker.databinding.DialogAssetSelectBinding;
 import com.kanzar.networthtracker.helpers.Month;
 import com.kanzar.networthtracker.helpers.Tools;
 import com.kanzar.networthtracker.models.Asset;
@@ -65,13 +67,7 @@ public class AllocationActivity extends AppCompatActivity {
     };
 
     private Month month;
-    private PieChart assetChart;
-    private PieChart liabilityChart;
-    private TreemapView assetTreemap;
-    private TreemapView liabilityTreemap;
-    private TextView assetTotalView;
-    private TextView liabilityTotalView;
-    private TextView monthName;
+    private ActivityAllocationBinding binding;
 
     private boolean isTreemapMode = false;
     private MenuItem toggleMenuItem;
@@ -88,27 +84,19 @@ public class AllocationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_allocation);
+        binding = ActivityAllocationBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
+        setSupportActionBar(binding.toolbar);
+        binding.toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
         int selectedMonth = getIntent().getIntExtra("month", new Month().getMonth());
         int selectedYear  = getIntent().getIntExtra("year",  new Month().getYear());
         month = new Month(selectedMonth, selectedYear);
 
-        assetChart         = findViewById(R.id.assetChart);
-        liabilityChart     = findViewById(R.id.liabilityChart);
-        assetTreemap       = findViewById(R.id.assetTreemap);
-        liabilityTreemap   = findViewById(R.id.liabilityTreemap);
-        assetTotalView     = findViewById(R.id.assetTotal);
-        liabilityTotalView = findViewById(R.id.liabilityTotal);
-        monthName          = findViewById(R.id.monthName);
-
-        findViewById(R.id.previousMonth).setOnClickListener(v -> { month.previous(); loadData(); });
-        findViewById(R.id.nextMonth).setOnClickListener(v -> { month.next(); loadData(); });
-        monthName.setOnClickListener(v -> showMonthYearPicker());
+        binding.previousMonth.setOnClickListener(v -> { month.previous(); loadData(); });
+        binding.nextMonth.setOnClickListener(v -> { month.next(); loadData(); });
+        binding.monthName.setOnClickListener(v -> showMonthYearPicker());
 
         loadData();
     }
@@ -143,16 +131,16 @@ public class AllocationActivity extends AppCompatActivity {
         boolean assetsEmpty      = selectedAssetNames.isEmpty()     || allAssets.isEmpty();
         boolean liabilitiesEmpty = selectedLiabilityNames.isEmpty() || allLiabilities.isEmpty();
 
-        assetChart.setVisibility((!isTreemapMode && !assetsEmpty) ? View.VISIBLE : View.GONE);
-        assetTreemap.setVisibility((isTreemapMode && !assetsEmpty) ? View.VISIBLE : View.GONE);
-        liabilityChart.setVisibility((!isTreemapMode && !liabilitiesEmpty) ? View.VISIBLE : View.GONE);
-        liabilityTreemap.setVisibility((isTreemapMode && !liabilitiesEmpty) ? View.VISIBLE : View.GONE);
+        binding.assetChart.setVisibility((!isTreemapMode && !assetsEmpty) ? View.VISIBLE : View.GONE);
+        binding.assetTreemap.setVisibility((isTreemapMode && !assetsEmpty) ? View.VISIBLE : View.GONE);
+        binding.liabilityChart.setVisibility((!isTreemapMode && !liabilitiesEmpty) ? View.VISIBLE : View.GONE);
+        binding.liabilityTreemap.setVisibility((isTreemapMode && !liabilitiesEmpty) ? View.VISIBLE : View.GONE);
     }
 
     // ── Data loading ─────────────────────────────────────────────────────────
 
     private void loadData() {
-        monthName.setText(month.toString());
+        binding.monthName.setText(month.toString());
 
         Month prevMonth = new Month(month.getMonth(), month.getYear());
         prevMonth.previous();
@@ -203,9 +191,9 @@ public class AllocationActivity extends AppCompatActivity {
         }
 
         if (filteredAssets.isEmpty()) {
-            assetChart.setVisibility(View.INVISIBLE);
-            assetTreemap.setVisibility(View.INVISIBLE);
-            assetTotalView.setText("—");
+            binding.assetChart.setVisibility(View.INVISIBLE);
+            binding.assetTreemap.setVisibility(View.INVISIBLE);
+            binding.assetTotal.setText("—");
         } else {
             double assetTotal = 0;
             List<PieEntry> assetEntries = new ArrayList<>();
@@ -213,9 +201,9 @@ public class AllocationActivity extends AppCompatActivity {
                 assetEntries.add(new PieEntry((float) a.getValue(), a.getName()));
                 assetTotal += a.getValue();
             }
-            assetTotalView.setText(Tools.formatAmount(assetTotal, true));
-            setupDonut(assetChart, assetEntries, ASSET_COLORS, Tools.formatAmount(assetTotal, true));
-            assetTreemap.setItems(buildTreemapItems(filteredAssets, true));
+            binding.assetTotal.setText(Tools.formatAmount(assetTotal, true));
+            setupDonut(binding.assetChart, assetEntries, ASSET_COLORS, Tools.formatAmount(assetTotal, true));
+            binding.assetTreemap.setItems(buildTreemapItems(filteredAssets, true));
             applyChartMode();
         }
 
@@ -226,9 +214,9 @@ public class AllocationActivity extends AppCompatActivity {
         }
 
         if (filteredLiabilities.isEmpty()) {
-            liabilityChart.setVisibility(View.INVISIBLE);
-            liabilityTreemap.setVisibility(View.INVISIBLE);
-            liabilityTotalView.setText("—");
+            binding.liabilityChart.setVisibility(View.INVISIBLE);
+            binding.liabilityTreemap.setVisibility(View.INVISIBLE);
+            binding.liabilityTotal.setText("—");
         } else {
             double liabilityTotal = 0;
             List<PieEntry> liabilityEntries = new ArrayList<>();
@@ -236,10 +224,10 @@ public class AllocationActivity extends AppCompatActivity {
                 liabilityEntries.add(new PieEntry((float) Math.abs(a.getValue()), a.getName()));
                 liabilityTotal += Math.abs(a.getValue());
             }
-            liabilityTotalView.setText("-" + Tools.formatAmount(liabilityTotal, true));
-            setupDonut(liabilityChart, liabilityEntries, LIABILITY_COLORS,
+            binding.liabilityTotal.setText("-" + Tools.formatAmount(liabilityTotal, true));
+            setupDonut(binding.liabilityChart, liabilityEntries, LIABILITY_COLORS,
                     "-" + Tools.formatAmount(liabilityTotal, true));
-            liabilityTreemap.setItems(buildTreemapItems(filteredLiabilities, false));
+            binding.liabilityTreemap.setItems(buildTreemapItems(filteredLiabilities, false));
             applyChartMode();
         }
     }
@@ -280,28 +268,24 @@ public class AllocationActivity extends AppCompatActivity {
         final List<Integer> filteredIndices = new ArrayList<>();
         for (int i = 0; i < allItemNames.size(); i++) filteredIndices.add(i);
 
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_asset_select, null);
-        EditText search     = dialogView.findViewById(R.id.searchAsset);
-        ListView listView   = dialogView.findViewById(R.id.assetList);
-        Button btnSelectAll = dialogView.findViewById(R.id.btnSelectAll);
-        Button btnClearAll  = dialogView.findViewById(R.id.btnClearAll);
+        DialogAssetSelectBinding dialogBinding = DialogAssetSelectBinding.inflate(getLayoutInflater());
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_multiple_choice);
         for (int idx : filteredIndices) adapter.add(allItemNames.get(idx));
-        listView.setAdapter(adapter);
+        dialogBinding.assetList.setAdapter(adapter);
 
         for (int row = 0; row < filteredIndices.size(); row++) {
-            listView.setItemChecked(row, masterChecked[filteredIndices.get(row)]);
+            dialogBinding.assetList.setItemChecked(row, masterChecked[filteredIndices.get(row)]);
         }
 
-        listView.setOnItemClickListener((parent, view, position, id) -> {
+        dialogBinding.assetList.setOnItemClickListener((parent, view, position, id) -> {
             if (position < filteredIndices.size()) {
-                masterChecked[filteredIndices.get(position)] = listView.isItemChecked(position);
+                masterChecked[filteredIndices.get(position)] = dialogBinding.assetList.isItemChecked(position);
             }
         });
 
-        search.addTextChangedListener(new TextWatcher() {
+        dialogBinding.searchAsset.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
             @Override public void afterTextChanged(Editable s) {}
             @Override
@@ -316,28 +300,28 @@ public class AllocationActivity extends AppCompatActivity {
                 for (int idx : filteredIndices) adapter.add(allItemNames.get(idx));
                 adapter.notifyDataSetChanged();
                 for (int row = 0; row < filteredIndices.size(); row++) {
-                    listView.setItemChecked(row, masterChecked[filteredIndices.get(row)]);
+                    dialogBinding.assetList.setItemChecked(row, masterChecked[filteredIndices.get(row)]);
                 }
             }
         });
 
-        btnSelectAll.setOnClickListener(v -> {
+        dialogBinding.btnSelectAll.setOnClickListener(v -> {
             for (int row = 0; row < filteredIndices.size(); row++) {
                 masterChecked[filteredIndices.get(row)] = true;
-                listView.setItemChecked(row, true);
+                dialogBinding.assetList.setItemChecked(row, true);
             }
         });
 
-        btnClearAll.setOnClickListener(v -> {
+        dialogBinding.btnClearAll.setOnClickListener(v -> {
             for (int row = 0; row < filteredIndices.size(); row++) {
                 masterChecked[filteredIndices.get(row)] = false;
-                listView.setItemChecked(row, false);
+                dialogBinding.assetList.setItemChecked(row, false);
             }
         });
 
         new AlertDialog.Builder(this)
                 .setTitle(R.string.trend_select_title)
-                .setView(dialogView)
+                .setView(dialogBinding.getRoot())
                 .setPositiveButton(R.string.trend_show, (dialog, which) -> {
                     Set<String> newAssets      = new HashSet<>();
                     Set<String> newLiabilities = new HashSet<>();

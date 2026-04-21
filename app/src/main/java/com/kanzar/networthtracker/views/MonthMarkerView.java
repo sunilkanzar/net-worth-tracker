@@ -2,6 +2,7 @@ package com.kanzar.networthtracker.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.widget.TextView;
 import java.util.Locale;
 
@@ -10,6 +11,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.utils.MPPointF;
 import com.kanzar.networthtracker.R;
+import com.kanzar.networthtracker.databinding.ViewChartMarkerBinding;
 import com.kanzar.networthtracker.helpers.Month;
 import com.kanzar.networthtracker.helpers.Tools;
 
@@ -20,9 +22,7 @@ import java.util.List;
 public class MonthMarkerView extends MarkerView {
 
     private final List<Month> months;
-    private final TextView tvMonth;
-    private final TextView tvValue;
-    private final TextView tvChange;
+    private final ViewChartMarkerBinding binding;
 
     public MonthMarkerView(Context context) {
         this(context, (AttributeSet) null);
@@ -31,17 +31,13 @@ public class MonthMarkerView extends MarkerView {
     public MonthMarkerView(Context context, AttributeSet attrs) {
         super(context, R.layout.view_chart_marker);
         this.months = new java.util.ArrayList<>();
-        tvMonth  = null;
-        tvValue  = null;
-        tvChange = null;
+        this.binding = ViewChartMarkerBinding.bind(getChildAt(0));
     }
 
     public MonthMarkerView(Context context, List<Month> months) {
         super(context, R.layout.view_chart_marker);
         this.months = months;
-        tvMonth  = findViewById(R.id.markerMonth);
-        tvValue  = findViewById(R.id.markerValue);
-        tvChange = findViewById(R.id.markerChange);
+        this.binding = ViewChartMarkerBinding.bind(getChildAt(0));
     }
 
     @Override
@@ -53,13 +49,13 @@ public class MonthMarkerView extends MarkerView {
         double value  = month.getValue();
         double change = month.getValueChange();
 
-        tvMonth.setText(month.toString());
-        tvValue.setText(Tools.formatAmount(value, true));
+        binding.markerMonth.setText(month.toString());
+        binding.markerValue.setText(Tools.formatAmount(value, true));
 
         String changeStr = Tools.formatAmount(change, true);
         String pct = String.format(Locale.getDefault(), "%.1f%%", Math.abs(month.getPercent()));
-        tvChange.setText(changeStr + "  (" + pct + ")");
-        tvChange.setTextColor(ContextCompat.getColor(getContext(), Tools.getTextChangeColor(change)));
+        binding.markerChange.setText(changeStr + "  (" + pct + ")");
+        binding.markerChange.setTextColor(ContextCompat.getColor(getContext(), Tools.getTextChangeColor(change)));
 
         super.refreshContent(e, highlight);
     }

@@ -30,6 +30,8 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.kanzar.networthtracker.databinding.ActivityAssetTrendBinding;
+import com.kanzar.networthtracker.databinding.DialogAssetSelectBinding;
 import com.kanzar.networthtracker.helpers.Month;
 import com.kanzar.networthtracker.helpers.Tools;
 import com.kanzar.networthtracker.models.Asset;
@@ -59,7 +61,7 @@ public class AssetTrendActivity extends AppCompatActivity {
         0xFF26A69A, 0xFFFFAB40, 0xFF7E57C2, 0xFF78909C
     };
 
-    private LineChart chart;
+    private ActivityAssetTrendBinding binding;
     private List<Month> months;
     private List<String> allAssetNames = new ArrayList<>();
     private Map<String, Map<Integer, Float>> rawAssetValues = new LinkedHashMap<>();
@@ -69,19 +71,18 @@ public class AssetTrendActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_asset_trend);
+        binding = ActivityAssetTrendBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         pinnedAsset = getIntent().getStringExtra(EXTRA_PINNED_ASSET);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(binding.toolbar);
         if (pinnedAsset != null) {
-            toolbar.setTitle(pinnedAsset);
+            binding.toolbar.setTitle(pinnedAsset);
         }
-        toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
+        binding.toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
-        chart = findViewById(R.id.trendChart);
-        setupChart(chart);
+        setupChart(binding.trendChart);
         fetchData();
         rebuildChart();
     }
@@ -121,30 +122,26 @@ public class AssetTrendActivity extends AppCompatActivity {
         List<Integer> filteredIndices = new ArrayList<>();
         for (int i = 0; i < allAssetNames.size(); i++) filteredIndices.add(i);
 
-        View dialogView = getLayoutInflater().inflate(R.layout.dialog_asset_select, null);
-        EditText search   = dialogView.findViewById(R.id.searchAsset);
-        ListView listView = dialogView.findViewById(R.id.assetList);
-        Button btnSelectAll = dialogView.findViewById(R.id.btnSelectAll);
-        Button btnClearAll  = dialogView.findViewById(R.id.btnClearAll);
+        DialogAssetSelectBinding dialogBinding = DialogAssetSelectBinding.inflate(getLayoutInflater());
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_multiple_choice);
         for (int idx : filteredIndices) adapter.add(allAssetNames.get(idx));
-        listView.setAdapter(adapter);
+        dialogBinding.assetList.setAdapter(adapter);
 
         // Restore checked state into ListView
         for (int row = 0; row < filteredIndices.size(); row++) {
-            listView.setItemChecked(row, checked[filteredIndices.get(row)]);
+            dialogBinding.assetList.setItemChecked(row, checked[filteredIndices.get(row)]);
         }
 
-        listView.setOnItemClickListener((parent, view, position, id) -> {
+        dialogBinding.assetList.setOnItemClickListener((parent, view, position, id) -> {
             if (position < filteredIndices.size()) {
                 int masterIdx = filteredIndices.get(position);
-                checked[masterIdx] = listView.isItemChecked(position);
+                checked[masterIdx] = dialogBinding.assetList.isItemChecked(position);
             }
         });
 
-        search.addTextChangedListener(new TextWatcher() {
+        dialogBinding.searchAsset.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void afterTextChanged(Editable s) {}
             @Override
@@ -160,28 +157,28 @@ public class AssetTrendActivity extends AppCompatActivity {
                 for (int idx : filteredIndices) adapter.add(allAssetNames.get(idx));
                 adapter.notifyDataSetChanged();
                 for (int row = 0; row < filteredIndices.size(); row++) {
-                    listView.setItemChecked(row, checked[filteredIndices.get(row)]);
+                    dialogBinding.assetList.setItemChecked(row, checked[filteredIndices.get(row)]);
                 }
             }
         });
 
-        btnSelectAll.setOnClickListener(v -> {
+        dialogBinding.btnSelectAll.setOnClickListener(v -> {
             for (int row = 0; row < filteredIndices.size(); row++) {
                 checked[filteredIndices.get(row)] = true;
-                listView.setItemChecked(row, true);
+                dialogBinding.assetList.setItemChecked(row, true);
             }
         });
 
-        btnClearAll.setOnClickListener(v -> {
+        dialogBinding.btnClearAll.setOnClickListener(v -> {
             for (int row = 0; row < filteredIndices.size(); row++) {
                 checked[filteredIndices.get(row)] = false;
-                listView.setItemChecked(row, false);
+                dialogBinding.assetList.setItemChecked(row, false);
             }
         });
 
         new AlertDialog.Builder(this)
                 .setTitle(R.string.trend_select_title)
-                .setView(dialogView)
+                .setView(dialogBinding.getRoot())
                 .setPositiveButton(R.string.trend_show, (dialog, which) -> {
                     Set<String> newSelection = new HashSet<>();
                     for (int i = 0; i < allAssetNames.size(); i++) {
@@ -307,8 +304,8 @@ public class AssetTrendActivity extends AppCompatActivity {
             }
 
             int labelCount = Math.min(xLabels.size(), 8);
-            chart.getXAxis().setLabelCount(labelCount, false);
-            chart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(xLabels));
+            binding.trendChart.getXAxis().setLabelCount(labelCount, false);
+            binding.trendChart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(xLabels));
         }
     }
 
@@ -352,11 +349,11 @@ public class AssetTrendActivity extends AppCompatActivity {
         if (datasets.isEmpty()) return;
 
         TrendMarkerView marker = new TrendMarkerView(this, months, displayNames);
-        marker.setChartView(chart);
-        chart.setMarker(marker);
+        marker.setChartView(binding.trendChart);
+        binding.trendChart.setMarker(marker);
 
-        chart.clear();
-        chart.setData(new LineData(datasets));
-        chart.animateY(900);
+        binding.trendChart.clear();
+        binding.trendChart.setData(new LineData(datasets));
+        binding.trendChart.animateY(900);
     }
 }

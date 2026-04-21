@@ -9,15 +9,16 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 import com.kanzar.networthtracker.R;
+import com.kanzar.networthtracker.databinding.ItemAssetBinding;
+import com.kanzar.networthtracker.databinding.ItemHeaderBinding;
 import com.kanzar.networthtracker.helpers.Tools;
 import com.kanzar.networthtracker.models.Asset;
-import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.kanzar.networthtracker.helpers.Month;
 import io.realm.Realm;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +31,7 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ITEM = 1;
+    private static final int TYPE_COPY_ALL = 2;
 
     private static final ExecutorService sparklineExecutor = Executors.newSingleThreadExecutor();
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -38,6 +40,9 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private List<Object> displayItems = new ArrayList<>();
     private List<? extends Asset> originalItems;
     private final OnItemClickListener listener;
+    private boolean showCopyAll = false;
+    private String copyAllText = "";
+    private Runnable onCopyAllClickListener;
 
     public interface OnItemClickListener {
         void onItemClick(Asset item);
@@ -61,8 +66,11 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     public void setItems(List<? extends Asset> items) {
-        this.originalItems = items;
-        this.displayItems = new ArrayList<>();
+        final List<Object> newDisplayItems = new ArrayList<>();
+
+        if (showCopyAll) {
+            newDisplayItems.add(new CopyAllItem(copyAllText));
+        }
 
         if (items != null && !items.isEmpty()) {
             List<Asset> assets = new ArrayList<>();
@@ -81,32 +89,106 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             Collections.sort(liabilities, valueComparator);
 
             if (!assets.isEmpty()) {
-                displayItems.add("ASSETS");
-                displayItems.addAll(assets);
+                newDisplayItems.add("ASSETS");
+                newDisplayItems.addAll(assets);
             }
             if (!liabilities.isEmpty()) {
-                displayItems.add("LIABILITIES");
-                displayItems.addAll(liabilities);
+                newDisplayItems.add("LIABILITIES");
+                newDisplayItems.addAll(liabilities);
             }
         }
 
-        notifyDataSetChanged();
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new AssetDiffCallback(this.displayItems, newDisplayItems));
+        this.originalItems = items;
+        this.displayItems = newDisplayItems;
+        diffResult.dispatchUpdatesTo(this);
+    }
+
+    public void setCopyAllAction(boolean show, String text, Runnable action) {
+        this.showCopyAll = show;
+        this.copyAllText = text;
+        this.onCopyAllClickListener = action;
+    }
+
+    private static class CopyAllItem {
+        final String text;
+        CopyAllItem(String text) { this.text = text; }
+    }
+
+    private static class AssetDiffCallback extends DiffUtil.Callback {
+        private final List<Object> oldList;
+        private final List<Object> newList;
+
+        AssetDiffCallback(List<Object> oldList, List<Object> newList) {
+            this.oldList = oldList;
+            this.newList = newList;
+        }
+
+        @Override
+        public int getOldListSize() {
+            return oldList.size();
+        }
+
+        @Override
+        public int getNewListSize() {
+            return newList.size();
+        }
+
+        @Override
+        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+            Object oldItem = oldList.get(oldItemPosition);
+            Object newItem = newList.get(newItemPosition);
+
+            if (oldItem instanceof String && newItem instanceof String) {
+                return oldItem.equals(newItem);
+            } else if (oldItem instanceof Asset && newItem instanceof Asset) {
+                return ((Asset) oldItem).getId().equals(((Asset) newItem).getId());
+            } else if (oldItem instanceof CopyAllItem && newItem instanceof CopyAllItem) {
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+            Object oldItem = oldList.get(oldItemPosition);
+            Object newItem = newList.get(newItemPosition);
+
+            if (oldItem instanceof String && newItem instanceof String) {
+                return oldItem.equals(newItem);
+            } else if (oldItem instanceof Asset && newItem instanceof Asset) {
+                Asset oldAsset = (Asset) oldItem;
+                Asset newAsset = (Asset) newItem;
+                return oldAsset.getValue() == newAsset.getValue() &&
+                        oldAsset.getName().equals(newAsset.getName()) &&
+                        oldAsset.getUpdatedAt() == newAsset.getUpdatedAt();
+            } else if (oldItem instanceof CopyAllItem && newItem instanceof CopyAllItem) {
+                return ((CopyAllItem) oldItem).text.equals(((CopyAllItem) newItem).text);
+            }
+            return false;
+        }
     }
 
     @Override
     public int getItemViewType(int position) {
-        return displayItems.get(position) instanceof String ? TYPE_HEADER : TYPE_ITEM;
+        Object item = displayItems.get(position);
+        if (item instanceof String) return TYPE_HEADER;
+        if (item instanceof CopyAllItem) return TYPE_COPY_ALL;
+        return TYPE_ITEM;
     }
 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == TYPE_HEADER) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_header, parent, false);
-            return new HeaderViewHolder(v);
+            ItemHeaderBinding binding = ItemHeaderBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+            return new HeaderViewHolder(binding);
+        } else if (viewType == TYPE_COPY_ALL) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_copy_all, parent, false);
+            return new CopyAllViewHolder(view);
         } else {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_asset, parent, false);
-            return new ViewHolder(v);
+            ItemAssetBinding binding = ItemAssetBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+            return new ViewHolder(binding);
         }
     }
 
@@ -138,7 +220,13 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Object item = displayItems.get(position);
         if (holder instanceof HeaderViewHolder) {
-            ((HeaderViewHolder) holder).headerText.setText((String) item);
+            ((HeaderViewHolder) holder).binding.headerText.setText((String) item);
+        } else if (holder instanceof CopyAllViewHolder) {
+            CopyAllViewHolder h = (CopyAllViewHolder) holder;
+            h.textView.setText(((CopyAllItem) item).text);
+            h.itemView.setOnClickListener(v -> {
+                if (onCopyAllClickListener != null) onCopyAllClickListener.run();
+            });
         } else if (holder instanceof ViewHolder) {
             final Asset asset = (Asset) item;
             ((ViewHolder) holder).bind(asset, context, getTotalAssets(), getTotalLiabilities());
@@ -164,96 +252,92 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     public static class HeaderViewHolder extends RecyclerView.ViewHolder {
-        TextView headerText;
+        private final ItemHeaderBinding binding;
 
-        public HeaderViewHolder(@NonNull View itemView) {
+        public HeaderViewHolder(ItemHeaderBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+    }
+
+    public static class CopyAllViewHolder extends RecyclerView.ViewHolder {
+        TextView textView;
+        public CopyAllViewHolder(View itemView) {
             super(itemView);
-            headerText = (TextView) itemView.findViewById(R.id.headerText);
+            textView = itemView.findViewById(R.id.copyAllText);
         }
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final TextView assetName;
-        private final TextView assetValue;
-        private final TextView assetWeight;
-        private final TextView assetChangeValue;
-        private final TextView assetChangePercent;
-        private final LineChart assetSparkline;
-        private final android.view.ViewGroup container;
+        private final ItemAssetBinding binding;
         private String boundAssetKey = "";
 
-        public ViewHolder(View v) {
-            super(v);
-            assetName = v.findViewById(R.id.assetName);
-            assetValue = v.findViewById(R.id.assetValue);
-            assetWeight = v.findViewById(R.id.assetWeight);
-            assetChangeValue = v.findViewById(R.id.assetChangeValue);
-            assetChangePercent = v.findViewById(R.id.assetChangePercent);
-            assetSparkline = v.findViewById(R.id.assetSparkline);
-            container = v.findViewById(R.id.container);
+        public ViewHolder(ItemAssetBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
             setupSparkline();
         }
 
         private void setupSparkline() {
-            assetSparkline.getDescription().setEnabled(false);
-            assetSparkline.getLegend().setEnabled(false);
-            assetSparkline.getAxisLeft().setEnabled(false);
-            assetSparkline.getAxisRight().setEnabled(false);
-            assetSparkline.getXAxis().setEnabled(false);
-            assetSparkline.setDrawGridBackground(false);
-            assetSparkline.setTouchEnabled(false);
-            assetSparkline.setViewPortOffsets(0, 0, 0, 0);
-            assetSparkline.setNoDataText("");
+            binding.assetSparkline.getDescription().setEnabled(false);
+            binding.assetSparkline.getLegend().setEnabled(false);
+            binding.assetSparkline.getAxisLeft().setEnabled(false);
+            binding.assetSparkline.getAxisRight().setEnabled(false);
+            binding.assetSparkline.getXAxis().setEnabled(false);
+            binding.assetSparkline.setDrawGridBackground(false);
+            binding.assetSparkline.setTouchEnabled(false);
+            binding.assetSparkline.setViewPortOffsets(0, 0, 0, 0);
+            binding.assetSparkline.setNoDataText("");
         }
 
         public void bind(Asset asset, Context context, double totalAssets, double totalLiabilities) {
-            assetName.setText(asset.getName());
-            assetValue.setText(Tools.formatAmount(asset.getValue()));
+            binding.assetName.setText(asset.getName());
+            binding.assetValue.setText(Tools.formatAmount(asset.getValue()));
 
             Asset previous = asset.getPrevious();
             double prevVal = previous != null ? previous.getValue() : 0.0;
 
             if (asset.isHelper()) {
-                container.setBackgroundColor(ContextCompat.getColor(context, R.color.transparent));
-                assetValue.setVisibility(View.GONE);
-                assetWeight.setVisibility(View.GONE);
-                assetChangeValue.setVisibility(View.VISIBLE);
-                assetChangePercent.setVisibility(View.GONE);
-                assetSparkline.setVisibility(View.GONE);
+                binding.container.setBackgroundColor(ContextCompat.getColor(context, R.color.transparent));
+                binding.assetValue.setVisibility(View.GONE);
+                binding.assetWeight.setVisibility(View.GONE);
+                binding.assetChangeValue.setVisibility(View.VISIBLE);
+                binding.assetChangePercent.setVisibility(View.GONE);
+                binding.assetSparkline.setVisibility(View.GONE);
 
                 String helperText = context.getString(R.string.helper_text, asset.getName());
-                assetChangeValue.setText(helperText);
-                assetChangeValue.setTextColor(ContextCompat.getColor(context, R.color.textSecondary));
+                binding.assetChangeValue.setText(helperText);
+                binding.assetChangeValue.setTextColor(ContextCompat.getColor(context, R.color.textSecondary));
             } else {
-                container.setBackgroundColor(ContextCompat.getColor(context, R.color.transparent));
-                assetValue.setVisibility(View.VISIBLE);
-                assetWeight.setVisibility(View.VISIBLE);
-                assetChangeValue.setVisibility(View.VISIBLE);
-                assetChangePercent.setVisibility(View.VISIBLE);
-                assetSparkline.setVisibility(View.VISIBLE);
+                binding.container.setBackgroundColor(ContextCompat.getColor(context, R.color.transparent));
+                binding.assetValue.setVisibility(View.VISIBLE);
+                binding.assetWeight.setVisibility(View.VISIBLE);
+                binding.assetChangeValue.setVisibility(View.VISIBLE);
+                binding.assetChangePercent.setVisibility(View.VISIBLE);
+                binding.assetSparkline.setVisibility(View.VISIBLE);
 
                 // Change Row
                 double change = asset.getValue() - prevVal;
                 int color = ContextCompat.getColor(context, Tools.getTextChangeColor(change));
                 
-                assetValue.setText(Tools.formatAmount(asset.getValue()));
-                assetChangeValue.setText(Tools.formatAmount(change));
-                assetChangeValue.setTextColor(color);
+                binding.assetValue.setText(Tools.formatAmount(asset.getValue()));
+                binding.assetChangeValue.setText(Tools.formatAmount(change));
+                binding.assetChangeValue.setTextColor(color);
                 
-                assetChangePercent.setText(Tools.formatPercent(Math.abs(Tools.getPercent(prevVal, asset.getValue()))));
-                assetChangePercent.setTextColor(color);
+                binding.assetChangePercent.setText(Tools.formatPercent(Math.abs(Tools.getPercent(prevVal, asset.getValue()))));
+                binding.assetChangePercent.setTextColor(color);
 
                 // Weight Row
                 boolean isAsset = asset.getValue() >= 0;
                 double totalForCategory = isAsset ? totalAssets : totalLiabilities;
                 double weight = totalForCategory > 0 ? (Math.abs(asset.getValue()) / totalForCategory) * 100.0 : 0.0;
-                assetWeight.setText(Tools.formatPercent(weight));
-                assetWeight.setBackgroundResource(isAsset ? R.drawable.bg_pill_asset : R.drawable.bg_pill_liability);
-                assetWeight.setTextColor(ContextCompat.getColor(context, isAsset ? R.color.colorAccent : R.color.negative));
+                binding.assetWeight.setText(Tools.formatPercent(weight));
+                binding.assetWeight.setBackgroundResource(isAsset ? R.drawable.bg_pill_asset : R.drawable.bg_pill_liability);
+                binding.assetWeight.setTextColor(ContextCompat.getColor(context, isAsset ? R.color.colorAccent : R.color.negative));
 
                 // Sparkline Data
                 int chartColor = isAsset ? ContextCompat.getColor(context, R.color.colorAccent) : ContextCompat.getColor(context, R.color.negative);
-                assetSparkline.clear();
+                binding.assetSparkline.clear();
                 loadSparklineDataAsync(asset, chartColor);
             }
         }
@@ -290,8 +374,8 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
                 mainHandler.post(() -> {
                     if (!key.equals(boundAssetKey)) return; // view recycled
-                    assetSparkline.setData(lineData);
-                    assetSparkline.invalidate();
+                    binding.assetSparkline.setData(lineData);
+                    binding.assetSparkline.invalidate();
                 });
             });
         }

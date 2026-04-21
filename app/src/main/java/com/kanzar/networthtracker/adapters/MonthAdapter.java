@@ -7,6 +7,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.kanzar.networthtracker.R;
+import com.kanzar.networthtracker.databinding.ItemMonthBinding;
 import com.kanzar.networthtracker.helpers.Month;
 import com.kanzar.networthtracker.helpers.Tools;
 import com.kanzar.networthtracker.views.PercentView;
@@ -30,8 +31,8 @@ public class MonthAdapter extends RecyclerView.Adapter<MonthAdapter.ViewHolder> 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_month, parent, false);
-        return new ViewHolder(v);
+        ItemMonthBinding binding = ItemMonthBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        return new ViewHolder(binding);
     }
 
     @Override
@@ -66,28 +67,20 @@ public class MonthAdapter extends RecyclerView.Adapter<MonthAdapter.ViewHolder> 
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final TextView monthName;
-        private final TextView monthValue;
-        private final TextView monthValueChange;
-        private final TextView monthPercentage;
-        private final PercentView percentView;
+        private final ItemMonthBinding binding;
 
-        public ViewHolder(View v) {
-            super(v);
-            monthName = v.findViewById(R.id.monthName);
-            monthValue = v.findViewById(R.id.monthValue);
-            monthValueChange = v.findViewById(R.id.monthValueChange);
-            monthPercentage = v.findViewById(R.id.monthPercentage);
-            percentView = v.findViewById(R.id.percentView);
+        public ViewHolder(ItemMonthBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
         }
 
         public void bind(Month month, Month lastMonth) {
-            monthName.setText(month.toString());
-            monthValue.setText(Tools.formatAmount(month.getValue(), true));
+            binding.monthName.setText(month.toString());
+            binding.monthValue.setText(Tools.formatAmount(month.getValue(), true));
             
-            percentView.init(lastMonth.getValue(), month.getValue());
-            percentView.fillValueChange(monthValueChange, true);
-            percentView.fillPercent(monthPercentage);
+            binding.percentView.init(lastMonth.getValue(), month.getValue());
+            binding.percentView.fillValueChange(binding.monthValueChange, true);
+            binding.percentView.fillPercent(binding.monthPercentage);
         }
     }
 }

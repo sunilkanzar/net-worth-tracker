@@ -1,5 +1,7 @@
-apply plugin: 'com.android.application'
-apply plugin: 'realm-android'
+plugins {
+    alias(libs.plugins.android.application)
+    id 'realm-android'
+}
 
 android {
     namespace 'com.kanzar.networthtracker'
@@ -20,6 +22,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    buildFeatures {
+        viewBinding true
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
@@ -37,32 +42,32 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-    implementation 'com.google.android.material:material:1.13.0'
-    implementation 'androidx.recyclerview:recyclerview:1.4.0'
-    implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0'
-    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation libs.androidx.appcompat
+    implementation libs.androidx.constraintlayout
+    implementation libs.com.google.android.material.material
+    implementation libs.androidx.recyclerview
+    implementation libs.androidx.cardview
+    implementation libs.androidx.swiperefreshlayout
+    implementation libs.androidx.multidex
 
-    implementation 'com.google.android.gms:play-services-auth:21.5.1'
-    implementation 'androidx.credentials:credentials:1.6.0'
-    implementation 'androidx.credentials:credentials-play-services-auth:1.6.0'
-    implementation 'com.google.android.libraries.identity.googleid:googleid:1.2.0'
-    implementation 'com.google.api-client:google-api-client-android:2.9.0'
-    implementation 'com.google.apis:google-api-services-drive:v3-rev20260405-2.0.0'
-    implementation 'com.google.http-client:google-http-client-gson:2.1.0'
-    implementation 'com.google.http-client:google-http-client-android:2.1.0'
+    implementation libs.play.services.auth
+    implementation libs.androidx.credentials
+    implementation libs.androidx.credentials.play.services.auth
+    implementation libs.googleid
+    implementation libs.google.api.client
+    implementation libs.google.api.drive
+    implementation libs.google.http.gson
+    implementation libs.google.http.android
     
-    implementation 'org.greenrobot:eventbus:3.3.1'
-    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
-    implementation 'com.amplitude:android-sdk:3.35.1'
-    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation libs.eventbus
+    implementation libs.mpandroidchart
+    implementation libs.amplitude
+    implementation libs.okhttp
 
-    implementation 'com.google.code.gson:gson:2.13.2'
-    implementation 'com.facebook.shimmer:shimmer:0.5.0'
+    implementation libs.gson
+    implementation libs.shimmer
 
-    implementation 'androidx.activity:activity:1.13.0'
-    implementation 'androidx.viewpager2:viewpager2:1.1.0'
-    implementation 'androidx.fragment:fragment:1.8.6'
+    implementation libs.androidx.activity
+    implementation libs.androidx.viewpager2
+    implementation libs.androidx.fragment
 }

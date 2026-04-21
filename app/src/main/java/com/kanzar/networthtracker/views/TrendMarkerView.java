@@ -2,6 +2,7 @@ package com.kanzar.networthtracker.views;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.components.MarkerView;
@@ -9,6 +10,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.utils.MPPointF;
 import com.kanzar.networthtracker.R;
+import com.kanzar.networthtracker.databinding.ViewTrendMarkerBinding;
 import com.kanzar.networthtracker.helpers.Month;
 import com.kanzar.networthtracker.helpers.Tools;
 
@@ -18,9 +20,7 @@ public class TrendMarkerView extends MarkerView {
 
     private final List<Month> months;
     private final List<String> assetNames;
-    private final TextView tvAsset;
-    private final TextView tvMonth;
-    private final TextView tvValue;
+    private final ViewTrendMarkerBinding binding;
 
     public TrendMarkerView(Context context) {
         this(context, (AttributeSet) null);
@@ -30,18 +30,14 @@ public class TrendMarkerView extends MarkerView {
         super(context, R.layout.view_trend_marker);
         this.months     = new java.util.ArrayList<>();
         this.assetNames = new java.util.ArrayList<>();
-        tvAsset = null;
-        tvMonth = null;
-        tvValue = null;
+        this.binding = ViewTrendMarkerBinding.bind(getChildAt(0));
     }
 
     public TrendMarkerView(Context context, List<Month> months, List<String> assetNames) {
         super(context, R.layout.view_trend_marker);
         this.months     = months;
         this.assetNames = assetNames;
-        tvAsset  = findViewById(R.id.markerAsset);
-        tvMonth  = findViewById(R.id.markerMonth);
-        tvValue  = findViewById(R.id.markerValue);
+        this.binding = ViewTrendMarkerBinding.bind(getChildAt(0));
     }
 
     @Override
@@ -57,10 +53,10 @@ public class TrendMarkerView extends MarkerView {
         float value = e.getY();
         boolean isLiability = value < 0;
 
-        tvAsset.setText(assetName);
-        tvMonth.setText(monthLabel);
-        tvValue.setText(Tools.formatAmount(value, true));
-        tvValue.setTextColor(isLiability ? 0xFFFF5252 : 0xFF00E5FF);
+        binding.markerAsset.setText(assetName);
+        binding.markerMonth.setText(monthLabel);
+        binding.markerValue.setText(Tools.formatAmount(value, true));
+        binding.markerValue.setTextColor(isLiability ? 0xFFFF5252 : 0xFF00E5FF);
 
         super.refreshContent(e, highlight);
     }

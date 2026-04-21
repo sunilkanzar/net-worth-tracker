@@ -22,6 +22,7 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.kanzar.networthtracker.databinding.ActivityMainBinding;
 import java.text.DateFormatSymbols;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -113,24 +114,13 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
     private DriveServiceHelper driveServiceHelper;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    // View bindings
-    private ViewPager2 viewPager;
+    private ActivityMainBinding binding;
     private MonthPagerAdapter pagerAdapter;
-    private DrawerLayout drawerLayout;
-    private CardView newAssetLayout;
-    private AutoCompleteTextView newAssetName;
-    private EditText newAssetValue;
-    private EditText newAssetChange;
-    private FloatingActionButton newAssetSave;
-    private TextView monthName;
     private ObjectAnimator syncAnim;
     private boolean updatingForm = false;
     private boolean firstResume = true;
 
     // Speed-dial FAB
-    private View fabScrim;
-    private android.view.ViewGroup fabNoteContainer;
-    private android.view.ViewGroup fabAssetContainer;
     private boolean fabExpanded = false;
 
     // Launcher for Drive scope consent screen
@@ -161,25 +151,24 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
                 Intent data = result.getData();
                 int m = data.getIntExtra("month", month.getMonth());
                 int y = data.getIntExtra("year", month.getYear());
-                viewPager.setCurrentItem(MonthPagerAdapter.positionOf(m, y), false);
+                binding.viewPager.setCurrentItem(MonthPagerAdapter.positionOf(m, y), false);
             }
         });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        initViews();
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         setupViewPager();
         credentialManager = CredentialManager.create(this);
-        drawerLayout.addDrawerListener(new androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener() {
+        binding.drawerLayout.addDrawerListener(new androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener() {
             @Override
             public void onDrawerClosed(View drawerView) {
                 // Collapse import submenu so it starts closed next time
-                View sub = findViewById(R.id.navImportSubmenu);
-                if (sub.getVisibility() == View.VISIBLE) {
-                    sub.setVisibility(View.GONE);
-                    ((TextView) findViewById(R.id.navImport)).setCompoundDrawablesRelativeWithIntrinsicBounds(
+                if (binding.navImportSubmenu.getVisibility() == View.VISIBLE) {
+                    binding.navImportSubmenu.setVisibility(View.GONE);
+                    binding.navImport.setCompoundDrawablesRelativeWithIntrinsicBounds(
                             androidx.core.content.ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_import),
                             null,
                             androidx.core.content.ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_chevron_down),
@@ -193,48 +182,18 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
         setupBackHandler();
     }
 
-    private void initViews() {
-        viewPager = findViewById(R.id.viewPager);
-        drawerLayout = findViewById(R.id.drawerLayout);
-        newAssetLayout = findViewById(R.id.newAssetLayout);
-        newAssetName = findViewById(R.id.newAssetName);
-        newAssetValue = findViewById(R.id.newAssetValue);
-        newAssetChange = findViewById(R.id.newAssetChange);
-        newAssetSave = findViewById(R.id.newAssetSave);
-        monthName = findViewById(R.id.monthName);
-        fabScrim = findViewById(R.id.fabScrim);
-        fabNoteContainer = findViewById(R.id.fabNoteContainer);
-        fabAssetContainer = findViewById(R.id.fabAssetContainer);
-        findViewById(R.id.btnSaveAsset).setOnClickListener(v -> saveAsset());
-    }
-
-    private void handleIntent(Intent intent) {
-        Uri data = intent.getData();
-        if (data != null && hasStoragePermission(PERMISSION_IMPORT_CSS)) {
-            importFromFile(data);
-        }
-    }
-
-    private void importFromFile(Uri uri) {
-        try {
-            LocalImport.importFromUri(uri);
-        } catch (Exception e) {
-            Toast.makeText(this, R.string.import_empty, Toast.LENGTH_SHORT).show();
-        }
-    }
-
     private void setupViewPager() {
         pagerAdapter = new MonthPagerAdapter(this);
-        viewPager.setAdapter(pagerAdapter);
-        viewPager.setOffscreenPageLimit(ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT);
+        binding.viewPager.setAdapter(pagerAdapter);
+        binding.viewPager.setOffscreenPageLimit(ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT);
         int startPos = MonthPagerAdapter.positionOf(month.getMonth(), month.getYear());
-        viewPager.setCurrentItem(startPos, false);
-        viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+        binding.viewPager.setCurrentItem(startPos, false);
+        binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 int[] my = MonthPagerAdapter.monthYearAt(position);
                 month = new Month(my[0], my[1]);
-                monthName.setText(month.toString());
+                binding.monthName.setText(month.toString());
                 closeAssetView();
             }
         });
@@ -242,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
 
     private MonthPageFragment getCurrentFragment() {
         return (MonthPageFragment) getSupportFragmentManager()
-                .findFragmentByTag("f" + viewPager.getCurrentItem());
+                .findFragmentByTag("f" + binding.viewPager.getCurrentItem());
     }
 
     private void refreshCurrentPage() {
@@ -252,70 +211,82 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
         updateWidget();
     }
 
+    private void refreshAllLoadedPages() {
+        int current = binding.viewPager.getCurrentItem();
+        int limit = binding.viewPager.getOffscreenPageLimit();
+        int range = limit == ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT ? 1 : limit;
+        for (int i = current - range; i <= current + range; i++) {
+            if (i < 0 || i >= MonthPagerAdapter.PAGE_COUNT) continue;
+            MonthPageFragment f = (MonthPageFragment) getSupportFragmentManager()
+                    .findFragmentByTag("f" + i);
+            if (f != null) f.refresh(false);
+        }
+        updateGoalProgress();
+        updateWidget();
+    }
+
     private void viewListeners() {
-        monthName.setOnClickListener(v -> showMonthYearPicker());
-        monthName.setOnLongClickListener(v -> {
+        binding.monthName.setOnClickListener(v -> showMonthYearPicker());
+        binding.monthName.setOnLongClickListener(v -> {
             Calendar now = Calendar.getInstance();
             int pos = MonthPagerAdapter.positionOf(now.get(Calendar.MONTH) + 1, now.get(Calendar.YEAR));
-            if (viewPager.getCurrentItem() != pos) {
-                viewPager.setCurrentItem(pos, true);
+            if (binding.viewPager.getCurrentItem() != pos) {
+                binding.viewPager.setCurrentItem(pos, true);
             }
             return true;
         });
 
-        findViewById(R.id.googleSignIn).setOnClickListener(v -> {
+        binding.googleSignIn.setOnClickListener(v -> {
             new Events().send(new SigninClicked());
             startSignIn();
         });
 
-        findViewById(R.id.signOut).setOnClickListener(v -> {
+        binding.signOut.setOnClickListener(v -> {
             new Events().send(new SignoutClicked());
             signOut();
         });
 
-findViewById(R.id.navPreferences).setOnClickListener(v -> {
-            drawerLayout.closeDrawers();
+        binding.navPreferences.setOnClickListener(v -> {
+            binding.drawerLayout.closeDrawers();
             startActivity(new Intent(this, PreferencesActivity.class));
         });
 
-        findViewById(R.id.navMonthly).setOnClickListener(v -> {
+        binding.navMonthly.setOnClickListener(v -> {
             new Events().send(new ButtonClicked("monthView"));
             monthPickerLauncher.launch(new Intent(this, MonthActivity.class));
-            drawerLayout.closeDrawers();
+            binding.drawerLayout.closeDrawers();
         });
 
-        findViewById(R.id.navGraph).setOnClickListener(v -> {
+        binding.navGraph.setOnClickListener(v -> {
             new Events().send(new ButtonClicked("chartView"));
             startActivity(new Intent(this, ChartActivity.class));
-            drawerLayout.closeDrawers();
+            binding.drawerLayout.closeDrawers();
         });
 
-        findViewById(R.id.navAllocation).setOnClickListener(v -> {
+        binding.navAllocation.setOnClickListener(v -> {
             Intent intent = new Intent(this, AllocationActivity.class);
             intent.putExtra("month", month.getMonth());
             intent.putExtra("year", month.getYear());
             startActivity(intent);
-            drawerLayout.closeDrawers();
+            binding.drawerLayout.closeDrawers();
         });
 
-        findViewById(R.id.navAssetTrend).setOnClickListener(v -> {
+        binding.navAssetTrend.setOnClickListener(v -> {
             startActivity(new Intent(this, AssetTrendActivity.class));
-            drawerLayout.closeDrawers();
+            binding.drawerLayout.closeDrawers();
         });
 
-        findViewById(R.id.navExport).setOnClickListener(v -> {
+        binding.navExport.setOnClickListener(v -> {
             if (hasStoragePermission(PERMISSION_EXPORT)) {
                 LocalBackup.startExport(false);
             }
-            drawerLayout.closeDrawers();
+            binding.drawerLayout.closeDrawers();
         });
 
-        View navImportSubmenu = findViewById(R.id.navImportSubmenu);
-        TextView navImport = findViewById(R.id.navImport);
-        navImport.setOnClickListener(v -> {
-            boolean open = navImportSubmenu.getVisibility() == View.VISIBLE;
-            navImportSubmenu.setVisibility(open ? View.GONE : View.VISIBLE);
-            navImport.setCompoundDrawablesRelativeWithIntrinsicBounds(
+        binding.navImport.setOnClickListener(v -> {
+            boolean open = binding.navImportSubmenu.getVisibility() == View.VISIBLE;
+            binding.navImportSubmenu.setVisibility(open ? View.GONE : View.VISIBLE);
+            binding.navImport.setCompoundDrawablesRelativeWithIntrinsicBounds(
                     androidx.core.content.ContextCompat.getDrawable(this, R.drawable.ic_import),
                     null,
                     androidx.core.content.ContextCompat.getDrawable(this,
@@ -323,58 +294,58 @@ findViewById(R.id.navPreferences).setOnClickListener(v -> {
                     null);
         });
 
-        findViewById(R.id.navImportBackup).setOnClickListener(v -> {
+        binding.navImportBackup.setOnClickListener(v -> {
             if (hasStoragePermission(PERMISSION_IMPORT)) {
                 LocalImport.startImport(this);
             }
-            drawerLayout.closeDrawers();
+            binding.drawerLayout.closeDrawers();
         });
 
-        findViewById(R.id.navImportFile).setOnClickListener(v -> {
-            drawerLayout.closeDrawers();
+        binding.navImportFile.setOnClickListener(v -> {
+            binding.drawerLayout.closeDrawers();
             importFileLauncher.launch(new String[]{"text/*", "application/octet-stream"});
         });
 
-        findViewById(R.id.previousMonth).setOnClickListener(v -> {
+        binding.previousMonth.setOnClickListener(v -> {
             new Events().send(new ButtonClicked("previousMonth"));
-            viewPager.setCurrentItem(viewPager.getCurrentItem() - 1, true);
+            binding.viewPager.setCurrentItem(binding.viewPager.getCurrentItem() - 1, true);
         });
 
-        findViewById(R.id.nextMonth).setOnClickListener(v -> {
+        binding.nextMonth.setOnClickListener(v -> {
             new Events().send(new ButtonClicked("nextMonth"));
-            viewPager.setCurrentItem(viewPager.getCurrentItem() + 1, true);
+            binding.viewPager.setCurrentItem(binding.viewPager.getCurrentItem() + 1, true);
         });
 
-        newAssetName.addTextChangedListener(new TextWatcher() {
+        binding.newAssetName.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (s.length() >= 2) {
                     String[] assetNames = getAssetNames(s.toString());
-                    newAssetName.setAdapter(new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_dropdown_item_1line, assetNames));
+                    binding.newAssetName.setAdapter(new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_dropdown_item_1line, assetNames));
                 }
             }
             @Override public void afterTextChanged(Editable s) {}
         });
 
-        newAssetChange.addTextChangedListener(new TextWatcher() {
+        binding.newAssetChange.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (updatingForm) return;
                 Asset asset = getNewAsset();
                 Asset previous = asset.getPrevious();
                 double prevValue = (previous != null) ? previous.getValue() : 0.0;
-                double change = toDouble(newAssetChange);
+                double change = toDouble(binding.newAssetChange);
                 BigDecimal newValue = BigDecimal.valueOf(prevValue).add(BigDecimal.valueOf(change));
-                if (toDouble(newAssetValue) != newValue.doubleValue()) {
+                if (toDouble(binding.newAssetValue) != newValue.doubleValue()) {
                     updatingForm = true;
-                    newAssetValue.setText(formatStringValue(newValue.doubleValue()));
+                    binding.newAssetValue.setText(formatStringValue(newValue.doubleValue()));
                     updatingForm = false;
                 }
             }
             @Override public void afterTextChanged(Editable s) {}
         });
 
-        newAssetValue.addTextChangedListener(new TextWatcher() {
+        binding.newAssetValue.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (updatingForm) return;
@@ -382,9 +353,9 @@ findViewById(R.id.navPreferences).setOnClickListener(v -> {
                 Asset previous = asset.getPrevious();
                 double prevValue = (previous != null) ? previous.getValue() : 0.0;
                 BigDecimal change = BigDecimal.valueOf(asset.getValue()).subtract(BigDecimal.valueOf(prevValue));
-                if (toDouble(newAssetChange) != change.doubleValue()) {
+                if (toDouble(binding.newAssetChange) != change.doubleValue()) {
                     updatingForm = true;
-                    newAssetChange.setText(formatStringValue(change.doubleValue()));
+                    binding.newAssetChange.setText(formatStringValue(change.doubleValue()));
                     updatingForm = false;
                 }
             }
@@ -392,9 +363,9 @@ findViewById(R.id.navPreferences).setOnClickListener(v -> {
         });
 
         // Main FAB: toggle speed-dial
-        newAssetSave.setOnClickListener(v -> {
+        binding.newAssetSave.setOnClickListener(v -> {
             new Events().send(new ButtonClicked("newAssetSave"));
-            if (newAssetLayout.getVisibility() == View.VISIBLE) {
+            if (binding.newAssetLayout.getVisibility() == View.VISIBLE) {
                 closeAssetView();
                 return;
             }
@@ -402,27 +373,29 @@ findViewById(R.id.navPreferences).setOnClickListener(v -> {
         });
 
         // Speed-dial: Add Asset
-        findViewById(R.id.fabAsset).setOnClickListener(v -> {
+        binding.fabAsset.setOnClickListener(v -> {
             collapseFab();
             openAssetView(null, null);
         });
 
         // Speed-dial: Monthly Note
-        findViewById(R.id.fabNote).setOnClickListener(v -> {
+        binding.fabNote.setOnClickListener(v -> {
             collapseFab();
             toComment(null);
         });
 
         // Scrim: dismiss on tap outside
-        fabScrim.setOnClickListener(v -> collapseFab());
+        binding.fabScrim.setOnClickListener(v -> collapseFab());
+
+        binding.btnSaveAsset.setOnClickListener(v -> saveAsset());
 
         View.OnClickListener openGoals = v -> {
             Intent goalsIntent = new Intent(this, GoalActivity.class);
             goalsIntent.putExtra("current_net_worth", month.getValue());
             startActivity(goalsIntent);
         };
-        findViewById(R.id.editGoals).setOnClickListener(openGoals);
-        findViewById(R.id.navGoals).setOnClickListener(openGoals);
+        binding.editGoals.setOnClickListener(openGoals);
+        binding.navGoals.setOnClickListener(openGoals);
     }
 
     // ── Authentication ──────────────────────────────────────────────────────
@@ -623,7 +596,7 @@ findViewById(R.id.navPreferences).setOnClickListener(v -> {
                 }
 
                 runOnUiThread(() -> {
-                    refreshCurrentPage();
+                    refreshAllLoadedPages();
                     showSyncing(false);
                 });
             } catch (Exception e) {
@@ -710,7 +683,7 @@ findViewById(R.id.navPreferences).setOnClickListener(v -> {
 
             runOnUiThread(() -> {
                 showSyncing(false);
-                refreshCurrentPage();
+                refreshAllLoadedPages();
                 Toast.makeText(this, R.string.clear_all_data_success, Toast.LENGTH_SHORT).show();
             });
         });
@@ -718,12 +691,10 @@ findViewById(R.id.navPreferences).setOnClickListener(v -> {
 
 
     private void showSyncing(boolean syncing) {
-        com.google.android.material.card.MaterialCardView navCard =
-                findViewById(R.id.bottomAppBarCard);
         if (syncing) {
             int from = ContextCompat.getColor(this, R.color.divider);
             int to   = ContextCompat.getColor(this, R.color.colorAccent);
-            syncAnim = ObjectAnimator.ofArgb(navCard, "strokeColor", from, to);
+            syncAnim = ObjectAnimator.ofArgb(binding.bottomAppBarCard, "strokeColor", from, to);
             syncAnim.setDuration(700);
             syncAnim.setRepeatMode(ObjectAnimator.REVERSE);
             syncAnim.setRepeatCount(ObjectAnimator.INFINITE);
@@ -734,8 +705,7 @@ findViewById(R.id.navPreferences).setOnClickListener(v -> {
                 syncAnim.cancel();
                 syncAnim = null;
             }
-            if (navCard != null)
-                navCard.setStrokeColor(ContextCompat.getColor(this, R.color.divider));
+            binding.bottomAppBarCard.setStrokeColor(ContextCompat.getColor(this, R.color.divider));
         }
     }
 
@@ -747,17 +717,17 @@ findViewById(R.id.navPreferences).setOnClickListener(v -> {
 
     private void checkLogin() {
         boolean signedIn = isSignedIn();
-        findViewById(R.id.googleSignIn).setVisibility(signedIn ? View.GONE : View.VISIBLE);
-        findViewById(R.id.signedInLayout).setVisibility(signedIn ? View.VISIBLE : View.GONE);
+        binding.googleSignIn.setVisibility(signedIn ? View.GONE : View.VISIBLE);
+        binding.signedInLayout.setVisibility(signedIn ? View.VISIBLE : View.GONE);
         if (signedIn) {
-            ((TextView) findViewById(R.id.userEmail)).setText(Prefs.getString(Prefs.PREFS_USER_EMAIL, ""));
+            binding.userEmail.setText(Prefs.getString(Prefs.PREFS_USER_EMAIL, ""));
             triggerSync();
         }
     }
 
     private void onSignedOut() {
-        findViewById(R.id.googleSignIn).setVisibility(View.VISIBLE);
-        findViewById(R.id.signedInLayout).setVisibility(View.GONE);
+        binding.googleSignIn.setVisibility(View.VISIBLE);
+        binding.signedInLayout.setVisibility(View.GONE);
     }
 
     // ── Permissions ──────────────────────────────────────────────────────────
@@ -792,11 +762,29 @@ findViewById(R.id.navPreferences).setOnClickListener(v -> {
         }
     }
 
+    private void handleIntent(Intent intent) {
+        if (Intent.ACTION_VIEW.equals(intent.getAction())) {
+            Uri uri = intent.getData();
+            if (uri != null) {
+                importFromFile(uri);
+            }
+        }
+    }
+
+    private void importFromFile(Uri uri) {
+        try {
+            LocalImport.importFromUri(uri);
+        } catch (Exception e) {
+            Log.e("MainActivity", "Import failed", e);
+            Toast.makeText(this, R.string.import_no_backups, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     // ── MonthPageFragment.Listener ───────────────────────────────────────────
 
     @Override
     public void onOpenDrawer() {
-        drawerLayout.openDrawer(GravityCompat.START);
+        binding.drawerLayout.openDrawer(GravityCompat.START);
     }
 
     @Override
@@ -830,40 +818,44 @@ findViewById(R.id.navPreferences).setOnClickListener(v -> {
                             });
                             new Events().setProperty("numberOfAssets", String.valueOf(realm.where(Asset.class).count()));
                         }
-                        refreshCurrentPage();
+                        refreshAllLoadedPages();
                     }
                 })
                 .show();
     }
 
     @Override
+    public void onDataChanged() {
+        refreshAllLoadedPages();
+    }
+
     public void onMonthReady(Month m) {
-        int[] current = MonthPagerAdapter.monthYearAt(viewPager.getCurrentItem());
+        int[] current = MonthPagerAdapter.monthYearAt(binding.viewPager.getCurrentItem());
         if (m.getMonth() != current[0] || m.getYear() != current[1]) return;
         month = m;
-        monthName.setText(m.toString());
+        binding.monthName.setText(m.toString());
         updateGoalProgress();
         updateWidget();
-        if (viewPager.getOffscreenPageLimit() == ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT) {
-            viewPager.setOffscreenPageLimit(2);
+        if (binding.viewPager.getOffscreenPageLimit() == ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT) {
+            binding.viewPager.setOffscreenPageLimit(2);
         }
     }
 
     private Asset getNewAsset() {
-        String name = newAssetName.getText().toString();
-        double value = toDouble(newAssetValue);
+        String name = binding.newAssetName.getText().toString();
+        double value = toDouble(binding.newAssetValue);
         return new Asset(name, value, month.getMonth(), month.getYear());
     }
 
     private void saveAsset() {
-        String name = newAssetName.getText().toString();
+        String name = binding.newAssetName.getText().toString();
         if (name.isEmpty()) {
-            newAssetName.setError(getString(R.string.new_asset_name_empty));
+            binding.newAssetName.setError(getString(R.string.new_asset_name_empty));
             return;
         }
-        String valueStr = newAssetValue.getText().toString();
+        String valueStr = binding.newAssetValue.getText().toString();
         if (valueStr.isEmpty()) {
-            newAssetValue.setError(getString(R.string.new_asset_value_empty));
+            binding.newAssetValue.setError(getString(R.string.new_asset_value_empty));
             return;
         }
         Asset asset = getNewAsset();
@@ -872,7 +864,7 @@ findViewById(R.id.navPreferences).setOnClickListener(v -> {
             realm.executeTransaction(r -> r.copyToRealmOrUpdate(asset));
             new Events().setProperty("numberOfAssets", String.valueOf(realm.where(Asset.class).count()));
         }
-        refreshCurrentPage();
+        refreshAllLoadedPages();
         closeAssetView();
         if (!Prefs.getBoolean(Prefs.PREFS_AUTO_IMPORT_PERMISSION, false)) {
             if (hasStoragePermission(PERMISSION_EXPORT_AUTO)) {
@@ -883,24 +875,24 @@ findViewById(R.id.navPreferences).setOnClickListener(v -> {
 
     private void openAssetView(@Nullable String name, @Nullable Double value) {
         updatingForm = true;
-        newAssetLayout.setVisibility(View.VISIBLE);
-        newAssetName.setText(name != null ? name : "");
-        newAssetValue.setText(value != null ? formatStringValue(value) : "");
+        binding.newAssetLayout.setVisibility(View.VISIBLE);
+        binding.newAssetName.setText(name != null ? name : "");
+        binding.newAssetValue.setText(value != null ? formatStringValue(value) : "");
         // Calculate correct change from previous month
         if (name != null && value != null) {
             Asset temp = new Asset(name, value, month.getMonth(), month.getYear());
             Asset prev = temp.getPrevious();
             double prevVal = (prev != null) ? prev.getValue() : 0.0;
-            newAssetChange.setText(formatStringValue(value - prevVal));
+            binding.newAssetChange.setText(formatStringValue(value - prevVal));
         } else {
-            newAssetChange.setText("");
+            binding.newAssetChange.setText("");
         }
         updatingForm = false;
-        if (name != null) newAssetName.setSelection(name.length());
+        if (name != null) binding.newAssetName.setSelection(name.length());
     }
 
     private void closeAssetView() {
-        newAssetLayout.setVisibility(View.GONE);
+        binding.newAssetLayout.setVisibility(View.GONE);
         collapseFab();
     }
 
@@ -911,21 +903,21 @@ findViewById(R.id.navPreferences).setOnClickListener(v -> {
 
     private void expandFab() {
         fabExpanded = true;
-        newAssetSave.animate().rotation(45f).setDuration(200).start();
-        fabScrim.setVisibility(View.VISIBLE);
-        fabScrim.animate().alpha(1f).setDuration(200).start();
-        showFabItem(fabAssetContainer, 0);
-        showFabItem(fabNoteContainer, 60);
+        binding.newAssetSave.animate().rotation(45f).setDuration(200).start();
+        binding.fabScrim.setVisibility(View.VISIBLE);
+        binding.fabScrim.animate().alpha(1f).setDuration(200).start();
+        showFabItem(binding.fabAssetContainer, 0);
+        showFabItem(binding.fabNoteContainer, 60);
     }
 
     private void collapseFab() {
         if (!fabExpanded) return;
         fabExpanded = false;
-        newAssetSave.animate().rotation(0f).setDuration(200).start();
-        fabScrim.animate().alpha(0f).setDuration(200)
-                .withEndAction(() -> fabScrim.setVisibility(View.GONE)).start();
-        hideFabItem(fabAssetContainer);
-        hideFabItem(fabNoteContainer);
+        binding.newAssetSave.animate().rotation(0f).setDuration(200).start();
+        binding.fabScrim.animate().alpha(0f).setDuration(200)
+                .withEndAction(() -> binding.fabScrim.setVisibility(View.GONE)).start();
+        hideFabItem(binding.fabAssetContainer);
+        hideFabItem(binding.fabNoteContainer);
     }
 
     private void showFabItem(android.view.ViewGroup container, long delay) {
@@ -948,7 +940,7 @@ findViewById(R.id.navPreferences).setOnClickListener(v -> {
             public void handleOnBackPressed() {
                 if (fabExpanded) {
                     collapseFab();
-                } else if (newAssetLayout.getVisibility() == View.VISIBLE) {
+                } else if (binding.newAssetLayout.getVisibility() == View.VISIBLE) {
                     closeAssetView();
                 } else {
                     setEnabled(false);
@@ -1020,36 +1012,35 @@ findViewById(R.id.navPreferences).setOnClickListener(v -> {
 
         boolean anyGoal = g1 > 0 || g3 > 0 || g5 > 0;
         int goalVis = anyGoal ? View.VISIBLE : View.GONE;
-        findViewById(R.id.goalsCard).setVisibility(goalVis);
-        findViewById(R.id.goalsDivider).setVisibility(goalVis);
+        binding.goalsCard.setVisibility(goalVis);
+        binding.goalsDivider.setVisibility(goalVis);
         // Show "Set Goals" nav item only when no goals exist; once set, user edits via the card
-        findViewById(R.id.navGoals).setVisibility(anyGoal ? View.GONE : View.VISIBLE);
+        binding.navGoals.setVisibility(anyGoal ? View.GONE : View.VISIBLE);
         if (!anyGoal) return;
 
         double current = month.getValue();
         int setYear = Prefs.getInt(Prefs.PREFS_GOAL_SET_YEAR, Calendar.getInstance().get(Calendar.YEAR));
 
-        updateGoalRow(R.id.goal1yRow, R.id.goal1yLabel, R.id.goal1yBar, R.id.goal1yPercent,
+        updateGoalRow(binding.goal1yRow, binding.goal1yLabel, binding.goal1yBar, binding.goal1yPercent,
                 g1, current, setYear + 1);
-        updateGoalRow(R.id.goal3yRow, R.id.goal3yLabel, R.id.goal3yBar, R.id.goal3yPercent,
+        updateGoalRow(binding.goal3yRow, binding.goal3yLabel, binding.goal3yBar, binding.goal3yPercent,
                 g3, current, setYear + 3);
-        updateGoalRow(R.id.goal5yRow, R.id.goal5yLabel, R.id.goal5yBar, R.id.goal5yPercent,
+        updateGoalRow(binding.goal5yRow, binding.goal5yLabel, binding.goal5yBar, binding.goal5yPercent,
                 g5, current, setYear + 5);
     }
 
-    private void updateGoalRow(int rowId, int labelId, int barId, int percentId,
+    private void updateGoalRow(View row, TextView label, android.widget.ProgressBar bar, TextView percent,
                                 float goal, double current, int targetYear) {
-        View row = findViewById(rowId);
         if (goal <= 0) {
             row.setVisibility(View.GONE);
             return;
         }
         row.setVisibility(View.VISIBLE);
-        ((TextView) findViewById(labelId)).setText(String.valueOf(targetYear));
+        label.setText(String.valueOf(targetYear));
 
         int progress = (int) Math.min(Math.max(current / goal * 100, 0), 100);
-        ((android.widget.ProgressBar) findViewById(barId)).setProgress(progress);
-        ((TextView) findViewById(percentId)).setText(getString(R.string.helper_text, String.valueOf(progress)).replace("Click to add ", "").replace(" to this month", "%"));
+        bar.setProgress(progress);
+        percent.setText(getString(R.string.helper_text, String.valueOf(progress)).replace("Click to add ", "").replace(" to this month", "%"));
     }
 
     private void showMonthYearPicker() {
@@ -1090,7 +1081,7 @@ findViewById(R.id.navPreferences).setOnClickListener(v -> {
                 .setPositiveButton("Go", (dialog, which) -> {
                     int selectedMonth = monthPicker.getValue() + 1;
                     int selectedYear  = yearPicker.getValue();
-                    viewPager.setCurrentItem(MonthPagerAdapter.positionOf(selectedMonth, selectedYear), false);
+                    binding.viewPager.setCurrentItem(MonthPagerAdapter.positionOf(selectedMonth, selectedYear), false);
                     closeAssetView();
                 })
                 .setNegativeButton("Cancel", null)
@@ -1125,7 +1116,7 @@ findViewById(R.id.navPreferences).setOnClickListener(v -> {
                     try (Realm realm = Realm.getDefaultInstance()) {
                         realm.executeTransaction(r -> r.copyToRealmOrUpdate(event.getAssets()));
                     }
-                    refreshCurrentPage();
+                    refreshAllLoadedPages();
                 })
                 .setNegativeButton(R.string.backup_share_no, null)
                 .show();

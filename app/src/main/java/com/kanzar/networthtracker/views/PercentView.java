@@ -4,18 +4,21 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import com.kanzar.networthtracker.R;
+import com.kanzar.networthtracker.databinding.ViewPercentBinding;
 import com.kanzar.networthtracker.helpers.Tools;
 
 public class PercentView extends LinearLayout {
 
     private double percent;
     private double valueChange;
+    private ViewPercentBinding binding;
 
     public PercentView(Context context) {
         super(context);
@@ -33,26 +36,24 @@ public class PercentView extends LinearLayout {
     }
 
     private void initView() {
-        inflate(getContext(), R.layout.view_percent, this);
+        binding = ViewPercentBinding.inflate(LayoutInflater.from(getContext()), this, true);
     }
 
     public void init(double previous, double current) {
         this.percent = Tools.getPercent(previous, current);
         this.valueChange = current - previous;
 
-        TextView percentValue = findViewById(R.id.percentValue);
-
         String arrow = valueChange >= 0 ? "▲ " : "▼ ";
-        percentValue.setText(arrow + Tools.formatPercent(Math.abs(this.percent)));
+        binding.percentValue.setText(arrow + Tools.formatPercent(Math.abs(this.percent)));
 
         GradientDrawable bg = new GradientDrawable();
         bg.setCornerRadius(24f);
         int color = pillColor(this.percent, this.valueChange);
         bg.setColor(color);
-        percentValue.setBackground(bg);
+        binding.percentValue.setBackground(bg);
 
         // Ensure text color is vibrant and matches the state
-        percentValue.setTextColor(valueChange >= 0 ? 
+        binding.percentValue.setTextColor(valueChange >= 0 ?
                 ContextCompat.getColor(getContext(), R.color.positive) : 
                 ContextCompat.getColor(getContext(), R.color.negative));
     }

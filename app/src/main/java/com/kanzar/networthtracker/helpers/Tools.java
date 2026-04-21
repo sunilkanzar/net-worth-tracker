@@ -70,12 +70,13 @@ public final class Tools {
 
     public static String formatAmount(double amount, boolean roundUp) {
         double value = roundUp ? Math.round(amount) : amount;
-        String format = Prefs.getString(Prefs.PREFS_NUMBER_FORMAT, "NONE");
-        String sep = Prefs.getString(Prefs.PREFS_NUMBER_SEPARATOR, " ");
-        String currency = Prefs.getString(Prefs.PREFS_CURRENCY, "");
+        String format = Prefs.getString(Prefs.PREFS_NUMBER_FORMAT, Prefs.DEFAULT_NUMBER_FORMAT);
+        String sep = Prefs.getString(Prefs.PREFS_NUMBER_SEPARATOR, Prefs.DEFAULT_NUMBER_SEPARATOR);
+        String currency = Prefs.getString(Prefs.PREFS_CURRENCY, Prefs.DEFAULT_CURRENCY);
         String formatted;
         if ("NONE".equals(format)) {
-            formatted = new DecimalFormat("#.##").format(value);
+            DecimalFormat df = new DecimalFormat("#.##");
+            formatted = df.format(value);
         } else {
             String pattern = "IN".equals(format) ? "#,##,##,###.##" : "#,###.##";
             DecimalFormat df = new DecimalFormat(pattern);

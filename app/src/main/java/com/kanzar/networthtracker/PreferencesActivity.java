@@ -11,6 +11,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.kanzar.networthtracker.databinding.ActivityPreferencesBinding;
+import com.kanzar.networthtracker.databinding.ItemPreferenceRowBinding;
 import com.kanzar.networthtracker.helpers.Prefs;
 
 import io.realm.Realm;
@@ -19,45 +21,40 @@ import java.util.concurrent.Executors;
 
 public class PreferencesActivity extends AppCompatActivity {
 
-    private View rowCurrency, rowFormat, rowSeparator, rowTheme;
+    private ActivityPreferencesBinding binding;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_preferences);
+        binding = ActivityPreferencesBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
-
-        rowCurrency = findViewById(R.id.rowCurrency);
-        rowFormat = findViewById(R.id.rowFormat);
-        rowSeparator = findViewById(R.id.rowSeparator);
-        rowTheme = findViewById(R.id.rowTheme);
+        binding.toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
         setupClickListeners();
         updateUI();
 
-        findViewById(R.id.btnClearAll).setOnClickListener(v -> confirmClearAllData());
+        binding.btnClearAll.setOnClickListener(v -> confirmClearAllData());
     }
 
     private void setupClickListeners() {
-        rowCurrency.setOnClickListener(v -> showCurrencyDialog());
-        rowFormat.setOnClickListener(v -> showFormatDialog());
-        rowSeparator.setOnClickListener(v -> showSeparatorDialog());
-        rowTheme.setOnClickListener(v -> showThemeDialog());
+        binding.rowCurrency.getRoot().setOnClickListener(v -> showCurrencyDialog());
+        binding.rowFormat.getRoot().setOnClickListener(v -> showFormatDialog());
+        binding.rowSeparator.getRoot().setOnClickListener(v -> showSeparatorDialog());
+        binding.rowTheme.getRoot().setOnClickListener(v -> showThemeDialog());
     }
 
     private void updateUI() {
-        setRowData(rowCurrency, getString(R.string.pref_currency_label), getCurrencySummary());
-        setRowData(rowFormat, getString(R.string.pref_format_label), getFormatSummary());
-        setRowData(rowSeparator, getString(R.string.pref_separator_label), getSeparatorSummary());
-        setRowData(rowTheme, getString(R.string.pref_theme_label), getThemeSummary());
+        setRowData(binding.rowCurrency, getString(R.string.pref_currency_label), getCurrencySummary());
+        setRowData(binding.rowFormat, getString(R.string.pref_format_label), getFormatSummary());
+        setRowData(binding.rowSeparator, getString(R.string.pref_separator_label), getSeparatorSummary());
+        setRowData(binding.rowTheme, getString(R.string.pref_theme_label), getThemeSummary());
     }
 
-    private void setRowData(View row, String title, String summary) {
-        ((TextView) row.findViewById(R.id.prefTitle)).setText(title);
-        ((TextView) row.findViewById(R.id.prefSummary)).setText(summary);
+    private void setRowData(ItemPreferenceRowBinding rowBinding, String title, String summary) {
+        rowBinding.prefTitle.setText(title);
+        rowBinding.prefSummary.setText(summary);
     }
 
     private void showCurrencyDialog() {
@@ -132,7 +129,7 @@ public class PreferencesActivity extends AppCompatActivity {
     }
 
     private String getCurrencySummary() {
-        String val = Prefs.getString(Prefs.PREFS_CURRENCY, "₹");
+        String val = Prefs.getString(Prefs.PREFS_CURRENCY, Prefs.DEFAULT_CURRENCY);
         if (val.isEmpty()) return getString(R.string.pref_currency_none);
         switch (val) {
             case "$": return getString(R.string.pref_currency_usd);
@@ -144,7 +141,7 @@ public class PreferencesActivity extends AppCompatActivity {
     }
 
     private String getFormatSummary() {
-        String val = Prefs.getString(Prefs.PREFS_NUMBER_FORMAT, "IN");
+        String val = Prefs.getString(Prefs.PREFS_NUMBER_FORMAT, Prefs.DEFAULT_NUMBER_FORMAT);
         switch (val) {
             case "INT": return getString(R.string.pref_format_int);
             case "NONE": return getString(R.string.pref_format_none);
@@ -153,12 +150,12 @@ public class PreferencesActivity extends AppCompatActivity {
     }
 
     private String getSeparatorSummary() {
-        String val = Prefs.getString(Prefs.PREFS_NUMBER_SEPARATOR, " ");
+        String val = Prefs.getString(Prefs.PREFS_NUMBER_SEPARATOR, Prefs.DEFAULT_NUMBER_SEPARATOR);
         return ",".equals(val) ? getString(R.string.pref_sep_comma) : getString(R.string.pref_sep_space);
     }
 
     private String getThemeSummary() {
-        int val = Prefs.getInt(Prefs.PREFS_THEME, AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        int val = Prefs.getInt(Prefs.PREFS_THEME, Prefs.DEFAULT_THEME);
         if (val == AppCompatDelegate.MODE_NIGHT_NO) return getString(R.string.pref_theme_light);
         if (val == AppCompatDelegate.MODE_NIGHT_YES) return getString(R.string.pref_theme_dark);
         return getString(R.string.pref_theme_system);

@@ -109,6 +109,9 @@
     <string name="widget_growth">Growth</string>
     <string name="widget_no_entries">No entries</string>
 
+    <string name="empty_month_copy_action">Copy from %1$s</string>
+    <string name="empty_month_copy_success">Assets copied from %1$s</string>
+
     <string name="pref_section_number">Number</string>
     <string name="pref_section_appearance">Appearance</string>
     <string name="pref_section_other">Other</string>

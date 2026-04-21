@@ -7,6 +7,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.kanzar.networthtracker.adapters.MonthAdapter;
+import com.kanzar.networthtracker.databinding.ActivityMonthBinding;
 import com.kanzar.networthtracker.helpers.Month;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,16 +16,15 @@ import java.util.List;
 public class MonthActivity extends AppCompatActivity implements MonthAdapter.OnItemClickListener {
 
     private MonthAdapter adapter;
+    private ActivityMonthBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_month);
+        binding = ActivityMonthBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
-        }
+        binding.toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
         List<Month> months = new ArrayList<>();
         Month first = new Month().getFirst();
@@ -40,12 +40,9 @@ public class MonthActivity extends AppCompatActivity implements MonthAdapter.OnI
 
         Collections.reverse(months);
 
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        if (recyclerView != null) {
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            adapter = new MonthAdapter(months, this);
-            recyclerView.setAdapter(adapter);
-        }
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new MonthAdapter(months, this);
+        binding.recyclerView.setAdapter(adapter);
     }
 
     @Override

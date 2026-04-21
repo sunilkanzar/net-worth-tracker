@@ -4,33 +4,33 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.kanzar.networthtracker.databinding.ActivityCommentBinding;
 import com.kanzar.networthtracker.helpers.Month;
 import com.kanzar.networthtracker.helpers.Prefs;
 import com.kanzar.networthtracker.models.AssetFields;
 
 public class CommentActivity extends AppCompatActivity {
 
-    private TextInputEditText monthComment;
+    private ActivityCommentBinding binding;
     private String noteKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_comment);
+        binding = ActivityCommentBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         int month = getIntent().getIntExtra(AssetFields.MONTH, 0);
         int year  = getIntent().getIntExtra(AssetFields.YEAR, 0);
         noteKey = noteKey(month, year);
 
-        monthComment = findViewById(R.id.monthComment);
-        monthComment.setText(Prefs.getString(noteKey, ""));
+        binding.monthComment.setText(Prefs.getString(noteKey, ""));
 
-        MaterialToolbar toolbar = findViewById(R.id.toolbar);
         Month currentMonth = new Month(month, year);
-        toolbar.setTitle("Note For " + currentMonth.toString());
+        binding.toolbar.setTitle("Note For " + currentMonth.toString());
 
-        toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
-        toolbar.setOnMenuItemClickListener(item -> {
+        binding.toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
+        binding.toolbar.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.action_save_note) {
                 saveNote();
                 return true;
@@ -40,7 +40,7 @@ public class CommentActivity extends AppCompatActivity {
     }
 
     private void saveNote() {
-        android.text.Editable editable = monthComment.getText();
+        android.text.Editable editable = binding.monthComment.getText();
         String text = editable != null ? editable.toString().trim() : "";
         if (text.isEmpty()) {
             Prefs.delete(noteKey);

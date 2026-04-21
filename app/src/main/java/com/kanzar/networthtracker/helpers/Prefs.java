@@ -2,6 +2,7 @@ package com.kanzar.networthtracker.helpers;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import androidx.appcompat.app.AppCompatDelegate;
 import com.kanzar.networthtracker.CoreApplication;
 
 public final class Prefs {
@@ -18,6 +19,11 @@ public final class Prefs {
     public static final String PREFS_NUMBER_SEPARATOR = "number_separator";
     public static final String PREFS_THEME = "app_theme";
     private static final String CORE_PREFS = "CORE_PREFS";
+
+    public static final String DEFAULT_CURRENCY = "₹";
+    public static final String DEFAULT_NUMBER_FORMAT = "IN";
+    public static final String DEFAULT_NUMBER_SEPARATOR = ",";
+    public static final int DEFAULT_THEME = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
 
     private Prefs() {}
 
