@@ -10,6 +10,10 @@
         <item name="android:statusBarColor">@color/bg</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+        <item name="alertDialogTheme">@style/AppTheme.AlertDialog</item>
+        <item name="android:alertDialogTheme">@style/AppTheme.AlertDialog</item>
+        <item name="materialAlertDialogTheme">@style/AppTheme.MaterialAlertDialog</item>
+        <item name="android:datePickerDialogTheme">@style/AppTheme.AlertDialog</item>
     </style>
     <style name="AppThemeNoActionBar" parent="AppTheme">
         <item name="windowActionBar">false</item>

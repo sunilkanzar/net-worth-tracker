@@ -371,16 +371,18 @@ public class AllocationActivity extends AppCompatActivity {
         container.addView(monthPicker, params);
         container.addView(yearPicker, params);
 
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Go to month")
                 .setView(container)
-                .setPositiveButton("Go", (dialog, which) -> {
+                .setPositiveButton("Go", (d, which) -> {
                     month.setYear(yearPicker.getValue());
                     month.setMonth(monthPicker.getValue() + 1);
                     loadData();
                 })
                 .setNegativeButton("Cancel", null)
-                .show();
+                .create();
+        Tools.styleDialog(dialog);
+        dialog.show();
     }
 
     // ── Donut setup ───────────────────────────────────────────────────────────

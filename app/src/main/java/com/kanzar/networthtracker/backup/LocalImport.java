@@ -1,7 +1,7 @@
 package com.kanzar.networthtracker.backup;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.util.Log;
 import com.kanzar.networthtracker.R;
 import com.kanzar.networthtracker.eventbus.ImportedEvent;
@@ -9,6 +9,7 @@ import com.kanzar.networthtracker.eventbus.MessageEvent;
 import com.kanzar.networthtracker.models.Asset;
 import com.kanzar.networthtracker.statistics.Events;
 import com.kanzar.networthtracker.statistics.events.ButtonClicked;
+import com.kanzar.networthtracker.helpers.Tools;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.BufferedReader;
@@ -81,7 +82,9 @@ public final class LocalImport {
                 Log.e("LocalImport", "Import failed", e);
             }
         });
-        builder.create().show();
+        AlertDialog dialog = builder.create();
+        Tools.styleDialog(dialog);
+        dialog.show();
     }
 
     private static String dateToString(Date date, String format) {

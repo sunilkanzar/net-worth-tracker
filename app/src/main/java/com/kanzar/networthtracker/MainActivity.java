@@ -773,19 +773,27 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
 
-        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            String entered = input.getText().toString().trim();
-            if (entered.isEmpty()) {
-                input.setError("Enter the answer");
-                return;
-            }
-            if (Integer.parseInt(entered) != answer) {
-                input.setError("Wrong answer, try again");
-                return;
-            }
-            dialog.dismiss();
-            performClearAllData();
-        }));
+        Tools.styleDialog(dialog);
+
+        dialog.setOnShowListener(d -> {
+            int accentColor = ContextCompat.getColor(this, Tools.getAccentColor());
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(accentColor);
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(accentColor);
+            
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                String entered = input.getText().toString().trim();
+                if (entered.isEmpty()) {
+                    input.setError("Enter the answer");
+                    return;
+                }
+                if (Integer.parseInt(entered) != answer) {
+                    input.setError("Wrong answer, try again");
+                    return;
+                }
+                dialog.dismiss();
+                performClearAllData();
+            });
+        });
 
         dialog.show();
     }
@@ -1352,17 +1360,19 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
         row.addView(monthPicker, params);
         row.addView(yearPicker, params);
 
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Go to month")
                 .setView(row)
-                .setPositiveButton("Go", (dialog, which) -> {
+                .setPositiveButton("Go", (d, which) -> {
                     int selectedMonth = monthPicker.getValue() + 1;
                     int selectedYear  = yearPicker.getValue();
                     binding.viewPager.setCurrentItem(MonthPagerAdapter.positionOf(selectedMonth, selectedYear), false);
                     closeAssetView();
                 })
                 .setNegativeButton("Cancel", null)
-                .show();
+                .create();
+        Tools.styleDialog(dialog);
+        dialog.show();
     }
 
     public void toComment(View view) {
@@ -1386,25 +1396,27 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
             return;
         }
         String title = String.format(getString(R.string.import_confirmation), event.getAssets().size());
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(title)
                 .setMessage(R.string.backup_share)
-                .setPositiveButton(R.string.backup_share_yes, (dialog, which) -> {
+                .setPositiveButton(R.string.backup_share_yes, (d, which) -> {
                     try (Realm realm = Realm.getDefaultInstance()) {
                         realm.executeTransaction(r -> r.copyToRealmOrUpdate(event.getAssets()));
                     }
                     refreshAllLoadedPages();
                 })
                 .setNegativeButton(R.string.backup_share_no, null)
-                .show();
+                .create();
+        Tools.styleDialog(dialog);
+        dialog.show();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onBackupSavedEvent(BackupSavedEvent event) {
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.backup_saved)
                 .setMessage(R.string.backup_share)
-                .setPositiveButton(R.string.backup_share_yes, (dialog, which) -> {
+                .setPositiveButton(R.string.backup_share_yes, (d, which) -> {
                     Intent intent = new Intent(Intent.ACTION_SEND);
                     Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".provider", event.getFile());
                     intent.setType("application/octet-stream");
@@ -1414,7 +1426,9 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
                     startActivity(Intent.createChooser(intent, getString(R.string.backup_share_title)));
                 })
                 .setNegativeButton(R.string.backup_share_no, null)
-                .show();
+                .create();
+        Tools.styleDialog(dialog);
+        dialog.show();
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

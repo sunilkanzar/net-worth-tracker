@@ -127,14 +127,16 @@ public class PreferencesActivity extends AppCompatActivity {
     }
 
     private void showAccentColorDialog() {
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.pref_accent_label)
-                .setAdapter(new AccentAdapter(), (dialog, which) -> {
+                .setAdapter(new AccentAdapter(), (d, which) -> {
                     Prefs.save(Prefs.PREFS_ACCENT_COLOR, ACCENT_KEYS[which]);
                     updateUI();
                     recreate();
                 })
-                .show();
+                .create();
+        Tools.styleDialog(dialog);
+        dialog.show();
     }
 
     private class AccentAdapter extends BaseAdapter {
@@ -180,12 +182,14 @@ public class PreferencesActivity extends AppCompatActivity {
         };
         String[] values = {"₹", "$", "€", "£", "¥", ""};
         
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
             .setTitle(R.string.pref_currency_label)
-            .setItems(options, (dialog, which) -> {
+            .setItems(options, (d, which) -> {
                 Prefs.save(Prefs.PREFS_CURRENCY, values[which]);
                 updateUI();
-            }).show();
+            }).create();
+        Tools.styleDialog(dialog);
+        dialog.show();
     }
 
     private void showFormatDialog() {
@@ -196,12 +200,14 @@ public class PreferencesActivity extends AppCompatActivity {
         };
         String[] values = {"IN", "INT", "NONE"};
 
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
             .setTitle(R.string.pref_format_label)
-            .setItems(options, (dialog, which) -> {
+            .setItems(options, (d, which) -> {
                 Prefs.save(Prefs.PREFS_NUMBER_FORMAT, values[which]);
                 updateUI();
-            }).show();
+            }).create();
+        Tools.styleDialog(dialog);
+        dialog.show();
     }
 
     private void showSeparatorDialog() {
@@ -211,12 +217,14 @@ public class PreferencesActivity extends AppCompatActivity {
         };
         String[] values = {" ", ","};
 
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
             .setTitle(R.string.pref_separator_label)
-            .setItems(options, (dialog, which) -> {
+            .setItems(options, (d, which) -> {
                 Prefs.save(Prefs.PREFS_NUMBER_SEPARATOR, values[which]);
                 updateUI();
-            }).show();
+            }).create();
+        Tools.styleDialog(dialog);
+        dialog.show();
     }
 
     private void showThemeDialog() {
@@ -231,13 +239,15 @@ public class PreferencesActivity extends AppCompatActivity {
             AppCompatDelegate.MODE_NIGHT_YES
         };
 
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
             .setTitle(R.string.pref_theme_label)
-            .setItems(options, (dialog, which) -> {
+            .setItems(options, (d, which) -> {
                 Prefs.save(Prefs.PREFS_THEME, values[which]);
                 AppCompatDelegate.setDefaultNightMode(values[which]);
                 updateUI();
-            }).show();
+            }).create();
+        Tools.styleDialog(dialog);
+        dialog.show();
     }
 
     private String getCurrencySummary() {
@@ -284,12 +294,14 @@ public class PreferencesActivity extends AppCompatActivity {
         };
         String[] values = {"daily", "weekly", "monthly", "quarterly", "half_yearly", "yearly"};
 
-        new AlertDialog.Builder(this)
+        AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.pref_data_autosave)
-                .setItems(options, (dialog, which) -> {
+                .setItems(options, (d, which) -> {
                     Prefs.save(Prefs.PREFS_AUTOSAVE_FREQUENCY, values[which]);
                     updateUI();
-                }).show();
+                }).create();
+        Tools.styleDialog(dialog);
+        dialog.show();
     }
 
     private String getAutosaveSummary() {
@@ -339,24 +351,30 @@ public class PreferencesActivity extends AppCompatActivity {
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
 
-        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
-            String entered = input.getText().toString().trim();
-            if (entered.isEmpty()) {
-                input.setError("Enter the answer");
-                return;
-            }
-            try {
-                if (Integer.parseInt(entered) != answer) {
-                    input.setError("Wrong answer, try again");
+        dialog.setOnShowListener(d -> {
+            int accentColor = ContextCompat.getColor(this, Tools.getAccentColor());
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(accentColor);
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(accentColor);
+            
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+                String entered = input.getText().toString().trim();
+                if (entered.isEmpty()) {
+                    input.setError("Enter the answer");
                     return;
                 }
-            } catch (NumberFormatException e) {
-                input.setError("Invalid number");
-                return;
-            }
-            dialog.dismiss();
-            performClearAllData();
-        }));
+                try {
+                    if (Integer.parseInt(entered) != answer) {
+                        input.setError("Wrong answer, try again");
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    input.setError("Invalid number");
+                    return;
+                }
+                dialog.dismiss();
+                performClearAllData();
+            });
+        });
 
         dialog.show();
     }

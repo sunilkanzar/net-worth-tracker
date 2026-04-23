@@ -157,17 +157,19 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
             }
         }
 
-        new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+        androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle(R.string.sort_by)
-                .setSingleChoiceItems(options, checkedItem, (dialog, which) -> {
+                .setSingleChoiceItems(options, checkedItem, (d, which) -> {
                     AssetAdapter.SortOrder selectedOrder = orders[which];
                     Prefs.save(Prefs.PREFS_SORT_ORDER, selectedOrder.name());
                     
                     // Update all fragments by notifying data changed
                     listener.onDataChanged();
-                    dialog.dismiss();
+                    d.dismiss();
                 })
-                .show();
+                .create();
+        Tools.styleDialog(dialog);
+        dialog.show();
     }
 
     @Override

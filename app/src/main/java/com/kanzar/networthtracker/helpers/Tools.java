@@ -1,6 +1,9 @@
 package com.kanzar.networthtracker.helpers;
 
 import android.graphics.Color;
+import android.widget.Button;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import com.kanzar.networthtracker.R;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -82,8 +85,21 @@ public final class Tools {
             case "violet": return R.color.violet;
             case "rose": return R.color.rose;
             case "amber": return R.color.amber;
+            case "emerald": return R.color.emerald;
             default: return R.color.indigo;
         }
+    }
+
+    public static void styleDialog(AlertDialog dialog) {
+        int accentColor = ContextCompat.getColor(dialog.getContext(), getAccentColor());
+        dialog.setOnShowListener(d -> {
+            Button pos = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            if (pos != null) pos.setTextColor(accentColor);
+            Button neg = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+            if (neg != null) neg.setTextColor(accentColor);
+            Button neu = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+            if (neu != null) neu.setTextColor(accentColor);
+        });
     }
 
     public static int adjustAlpha(int color, float factor) {
