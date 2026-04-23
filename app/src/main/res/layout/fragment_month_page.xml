@@ -4,190 +4,531 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="@color/bg">
 
     <!-- Shimmer Loader -->
     <com.facebook.shimmer.ShimmerFrameLayout
         android:id="@+id/shimmerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible">
+        android:visibility="gone">
         <include layout="@layout/layout_month_shimmer" />
     </com.facebook.shimmer.ShimmerFrameLayout>
 
-    <LinearLayout
-        android:id="@+id/mainContent"
-        android:orientation="vertical"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone">
+        android:layout_height="match_parent">
 
-        <!-- Modern Header -->
-        <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        app:cardBackgroundColor="@color/colorPrimary"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="4dp"
-        app:strokeWidth="0.5dp"
-        app:strokeColor="#33FFFFFF">
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:clipToPadding="false"
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/mainContent"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"
+            android:fillViewport="true">
 
             <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:paddingBottom="100dp">
 
-                <ImageView
-                    android:id="@+id/menu"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:padding="6dp"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:src="@drawable/icon_menu"
-                    app:tint="#FFFFFF" />
-
-                <TextView
-                    android:id="@+id/monthValue"
-                    android:layout_width="0dp"
+                <!-- ── Hero Card ─────────────────────────────────────── -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:minHeight="52dp"
-                    android:paddingBottom="8dp"
-                    android:textColor="#FFFFFF"
-                    android:fontFamily="sans-serif-black"
-                    android:gravity="start|center_vertical"
-                    app:autoSizeTextType="uniform"
-                    app:autoSizeMinTextSize="18sp"
-                    app:autoSizeMaxTextSize="28sp"
-                    android:maxLines="1"/>
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="10dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
 
-                <com.kanzar.networthtracker.views.PercentView
-                    android:id="@+id/percentView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp">
-
-                <TextView
-                    android:id="@+id/monthValueChange"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="15sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="#FFFFFF"
-                    android:layout_alignParentStart="true"
-                    android:layout_centerVertical="true"/>
-
-                <TextView
-                    android:id="@+id/headerPrevValue"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:textColor="#B3FFFFFF"
-                    android:textSize="11sp"
-                    android:fontFamily="sans-serif-medium"/>
-            </RelativeLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="12dp">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/headerAssetCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#80FFFFFF"
-                        android:fontFamily="sans-serif-medium"
-                        android:textSize="11sp"/>
-
-                    <TextView
-                        android:id="@+id/monthCommentPreview"
+                    <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:textColor="#99FFFFFF"
-                        android:textSize="11sp"
-                        android:maxLines="2"
-                        android:ellipsize="end"
-                        android:fontFamily="sans-serif-light"
-                        android:visibility="gone"/>
+                        android:background="@drawable/hero_gradient"
+                        android:padding="18dp">
+
+                        <View
+                            android:layout_width="200dp"
+                            android:layout_height="200dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentTop="true"
+                            android:layout_marginTop="-40dp"
+                            android:layout_marginEnd="-40dp"
+                            android:background="@drawable/bg_hero_radial" />
+
+                        <!-- Top row -->
+                        <LinearLayout
+                            android:id="@+id/heroTopRow"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="14dp">
+
+                            <FrameLayout
+                                android:id="@+id/menu"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:background="@drawable/bg_hero_chip">
+                                <ImageView
+                                    android:layout_width="20dp"
+                                    android:layout_height="20dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_menu_thin"
+                                    app:tint="@color/hero_text" />
+                            </FrameLayout>
+
+                            <View
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:layout_weight="1" />
+
+                            <FrameLayout
+                                android:id="@+id/privacyToggle"
+                                android:layout_width="36dp"
+                                android:layout_height="36dp"
+                                android:layout_marginEnd="6dp"
+                                android:background="@drawable/bg_hero_chip">
+                                <ImageView
+                                    android:id="@+id/privacyIcon"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/ic_eye_thin"
+                                    app:tint="@color/hero_text" />
+                            </FrameLayout>
+
+                            <LinearLayout
+                                android:id="@+id/percentPill"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/bg_hero_pill_positive"
+                                android:gravity="center"
+                                android:paddingHorizontal="9dp"
+                                android:paddingVertical="4dp">
+
+                                <ImageView
+                                    android:id="@+id/percentArrow"
+                                    android:layout_width="11dp"
+                                    android:layout_height="11dp"
+                                    android:layout_marginEnd="4dp"
+                                    android:src="@drawable/ic_arrow_up_thin"
+                                    app:tint="@color/positive" />
+
+                                <TextView
+                                    android:id="@+id/percentText"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/positive"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Label -->
+                        <TextView
+                            android:id="@+id/heroTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/heroTopRow"
+                            android:letterSpacing="0.12"
+                            android:text="NET WORTH · APR 2026"
+                            android:textColor="@color/hero_text_muted"
+                            android:textSize="11sp"
+                            android:fontFamily="sans-serif-black"
+                            android:textAllCaps="true" />
+
+                        <!-- Main content row -->
+                        <LinearLayout
+                            android:id="@+id/heroMainRow"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/heroTitle"
+                            android:layout_marginTop="4dp"
+                            android:gravity="bottom"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="bottom"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:id="@+id/currencySymbol"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginEnd="2dp"
+                                        android:layout_marginBottom="3dp"
+                                        android:text="₹"
+                                        android:textColor="@color/hero_text"
+                                        android:alpha="0.7"
+                                        android:textSize="22sp"
+                                        android:textStyle="normal" />
+
+                                    <androidx.appcompat.widget.AppCompatTextView
+                                        android:id="@+id/monthValue"
+                                        android:layout_width="0dp"
+                                        android:layout_height="wrap_content"
+                                        android:layout_weight="1"
+                                        android:fontFamily="sans-serif-black"
+                                        android:letterSpacing="-0.03"
+                                        android:textColor="@color/hero_text"
+                                        android:textSize="34sp"
+                                        android:textStyle="bold"
+                                        android:includeFontPadding="false"
+                                        android:maxLines="1"
+                                        app:autoSizeTextType="uniform"
+                                        app:autoSizeMinTextSize="12sp"
+                                        app:autoSizeMaxTextSize="34sp"
+                                        app:autoSizeStepGranularity="1sp" />
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="8dp"
+                                    android:gravity="center_vertical">
+
+                                    <ImageView
+                                        android:id="@+id/monthValueChangeArrow"
+                                        android:layout_width="14dp"
+                                        android:layout_height="14dp"
+                                        android:layout_marginEnd="6dp"
+                                        android:src="@drawable/ic_arrow_up_thin"
+                                        app:tint="@color/positive" />
+
+                                    <TextView
+                                        android:id="@+id/monthValueChange"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:textColor="@color/positive"
+                                        android:textSize="14sp"
+                                        android:textStyle="bold"
+                                        android:fontFamily="sans-serif-medium" />
+
+                                    <TextView
+                                        android:id="@+id/vsLastMonthLabel"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="10dp"
+                                        android:text="vs last month"
+                                        android:textColor="#66FFFFFF"
+                                        android:textSize="12sp" />
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <com.kanzar.networthtracker.views.MiniBarView
+                                android:id="@+id/miniBarChart"
+                                android:layout_width="92dp"
+                                android:layout_height="44dp"
+                                android:layout_marginBottom="2dp" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/monthCommentPreview"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/heroMainRow"
+                            android:layout_marginTop="12dp"
+                            android:ellipsize="end"
+                            android:fontFamily="sans-serif-light"
+                            android:maxLines="2"
+                            android:textColor="@color/hero_text_muted"
+                            android:textSize="13sp"
+                            android:visibility="gone" />
+
+                        <!-- Stats Strip -->
+                        <LinearLayout
+                            android:id="@+id/heroStatsStrip"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/monthCommentPreview"
+                            android:layout_marginTop="8dp"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="ASSETS"
+                                    android:textColor="@color/hero_text_muted"
+                                    android:textSize="10sp"
+                                    android:fontFamily="sans-serif-black"
+                                    android:letterSpacing="0.08" />
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:gravity="center_vertical">
+
+                                    <TextView
+                                        android:id="@+id/heroAssetValue"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:textColor="@color/hero_text"
+                                        android:textSize="14sp"
+                                        android:textStyle="bold"
+                                        android:fontFamily="sans-serif-black" />
+
+                                    <TextView
+                                        android:id="@+id/heroAssetCount"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="4dp"
+                                        android:textColor="#80FFFFFF"
+                                        android:textSize="11sp" />
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="16dp"
+                                android:layout_height="0dp" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="LIABILITIES"
+                                    android:textColor="@color/hero_text_muted"
+                                    android:textSize="10sp"
+                                    android:fontFamily="sans-serif-black"
+                                    android:letterSpacing="0.08" />
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="2dp"
+                                    android:gravity="center_vertical">
+
+                                    <TextView
+                                        android:id="@+id/heroLiabValue"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:textColor="#FCA5A5"
+                                        android:textSize="14sp"
+                                        android:textStyle="bold"
+                                        android:fontFamily="sans-serif-black" />
+
+                                    <TextView
+                                        android:id="@+id/heroLiabCount"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="4dp"
+                                        android:textColor="#80FFFFFF"
+                                        android:textSize="11sp" />
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Added PercentView for logic support -->
+                        <com.kanzar.networthtracker.views.PercentView
+                            android:id="@+id/percentView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:visibility="gone" />
+
+                    </RelativeLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <include
+                    android:id="@+id/tutorial"
+                    layout="@layout/layout_tutorial"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:visibility="gone" />
+
+                <!-- ── Insight Strip ────────────────────────────────── -->
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:paddingHorizontal="16dp"
+                    android:clipToPadding="false"
+                    android:layout_marginTop="4dp">
+
+                    <LinearLayout
+                        android:id="@+id/insightContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingBottom="8dp">
+                        <!-- Insight cards will be added here or statically -->
+                        <include android:id="@+id/insight1" layout="@layout/item_insight_card" />
+                        <include android:id="@+id/insight2" layout="@layout/item_insight_card" />
+                        <include android:id="@+id/insight3" layout="@layout/item_insight_card" />
+
+                    </LinearLayout>
+                </HorizontalScrollView>
+
+                <!-- ── Copy Prompt ──────────────────────────────────── -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/copyPrompt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="4dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeColor="@color/border"
+                    app:strokeWidth="1dp"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/bg_elev"
+                        android:gravity="center_vertical"
+                        android:padding="14dp">
+
+                        <ImageView
+                            android:id="@+id/copyPromptIcon"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="@drawable/bg_nav_icon"
+                            android:padding="8dp"
+                            android:src="@drawable/ic_export"
+                            app:tint="@color/accent" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="12dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/copyPromptTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Copy values from March 2026"
+                                android:textColor="@color/text"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/copyPromptSub"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="1dp"
+                                android:text="Fill missing entries from last month"
+                                android:textColor="@color/text_4"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="16dp"
+                            android:layout_height="16dp"
+                            android:src="@drawable/ic_chevron_right"
+                            app:tint="@color/text_4" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- ── Assets Section ────────────────────────────────── -->
+                <LinearLayout
+                    android:id="@+id/assetHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp">
+
+                    <TextView
+                        android:id="@+id/assetSectionTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="ASSETS · 12"
+                        style="@style/TextLabel" />
+
+                    <ImageView
+                        android:id="@+id/btnSort"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:padding="6dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:src="@drawable/ic_sort"
+                        app:tint="@color/text_3" />
                 </LinearLayout>
 
-                <com.kanzar.networthtracker.views.MiniBarView
-                    android:id="@+id/miniBarChart"
-                    android:layout_width="100dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_gravity="bottom"
-                    android:alpha="0.9"/>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/assetList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:paddingHorizontal="16dp" />
+
+                <!-- ── Liabilities Section ───────────────────────────── -->
+                <LinearLayout
+                    android:id="@+id/liabHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingBottom="10dp">
+
+                    <TextView
+                        android:id="@+id/liabSectionTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="LIABILITIES · 3"
+                        style="@style/TextLabel" />
+
+                    <ImageView
+                        android:id="@+id/btnSortLiab"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_marginEnd="8dp"
+                        android:padding="6dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:src="@drawable/ic_sort"
+                        app:tint="@color/text_3" />
+
+                    <ImageView
+                        android:id="@+id/liabToggle"
+                        android:layout_width="14dp"
+                        android:layout_height="14dp"
+                        android:src="@drawable/ic_chevron_down"
+                        app:tint="@color/text_4" />
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/liabList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:paddingHorizontal="16dp" />
+
             </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
 
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Asset list -->
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/refreshLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/assetList"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@android:color/transparent"
-                android:clipToPadding="false"
-                android:paddingTop="8dp"
-                android:paddingBottom="100dp"/>
-
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/tutorial"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
-            android:layout_alignTop="@id/refreshLayout"
-            app:cardBackgroundColor="@color/backgroundContent"
-            app:cardElevation="6dp"
-            app:cardCornerRadius="12dp">
-            <include layout="@layout/activity_tutorial"/>
-        </androidx.cardview.widget.CardView>
-
-    </RelativeLayout>
-
-    </LinearLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </LinearLayout>

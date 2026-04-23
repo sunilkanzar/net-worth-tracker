@@ -2,25 +2,31 @@ package com.kanzar.networthtracker.models;
 
 import android.text.TextUtils;
 import androidx.annotation.NonNull;
-import com.kanzar.networthtracker.helpers.Month;
 import com.kanzar.networthtracker.helpers.Tools;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.annotations.Ignore;
+import io.realm.annotations.Index;
 import io.realm.annotations.PrimaryKey;
 
 public class Asset extends RealmObject {
 
     @PrimaryKey
     private String id;
+    @Index
     private String name;
     private double value;
+    @Index
     private int month;
+    @Index
     private int year;
     private long updatedAt;
 
     @Ignore
-    private boolean isHelper;
+    private transient boolean isHelper;
+
+    @Ignore
+    private transient double prevValue = Double.NaN;
 
     public Asset() {
         this.id = "";
@@ -63,30 +69,50 @@ public class Asset extends RealmObject {
     public boolean isHelper() { return isHelper; }
     public void setHelper(boolean helper) { isHelper = helper; }
 
+    public double getPrevValue() {
+        return prevValue;
+    }
+
+    public void setPrevValue(double prevValue) {
+        this.prevValue = prevValue;
+    }
+
+    public boolean hasPrevValue() {
+        return !Double.isNaN(prevValue);
+    }
+
     public Asset getPrevious() {
-        Month prevMonth = new Month(month, year);
-        prevMonth.previous();
         try (Realm realm = Realm.getDefaultInstance()) {
-            Asset result = realm.where(Asset.class)
-                    .equalTo("name", name)
-                    .equalTo("month", prevMonth.getMonth())
-                    .equalTo("year", prevMonth.getYear())
-                    .findFirst();
-            return result != null ? realm.copyFromRealm(result) : null;
+            return getPrevious(realm);
         }
     }
 
+    public Asset getPrevious(Realm realm) {
+        int pm = month == 1 ? 12 : month - 1;
+        int py = month == 1 ? year - 1 : year;
+        Asset result = realm.where(Asset.class)
+                .equalTo("name", name)
+                .equalTo("month", pm)
+                .equalTo("year", py)
+                .findFirst();
+        return result != null ? realm.copyFromRealm(result) : null;
+    }
+
     public Asset getNext() {
-        Month nextMonth = new Month(month, year);
-        nextMonth.next();
         try (Realm realm = Realm.getDefaultInstance()) {
-            Asset result = realm.where(Asset.class)
-                    .equalTo("name", name)
-                    .equalTo("month", nextMonth.getMonth())
-                    .equalTo("year", nextMonth.getYear())
-                    .findFirst();
-            return result != null ? realm.copyFromRealm(result) : null;
+            return getNext(realm);
         }
+    }
+
+    public Asset getNext(Realm realm) {
+        int nm = month == 12 ? 1 : month + 1;
+        int ny = month == 12 ? year + 1 : year;
+        Asset result = realm.where(Asset.class)
+                .equalTo("name", name)
+                .equalTo("month", nm)
+                .equalTo("year", ny)
+                .findFirst();
+        return result != null ? realm.copyFromRealm(result) : null;
     }
 
     public static Asset fromString(String row) {

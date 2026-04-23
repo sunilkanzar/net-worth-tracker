@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background">
+    android:background="@color/bg">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/background"
+        android:background="@color/bg"
         app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="@string/goal_activity_title"
-            app:titleTextColor="@color/textPrimary"
+            app:title="Wealth Goals"
+            app:titleTextColor="@color/text"
             app:navigationIcon="@drawable/ic_chevron_left"
-            app:navigationIconTint="@color/textPrimary"/>
+            app:navigationIconTint="@color/text"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
@@ -34,187 +35,94 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Current net worth reference -->
+            <!-- Summary Card -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/currentNetWorthCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardBackgroundColor="@color/surface"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0.5dp"
-                app:strokeColor="#33FFFFFF">
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="@color/bg_elev"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/border">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="4dp"
-                        android:letterSpacing="0.12"
-                        android:text="@string/goal_current_worth_label"
-                        android:textAllCaps="true"
-                        android:textColor="#80FFFFFF"
-                        android:textSize="10sp"
-                        android:fontFamily="sans-serif-black" />
+                        android:text="CURRENT STATUS"
+                        android:textColor="@color/text_3"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.1" />
 
                     <TextView
                         android:id="@+id/currentNetWorth"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/textPrimary"
-                        android:textSize="24sp"
-                        android:fontFamily="sans-serif-black" />
+                        android:layout_marginTop="4dp"
+                        android:textColor="@color/text"
+                        android:textSize="28sp"
+                        android:textStyle="bold"
+                        tools:text="₹ 12,50,000" />
 
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="16dp"
+                        android:background="@color/divider" />
+
+                    <TextView
+                        android:id="@+id/goalSummaryText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Set your future milestones to visualize the growth needed to reach your financial freedom."
+                        android:textColor="@color/text_2"
+                        android:textSize="13sp"
+                        android:lineSpacingExtra="4dp" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Goal inputs -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:cardBackgroundColor="@color/surface"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0.5dp"
-                app:strokeColor="#33FFFFFF">
+                android:layout_marginBottom="12dp"
+                android:layout_marginStart="4dp"
+                android:text="FUTURE MILESTONES"
+                android:textColor="@color/text_3"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.1" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+            <!-- 1 Year Goal -->
+            <include layout="@layout/item_goal_row_v2" android:id="@+id/item1y" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:letterSpacing="0.12"
-                        android:text="@string/goal_section_label"
-                        android:textAllCaps="true"
-                        android:textColor="@color/colorAccent"
-                        android:textSize="11sp"
-                        android:fontFamily="sans-serif-black" />
+            <!-- 3 Year Goal -->
+            <include layout="@layout/item_goal_row_v2" android:id="@+id/item3y" />
 
-                    <!-- 1-Year -->
-                    <TextView
-                        android:id="@+id/label1y"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="6dp"
-                        android:letterSpacing="0.08"
-                        android:textAllCaps="true"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="10sp" />
+            <!-- 5 Year Goal -->
+            <include layout="@layout/item_goal_row_v2" android:id="@+id/item5y" />
 
-                    <EditText
-                        android:id="@+id/goal1y"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="6dp"
-                        android:hint="0"
-                        android:inputType="numberDecimal"
-                        android:textColor="@color/textPrimary"
-                        android:textSize="18sp" />
-
-                    <TextView
-                        android:id="@+id/rate1y"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:textSize="12sp"
-                        android:visibility="gone" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginBottom="20dp"
-                        android:background="@color/divider" />
-
-                    <!-- 3-Year -->
-                    <TextView
-                        android:id="@+id/label3y"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="6dp"
-                        android:letterSpacing="0.08"
-                        android:textAllCaps="true"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="10sp" />
-
-                    <EditText
-                        android:id="@+id/goal3y"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="6dp"
-                        android:hint="0"
-                        android:inputType="numberDecimal"
-                        android:textColor="@color/textPrimary"
-                        android:textSize="18sp" />
-
-                    <TextView
-                        android:id="@+id/rate3y"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:textSize="12sp"
-                        android:visibility="gone" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginBottom="20dp"
-                        android:background="@color/divider" />
-
-                    <!-- 5-Year -->
-                    <TextView
-                        android:id="@+id/label5y"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="6dp"
-                        android:letterSpacing="0.08"
-                        android:textAllCaps="true"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="10sp" />
-
-                    <EditText
-                        android:id="@+id/goal5y"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="6dp"
-                        android:hint="0"
-                        android:inputType="numberDecimal"
-                        android:textColor="@color/textPrimary"
-                        android:textSize="18sp" />
-
-                    <TextView
-                        android:id="@+id/rate5y"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="20dp"
-                        android:textSize="12sp"
-                        android:visibility="gone" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSaveGoals"
-                        android:layout_width="match_parent"
-                        android:layout_height="52dp"
-                        android:text="@string/goal_save"
-                        android:textColor="@color/textOnPrimary"
-                        android:textSize="14sp"
-                        android:fontFamily="sans-serif-black"
-                        app:backgroundTint="@color/colorAccent"
-                        app:cornerRadius="10dp" />
-
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveGoals"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="32dp"
+                android:text="Update Goals"
+                android:textAllCaps="false"
+                android:textColor="@color/textOnPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/accent"
+                app:cornerRadius="16dp" />
 
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

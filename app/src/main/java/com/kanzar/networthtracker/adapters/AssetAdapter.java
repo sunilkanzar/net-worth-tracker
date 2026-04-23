@@ -36,17 +36,57 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static final ExecutorService sparklineExecutor = Executors.newSingleThreadExecutor();
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
 
+    // Design palette (data.jsx) — 12 distinct hues
+    private static final int[] ASSET_PALETTE = {
+        0xFF3b82f6, // blue
+        0xFF22d3ee, // cyan
+        0xFF10b981, // emerald
+        0xFFa855f7, // purple
+        0xFF6366f1, // indigo
+        0xFFeab308, // yellow
+        0xFFf97316, // orange
+        0xFF14b8a6, // teal
+        0xFF64748b, // slate
+        0xFF84cc16, // lime
+        0xFF0ea5e9, // sky
+        0xFF94a3b8, // slate-light
+    };
+
+    private static int paletteColorFor(String name) {
+        if (name == null || name.isEmpty()) return ASSET_PALETTE[0];
+        int hash = 0;
+        for (char c : name.toLowerCase().toCharArray()) hash = hash * 31 + c;
+        return ASSET_PALETTE[Math.abs(hash) % ASSET_PALETTE.length];
+    }
+
     private final Context context;
     private List<Object> displayItems = new ArrayList<>();
     private List<? extends Asset> originalItems;
+    private double cachedTotalAssets = 0.0;
+    private double cachedTotalLiabilities = 0.0;
     private final OnItemClickListener listener;
     private boolean showCopyAll = false;
     private String copyAllText = "";
     private Runnable onCopyAllClickListener;
+    private boolean privacyMode = false;
+    private String lastFormatKey = "";
+
+    public enum SortOrder {
+        VALUE_DESC, VALUE_ASC, NAME_ASC, NAME_DESC, CHANGE_DESC, CHANGE_ASC, PERCENT_DESC, PERCENT_ASC
+    }
 
     public interface OnItemClickListener {
         void onItemClick(Asset item);
         void onItemLongClick(Asset item);
+    }
+
+    private SortOrder currentSortOrder = SortOrder.VALUE_DESC;
+
+    public void setSortOrder(SortOrder sortOrder) {
+        this.currentSortOrder = sortOrder;
+        if (originalItems != null) {
+            setItems(originalItems);
+        }
     }
 
     public AssetAdapter(Context context) {
@@ -67,8 +107,10 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     public void setItems(List<? extends Asset> items) {
         final List<Object> newDisplayItems = new ArrayList<>();
+        double totalAssets = 0.0;
+        double totalLiabilities = 0.0;
 
-        if (showCopyAll) {
+        if (showCopyAll && (items == null || items.isEmpty() || items.get(0).isHelper())) {
             newDisplayItems.add(new CopyAllItem(copyAllText));
         }
 
@@ -79,35 +121,101 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             for (Asset asset : items) {
                 if (asset.getValue() >= 0) {
                     assets.add(asset);
+                    if (!asset.isHelper()) {
+                        totalAssets += asset.getValue();
+                    }
                 } else {
                     liabilities.add(asset);
+                    if (!asset.isHelper()) {
+                        totalLiabilities += asset.getValue();
+                    }
                 }
             }
 
-            Comparator<Asset> valueComparator = (a1, a2) -> Double.compare(Math.abs(a2.getValue()), Math.abs(a1.getValue()));
-            Collections.sort(assets, valueComparator);
-            Collections.sort(liabilities, valueComparator);
+            Comparator<Asset> comparator;
+            switch (currentSortOrder) {
+                case VALUE_ASC:
+                    comparator = (a1, a2) -> Double.compare(Math.abs(a1.getValue()), Math.abs(a2.getValue()));
+                    break;
+                case NAME_ASC:
+                    comparator = (a1, a2) -> a1.getName().compareToIgnoreCase(a2.getName());
+                    break;
+                case NAME_DESC:
+                    comparator = (a1, a2) -> a2.getName().compareToIgnoreCase(a1.getName());
+                    break;
+                case CHANGE_DESC:
+                    comparator = (a1, a2) -> {
+                        double c1 = a1.getValue() - (a1.hasPrevValue() ? a1.getPrevValue() : 0.0);
+                        double c2 = a2.getValue() - (a2.hasPrevValue() ? a2.getPrevValue() : 0.0);
+                        return Double.compare(c2, c1);
+                    };
+                    break;
+                case CHANGE_ASC:
+                    comparator = (a1, a2) -> {
+                        double c1 = a1.getValue() - (a1.hasPrevValue() ? a1.getPrevValue() : 0.0);
+                        double c2 = a2.getValue() - (a2.hasPrevValue() ? a2.getPrevValue() : 0.0);
+                        return Double.compare(c1, c2);
+                    };
+                    break;
+                case PERCENT_DESC:
+                    comparator = (a1, a2) -> {
+                        double p1 = Tools.getPercent(a1.hasPrevValue() ? a1.getPrevValue() : 0.0, a1.getValue());
+                        double p2 = Tools.getPercent(a2.hasPrevValue() ? a2.getPrevValue() : 0.0, a2.getValue());
+                        return Double.compare(p2, p1);
+                    };
+                    break;
+                case PERCENT_ASC:
+                    comparator = (a1, a2) -> {
+                        double p1 = Tools.getPercent(a1.hasPrevValue() ? a1.getPrevValue() : 0.0, a1.getValue());
+                        double p2 = Tools.getPercent(a2.hasPrevValue() ? a2.getPrevValue() : 0.0, a2.getValue());
+                        return Double.compare(p1, p2);
+                    };
+                    break;
+                case VALUE_DESC:
+                default:
+                    comparator = (a1, a2) -> Double.compare(Math.abs(a2.getValue()), Math.abs(a1.getValue()));
+                    break;
+            }
+            
+            Collections.sort(assets, comparator);
+            Collections.sort(liabilities, comparator);
 
             if (!assets.isEmpty()) {
-                newDisplayItems.add("ASSETS");
                 newDisplayItems.addAll(assets);
             }
             if (!liabilities.isEmpty()) {
-                newDisplayItems.add("LIABILITIES");
                 newDisplayItems.addAll(liabilities);
             }
         }
 
-        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new AssetDiffCallback(this.displayItems, newDisplayItems));
+        String formatKey = com.kanzar.networthtracker.helpers.Prefs.getString(com.kanzar.networthtracker.helpers.Prefs.PREFS_NUMBER_FORMAT, "")
+                + com.kanzar.networthtracker.helpers.Prefs.getString(com.kanzar.networthtracker.helpers.Prefs.PREFS_NUMBER_SEPARATOR, "")
+                + com.kanzar.networthtracker.helpers.Prefs.getString(com.kanzar.networthtracker.helpers.Prefs.PREFS_CURRENCY, "");
+        boolean formatChanged = !formatKey.equals(this.lastFormatKey);
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new AssetDiffCallback(this.displayItems, newDisplayItems), false);
+        boolean totalChanged = totalAssets != this.cachedTotalAssets || Math.abs(totalLiabilities) != this.cachedTotalLiabilities;
         this.originalItems = items;
         this.displayItems = newDisplayItems;
-        diffResult.dispatchUpdatesTo(this);
+        this.cachedTotalAssets = totalAssets;
+        this.cachedTotalLiabilities = Math.abs(totalLiabilities);
+        this.lastFormatKey = formatKey;
+        if (totalChanged || formatChanged) {
+            notifyDataSetChanged();
+        } else {
+            diffResult.dispatchUpdatesTo(this);
+        }
     }
 
     public void setCopyAllAction(boolean show, String text, Runnable action) {
         this.showCopyAll = show;
         this.copyAllText = text;
         this.onCopyAllClickListener = action;
+    }
+
+    public void setPrivacyMode(boolean privacyMode) {
+        if (this.privacyMode == privacyMode) return;
+        this.privacyMode = privacyMode;
+        notifyDataSetChanged();
     }
 
     private static class CopyAllItem {
@@ -192,30 +300,6 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
-    private double getTotalAssets() {
-        double sum = 0.0;
-        if (originalItems != null) {
-            for (Asset asset : originalItems) {
-                if (!asset.isHelper() && asset.getValue() > 0) {
-                    sum += asset.getValue();
-                }
-            }
-        }
-        return sum;
-    }
-
-    private double getTotalLiabilities() {
-        double sum = 0.0;
-        if (originalItems != null) {
-            for (Asset asset : originalItems) {
-                if (!asset.isHelper() && asset.getValue() < 0) {
-                    sum += asset.getValue();
-                }
-            }
-        }
-        return Math.abs(sum);
-    }
-
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Object item = displayItems.get(position);
@@ -229,7 +313,7 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             });
         } else if (holder instanceof ViewHolder) {
             final Asset asset = (Asset) item;
-            ((ViewHolder) holder).bind(asset, context, getTotalAssets(), getTotalLiabilities());
+            ((ViewHolder) holder).bind(asset, context, cachedTotalAssets, cachedTotalLiabilities, privacyMode);
 
             holder.itemView.setOnClickListener(v -> {
                 if (listener != null) {
@@ -288,41 +372,75 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             binding.assetSparkline.setTouchEnabled(false);
             binding.assetSparkline.setViewPortOffsets(0, 0, 0, 0);
             binding.assetSparkline.setNoDataText("");
+            binding.assetSparkline.setHardwareAccelerationEnabled(true);
         }
 
-        public void bind(Asset asset, Context context, double totalAssets, double totalLiabilities) {
+        public void bind(Asset asset, Context context, double totalAssets, double totalLiabilities, boolean privacyMode) {
             binding.assetName.setText(asset.getName());
-            binding.assetValue.setText(Tools.formatAmount(asset.getValue()));
+            binding.assetLetter.setText(asset.getName().substring(0, 1).toUpperCase());
+            binding.assetName.setTextColor(ContextCompat.getColor(context, R.color.text));
+            binding.assetChevron.setVisibility(View.GONE);
+            binding.assetDot.setVisibility(View.VISIBLE);
+            binding.assetWeight.setVisibility(View.VISIBLE);
+            binding.assetSparkline.setVisibility(View.VISIBLE);
+            binding.assetValue.setVisibility(View.VISIBLE);
+            binding.assetChangePercent.setVisibility(View.VISIBLE);
+            
+            // Reset card stroke
+            binding.assetCard.setStrokeColor(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(context, R.color.border)));
 
-            Asset previous = asset.getPrevious();
-            double prevVal = previous != null ? previous.getValue() : 0.0;
+            // Color: liability → always red; asset → deterministic from name hash over design palette
+            int itemColor = asset.getValue() < 0
+                    ? 0xFFef4444
+                    : paletteColorFor(asset.getName());
+            int itemBg = android.graphics.Color.argb(0x22,
+                    android.graphics.Color.red(itemColor),
+                    android.graphics.Color.green(itemColor),
+                    android.graphics.Color.blue(itemColor));
+
+            binding.assetLetter.setTextColor(itemColor);
+            android.graphics.drawable.GradientDrawable bg = (android.graphics.drawable.GradientDrawable) binding.assetLetter.getBackground();
+            if (bg != null) {
+                bg.setColor(itemBg);
+            }
+
+            double prevVal = asset.hasPrevValue() ? asset.getPrevValue() : 0.0;
 
             if (asset.isHelper()) {
-                binding.container.setBackgroundColor(ContextCompat.getColor(context, R.color.transparent));
+                binding.assetCard.setStrokeWidth(0); // Hide default stroke
+                binding.assetCard.setBackgroundResource(R.drawable.bg_item_placeholder);
+                binding.assetLetter.setText("+");
+                binding.assetLetter.setTextColor(ContextCompat.getColor(context, R.color.text_4));
+                if (bg != null) {
+                    bg.setColor(ContextCompat.getColor(context, R.color.chip));
+                }
+
+                binding.assetName.setTextColor(ContextCompat.getColor(context, R.color.text_2));
                 binding.assetValue.setVisibility(View.GONE);
                 binding.assetWeight.setVisibility(View.GONE);
-                binding.assetChangeValue.setVisibility(View.VISIBLE);
+                binding.assetDot.setVisibility(View.GONE);
                 binding.assetChangePercent.setVisibility(View.GONE);
                 binding.assetSparkline.setVisibility(View.GONE);
+                binding.assetChevron.setVisibility(View.VISIBLE);
 
-                String helperText = context.getString(R.string.helper_text, asset.getName());
-                binding.assetChangeValue.setText(helperText);
-                binding.assetChangeValue.setTextColor(ContextCompat.getColor(context, R.color.textSecondary));
+                binding.assetCompactValue.setText(R.string.tap_to_add);
+                binding.assetCompactValue.setTextColor(ContextCompat.getColor(context, R.color.text_4));
             } else {
-                binding.container.setBackgroundColor(ContextCompat.getColor(context, R.color.transparent));
-                binding.assetValue.setVisibility(View.VISIBLE);
-                binding.assetWeight.setVisibility(View.VISIBLE);
-                binding.assetChangeValue.setVisibility(View.VISIBLE);
-                binding.assetChangePercent.setVisibility(View.VISIBLE);
-                binding.assetSparkline.setVisibility(View.VISIBLE);
+                int strokeWidth = (int) (1 * context.getResources().getDisplayMetrics().density);
+                binding.assetCard.setStrokeWidth(strokeWidth);
+                binding.assetCard.setBackgroundResource(0);
+                binding.assetCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.bg_elev));
+
+                String amount = Tools.formatAmount(asset.getValue());
+                binding.assetValue.setText(privacyMode ? "****" : amount);
 
                 // Change Row
                 double change = asset.getValue() - prevVal;
                 int color = ContextCompat.getColor(context, Tools.getTextChangeColor(change));
+                String arrow = change >= 0 ? "↑ " : "↓ ";
                 
-                binding.assetValue.setText(Tools.formatAmount(asset.getValue()));
-                binding.assetChangeValue.setText(Tools.formatAmount(change));
-                binding.assetChangeValue.setTextColor(color);
+                binding.assetCompactValue.setText(privacyMode ? "****" : arrow + Tools.formatAmount(change));
+                binding.assetCompactValue.setTextColor(color);
                 
                 binding.assetChangePercent.setText(Tools.formatPercent(Math.abs(Tools.getPercent(prevVal, asset.getValue()))));
                 binding.assetChangePercent.setTextColor(color);
@@ -332,50 +450,63 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 double totalForCategory = isAsset ? totalAssets : totalLiabilities;
                 double weight = totalForCategory > 0 ? (Math.abs(asset.getValue()) / totalForCategory) * 100.0 : 0.0;
                 binding.assetWeight.setText(Tools.formatPercent(weight));
-                binding.assetWeight.setBackgroundResource(isAsset ? R.drawable.bg_pill_asset : R.drawable.bg_pill_liability);
-                binding.assetWeight.setTextColor(ContextCompat.getColor(context, isAsset ? R.color.colorAccent : R.color.negative));
 
-                // Sparkline Data
-                int chartColor = isAsset ? ContextCompat.getColor(context, R.color.colorAccent) : ContextCompat.getColor(context, R.color.negative);
-                binding.assetSparkline.clear();
-                loadSparklineDataAsync(asset, chartColor);
+                // Sparkline Data — use same palette color as the letter icon
+                int chartColor = itemColor;
+                if (privacyMode) {
+                    binding.assetSparkline.setVisibility(View.INVISIBLE);
+                    binding.assetSparkline.clear();
+                } else {
+                    binding.assetSparkline.setVisibility(View.VISIBLE);
+                    // Optimization: check if hardware acceleration is enabled
+                    if (!binding.assetSparkline.isHardwareAccelerated()) {
+                        binding.assetSparkline.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                    }
+                    
+                    final String key = asset.getName() + asset.getMonth() + asset.getYear();
+                    List<Entry> cachedEntries = com.kanzar.networthtracker.helpers.SparklineHelper.getCachedData(asset.getName(), asset.getMonth(), asset.getYear());
+                    
+                    if (cachedEntries != null) {
+                        // If cached, apply immediately and DON'T clear
+                        applySparklineData(cachedEntries, chartColor, key);
+                    } else {
+                        // Only clear and load if we don't have it
+                        binding.assetSparkline.clear();
+                        loadSparklineDataAsync(asset, chartColor);
+                    }
+                }
             }
         }
 
+        private void applySparklineData(List<Entry> entries, int color, String key) {
+            boundAssetKey = key;
+            LineDataSet dataSet = new LineDataSet(entries, "");
+            dataSet.setColor(color);
+            dataSet.setLineWidth(1.5f);
+            dataSet.setDrawCircles(false);
+            dataSet.setDrawValues(false);
+            dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+            dataSet.setDrawFilled(true);
+            dataSet.setFillAlpha(20);
+            dataSet.setFillColor(color);
+            LineData lineData = new LineData(dataSet);
+            binding.assetSparkline.setData(lineData);
+            binding.assetSparkline.invalidate();
+        }
+
         private void loadSparklineDataAsync(Asset asset, int color) {
-            final String key = asset.getName() + asset.getMonth() + asset.getYear();
+            final String name = asset.getName();
+            final int month = asset.getMonth();
+            final int year = asset.getYear();
+            final String key = name + month + year;
             boundAssetKey = key;
 
             sparklineExecutor.execute(() -> {
-                List<Entry> entries = new ArrayList<>();
-                int mo = asset.getMonth(), yr = asset.getYear();
-                try (Realm realm = Realm.getDefaultInstance()) {
-                    for (int i = 0; i < 12; i++) {
-                        Asset historical = realm.where(Asset.class)
-                                .equalTo("name", asset.getName())
-                                .equalTo("month", mo)
-                                .equalTo("year", yr)
-                                .findFirst();
-                        entries.add(new Entry(i, (float) (historical != null ? historical.getValue() : 0.0)));
-                        if (mo == 1) { mo = 12; yr--; } else { mo--; }
-                    }
-                }
-                Collections.reverse(entries);
-                for (int i = 0; i < entries.size(); i++) entries.get(i).setX(i);
-
-                LineDataSet dataSet = new LineDataSet(entries, "");
-                dataSet.setColor(color);
-                dataSet.setLineWidth(1f);
-                dataSet.setDrawCircles(false);
-                dataSet.setDrawValues(false);
-                dataSet.setMode(LineDataSet.Mode.LINEAR);
-                dataSet.setDrawFilled(false);
-                LineData lineData = new LineData(dataSet);
+                List<Entry> entries = com.kanzar.networthtracker.helpers.SparklineHelper.getSparklineData(name, month, year);
 
                 mainHandler.post(() -> {
-                    if (!key.equals(boundAssetKey)) return; // view recycled
-                    binding.assetSparkline.setData(lineData);
-                    binding.assetSparkline.invalidate();
+                    if (!key.equals(boundAssetKey)) return;
+                    applySparklineData(entries, color, key);
                 });
             });
         }

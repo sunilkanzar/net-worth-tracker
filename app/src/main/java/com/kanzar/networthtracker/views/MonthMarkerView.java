@@ -13,7 +13,9 @@ import com.github.mikephil.charting.utils.MPPointF;
 import com.kanzar.networthtracker.R;
 import com.kanzar.networthtracker.databinding.ViewChartMarkerBinding;
 import com.kanzar.networthtracker.helpers.Month;
+import com.kanzar.networthtracker.helpers.Prefs;
 import com.kanzar.networthtracker.helpers.Tools;
+import io.realm.Realm;
 
 import androidx.core.content.ContextCompat;
 
@@ -47,13 +49,20 @@ public class MonthMarkerView extends MarkerView {
 
         Month month = months.get(index);
         double value  = month.getValue();
-        double change = month.getValueChange();
+        double change;
+        double percent;
+        try (Realm realm = Realm.getDefaultInstance()) {
+            change = month.getValueChange(realm);
+            percent = month.getPercent(realm);
+        }
 
-        binding.markerMonth.setText(month.toString());
-        binding.markerValue.setText(Tools.formatAmount(value, true));
+        boolean privacyMode = Prefs.getBoolean("privacy_mode", false);
 
-        String changeStr = Tools.formatAmount(change, true);
-        String pct = String.format(Locale.getDefault(), "%.1f%%", Math.abs(month.getPercent()));
+        binding.markerMonth.setText(month.toStringMMMYY());
+        binding.markerValue.setText(privacyMode ? "****" : Tools.formatAmount(value, true));
+
+        String changeStr = privacyMode ? "****" : Tools.formatAmount(change, true);
+        String pct = privacyMode ? "**%" : String.format(Locale.getDefault(), "%.1f%%", Math.abs(percent));
         binding.markerChange.setText(changeStr + "  (" + pct + ")");
         binding.markerChange.setTextColor(ContextCompat.getColor(getContext(), Tools.getTextChangeColor(change)));
 
@@ -61,9 +70,36 @@ public class MonthMarkerView extends MarkerView {
     }
 
     @Override
+    public MPPointF getOffsetForDrawingAtPoint(float posX, float posY) {
+        MPPointF offset = getOffset();
+        float width = getWidth();
+
+        // Position marker to the side of the point to avoid blocking the line and the user's thumb
+        if (posX > getChartView().getWidth() / 2f) {
+            // Right side of screen: show to the left of the point
+            offset.x = -width - 24f;
+        } else {
+            // Left side of screen: show to the right of the point
+            offset.x = 24f;
+        }
+
+        // Adjust vertical position: center it vertically relative to the point
+        offset.y = -(getHeight() / 2f);
+
+        // Ensure it doesn't go off screen vertically
+        if (posY + offset.y < 0) {
+            offset.y = -posY;
+        } else if (posY + offset.y + getHeight() > getChartView().getHeight()) {
+            offset.y = getChartView().getHeight() - posY - getHeight();
+        }
+
+        return offset;
+    }
+
+    @Override
     public MPPointF getOffset() {
-        // Center horizontally, place above the point
-        return new MPPointF(-(getWidth() / 2f), -getHeight() - 16f);
+        // Default offset, but getOffsetForDrawingAtPoint will override for better positioning
+        return new MPPointF(0, 0);
     }
 
 }

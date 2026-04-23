@@ -75,7 +75,7 @@ public class MonthAdapter extends RecyclerView.Adapter<MonthAdapter.ViewHolder> 
         }
 
         public void bind(Month month, Month lastMonth) {
-            binding.monthName.setText(month.toString());
+            binding.monthName.setText(month.toStringMMMYY());
             binding.monthValue.setText(Tools.formatAmount(month.getValue(), true));
             
             binding.percentView.init(lastMonth.getValue(), month.getValue());

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="150dp"
+    android:layout_height="84dp"
+    android:layout_marginEnd="10dp"
+    app:cardBackgroundColor="@color/bg_elev"
+    app:cardCornerRadius="14dp"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/border"
+    app:strokeWidth="1dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="12dp">
+
+        <View
+            android:id="@+id/insightTint"
+            android:layout_width="3.5dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginVertical="-12dp"
+            android:layout_marginStart="-12dp"
+            android:background="@color/accent" />
+
+        <TextView
+            android:id="@+id/insightLabel"
+            style="@style/TextLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:alpha="0.8"
+            android:textSize="10sp"
+            android:letterSpacing="0.05" />
+
+        <TextView
+            android:id="@+id/insightValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/insightLabel"
+            android:layout_marginStart="2dp"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/text"
+            android:textSize="17sp"
+            android:textStyle="bold"
+            android:letterSpacing="-0.02" />
+
+        <TextView
+            android:id="@+id/insightSub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/insightValue"
+            android:layout_marginStart="2dp"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/text_3"
+            android:textSize="11sp"
+            android:textStyle="normal" />
+
+        <ProgressBar
+            android:id="@+id/insightProgress"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="3.5dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="2dp"
+            android:layout_marginBottom="2dp"
+            android:progress="75"
+            android:progressBackgroundTint="@color/divider"
+            android:progressTint="@color/accent"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+</com.google.android.material.card.MaterialCardView>

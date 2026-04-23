@@ -1,9 +1,9 @@
 package com.kanzar.networthtracker;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.textfield.TextInputEditText;
 import com.kanzar.networthtracker.databinding.ActivityCommentBinding;
 import com.kanzar.networthtracker.helpers.Month;
 import com.kanzar.networthtracker.helpers.Prefs;
@@ -24,23 +24,42 @@ public class CommentActivity extends AppCompatActivity {
         int year  = getIntent().getIntExtra(AssetFields.YEAR, 0);
         noteKey = noteKey(month, year);
 
-        binding.monthComment.setText(Prefs.getString(noteKey, ""));
-
         Month currentMonth = new Month(month, year);
-        binding.toolbar.setTitle("Note For " + currentMonth.toString());
+        binding.headerTitle.setText("Note · " + currentMonth.toString());
 
-        binding.toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
-        binding.toolbar.setOnMenuItemClickListener(item -> {
-            if (item.getItemId() == R.id.action_save_note) {
-                saveNote();
-                return true;
+        String saved = Prefs.getString(noteKey, "");
+        binding.monthComment.setText(saved);
+        binding.charCount.setText(saved.length() + " characters");
+
+        binding.btnBack.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
+        binding.btnSave.setOnClickListener(v -> saveNote());
+
+        binding.monthComment.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void afterTextChanged(Editable s) {
+                binding.charCount.setText(s.length() + " characters");
             }
-            return false;
         });
+
+        binding.chipGoal.setOnClickListener(v -> appendTag("🎯 Goal"));
+        binding.chipIncome.setOnClickListener(v -> appendTag("💰 Income"));
+        binding.chipDip.setOnClickListener(v -> appendTag("📉 Dip"));
+        binding.chipMilestone.setOnClickListener(v -> appendTag("✨ Milestone"));
+    }
+
+    private void appendTag(String tag) {
+        Editable text = binding.monthComment.getText();
+        if (text == null) return;
+        String current = text.toString();
+        String insert = current.isEmpty() ? tag + " " : (current.endsWith(" ") ? tag + " " : " " + tag + " ");
+        int sel = binding.monthComment.getSelectionEnd();
+        text.insert(sel, insert);
     }
 
     private void saveNote() {
-        android.text.Editable editable = binding.monthComment.getText();
+        Editable editable = binding.monthComment.getText();
         String text = editable != null ? editable.toString().trim() : "";
         if (text.isEmpty()) {
             Prefs.delete(noteKey);

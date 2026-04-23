@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/background"
+        app:elevation="0dp">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="Asset Name"
+            app:titleTextColor="@color/textPrimary"
+            app:navigationIcon="@drawable/ic_chevron_left"
+            app:navigationIconTint="@color/textPrimary"/>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="bottom"
+                android:paddingBottom="14dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CURRENT VALUE"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/textSecondary"
+                        android:letterSpacing="0.1"/>
+
+                    <TextView
+                        android:id="@+id/currentValueText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="₹125,000"
+                        android:textSize="26sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/textPrimary"
+                        android:letterSpacing="-0.02"
+                        android:layout_marginTop="2dp"/>
+
+                    <TextView
+                        android:id="@+id/currentChangeText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="↑ 2.45% this month"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/positive"
+                        android:layout_marginTop="2dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/rangeSelector"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_segmented_control"
+                    android:orientation="horizontal"
+                    android:padding="3dp">
+
+                    <TextView
+                        android:id="@+id/btn3M"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="3M"
+                        android:textSize="11sp"
+                        android:textColor="@color/text_3"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="6dp"
+                        android:fontFamily="sans-serif-black"
+                        android:clickable="true"
+                        android:focusable="true" />
+
+                    <TextView
+                        android:id="@+id/btn6M"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="6M"
+                        android:textSize="11sp"
+                        android:textColor="@color/text_3"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="6dp"
+                        android:fontFamily="sans-serif-black"
+                        android:clickable="true"
+                        android:focusable="true" />
+
+                    <TextView
+                        android:id="@+id/btn1Y"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="1Y"
+                        android:textSize="11sp"
+                        android:textColor="@color/text"
+                        android:background="@drawable/bg_range_selected"
+                        android:elevation="1dp"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="6dp"
+                        android:fontFamily="sans-serif-black"
+                        android:clickable="true"
+                        android:focusable="true" />
+
+                    <TextView
+                        android:id="@+id/btnAll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ALL"
+                        android:textSize="11sp"
+                        android:textColor="@color/text_3"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="6dp"
+                        android:fontFamily="sans-serif-black"
+                        android:clickable="true"
+                        android:focusable="true" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/chartCard"
+                android:layout_width="match_parent"
+                android:layout_height="280dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/border"
+                app:cardBackgroundColor="@color/bg_elev">
+
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/trendChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="8dp"/>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/cursorCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/bg_elev"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/border"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="14dp">
+
+                    <View
+                        android:id="@+id/cursorColor"
+                        android:layout_width="10dp"
+                        android:layout_height="10dp"
+                        android:background="@drawable/bg_legend_color"
+                        android:layout_marginEnd="12dp"/>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/cursorDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="MAY 24"
+                            android:textSize="11sp"
+                            android:fontFamily="sans-serif-black"
+                            android:textColor="@color/text_3"
+                            android:letterSpacing="0.1"/>
+
+                        <TextView
+                            android:id="@+id/cursorValue"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="₹125,000"
+                            android:textSize="17sp"
+                            android:fontFamily="sans-serif-black"
+                            android:textColor="@color/text"
+                            android:letterSpacing="-0.02"/>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/cursorChange"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="+₹0 (0%)"
+                        android:textColor="@color/positive"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif-medium" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp">
+
+                <!-- Row 1 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardAvg"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="5dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="@color/border"
+                    app:cardBackgroundColor="@color/bg_elev"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/cardBest">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="AVERAGE"
+                            android:textColor="@color/text_3"
+                            android:textSize="10sp"
+                            android:fontFamily="sans-serif-black"
+                            android:letterSpacing="0.1"/>
+                        <TextView
+                            android:id="@+id/tvStatAverage"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="₹0"
+                            android:textColor="@color/text"
+                            android:textSize="18sp"
+                            android:fontFamily="sans-serif-black"
+                            android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardBest"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="@color/border"
+                    app:cardBackgroundColor="@color/bg_elev"
+                    app:layout_constraintTop_toTopOf="@id/cardAvg"
+                    app:layout_constraintStart_toEndOf="@id/cardAvg"
+                    app:layout_constraintEnd_toEndOf="parent">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="BEST MONTH"
+                            android:textColor="@color/text_3"
+                            android:textSize="10sp"
+                            android:fontFamily="sans-serif-black"
+                            android:letterSpacing="0.1"/>
+                        <TextView
+                            android:id="@+id/tvStatBestMonth"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+0%"
+                            android:textColor="@color/positive"
+                            android:textSize="18sp"
+                            android:fontFamily="sans-serif-black"
+                            android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Row 2 -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardVol"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="5dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="@color/border"
+                    app:cardBackgroundColor="@color/bg_elev"
+                    app:layout_constraintTop_toBottomOf="@id/cardAvg"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/cardCAGR">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="VOLATILITY"
+                            android:textColor="@color/text_3"
+                            android:textSize="10sp"
+                            android:fontFamily="sans-serif-black"
+                            android:letterSpacing="0.1"/>
+                        <TextView
+                            android:id="@+id/tvStatVolatility"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Low"
+                            android:textColor="@color/positive"
+                            android:textSize="18sp"
+                            android:fontFamily="sans-serif-black"
+                            android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardCAGR"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="@color/border"
+                    app:cardBackgroundColor="@color/bg_elev"
+                    app:layout_constraintTop_toTopOf="@id/cardVol"
+                    app:layout_constraintStart_toEndOf="@id/cardVol"
+                    app:layout_constraintEnd_toEndOf="parent">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="CAGR (EST)"
+                            android:textColor="@color/text_3"
+                            android:textSize="10sp"
+                            android:fontFamily="sans-serif-black"
+                            android:letterSpacing="0.1"/>
+                        <TextView
+                            android:id="@+id/tvStatCAGR"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+0%"
+                            android:textColor="@color/positive"
+                            android:textSize="18sp"
+                            android:fontFamily="sans-serif-black"
+                            android:layout_marginTop="4dp"/>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

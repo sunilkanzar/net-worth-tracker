@@ -73,13 +73,18 @@ public class PercentView extends LinearLayout {
 
     public void fillValueChange(TextView textView, boolean roundUp) {
         textView.setVisibility(getValueVisibility());
-        textView.setText(getValueChangeString(roundUp));
+        String formatted = getValueChangeString(roundUp);
+        if (valueChange > 0 && !formatted.startsWith("+")) {
+            formatted = "+" + formatted;
+        }
+        textView.setText(formatted);
         textView.setTextColor(ContextCompat.getColor(getContext(), Tools.getTextChangeColor(this.valueChange)));
     }
 
     public void fillPercent(TextView textView) {
         textView.setVisibility(getValueVisibility());
-        textView.setText(Tools.formatPercent(this.percent));
+        String arrow = valueChange > 0 ? "↑ " : (valueChange < 0 ? "↓ " : "");
+        textView.setText(arrow + Tools.formatPercent(Math.abs(this.percent)));
         textView.setTextColor(ContextCompat.getColor(getContext(), Tools.getTextChangeColor(this.valueChange)));
     }
 

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="4dp">
+
+    <TextView
+        android:id="@+id/goalLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="9sp"
+        android:textStyle="bold"
+        android:textColor="@color/text_3"
+        android:letterSpacing="0.05"
+        android:textAllCaps="true" />
+
+    <TextView
+        android:id="@+id/goalPercent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:textColor="@color/text" />
+
+    <ProgressBar
+        android:id="@+id/goalProgress"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_marginTop="4dp"
+        android:progressBackgroundTint="@color/divider" />
+
+</LinearLayout>

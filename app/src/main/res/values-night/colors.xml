@@ -1,26 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Dark Mode Colors -->
-    <color name="colorPrimary">#000000</color>
-    <color name="colorPrimaryDark">#000000</color>
-    <color name="colorPrimaryLight">#1A1A1A</color>
-    <color name="colorAccent">#00E5FF</color>
+    <!-- Dark Mode Tokens -->
+    <color name="bg">#0B0C0F</color>
+    <color name="bg_elev">#17181C</color>
+    <color name="bg_alt">#1C1D22</color>
+    <color name="border">#25272C</color>
+    <color name="border_strong">#2E3036</color>
+    <color name="text">#F3F4F6</color>
+    <color name="text_2">#C7CAD0</color>
+    <color name="text_3">#9AA0A6</color>
+    <color name="text_4">#6B7280</color>
+    <color name="divider">#25272C</color>
+    <color name="chip">#1F2025</color>
+    <color name="marker_bg">#F217181C</color>
 
-    <color name="background">#000000</color>
-    <color name="backgroundContent">#0A0A0A</color>
-    <color name="backgroundHelper">#121212</color>
-    <color name="surface">#121212</color>
-    <color name="surfaceElevated">#1A1A1A</color>
+    <!-- Hero Card (Dark even in light mode, but keeping same tokens) -->
+    <color name="hero_bg_start">#1A1C20</color>
+    <color name="hero_bg_end">#0F1013</color>
+    <color name="hero_text">#FFFFFF</color>
+    <color name="hero_text_muted">#8CFFFFFF</color> <!-- 55% white -->
+    <color name="hero_border">#14FFFFFF</color> <!-- 8% white -->
+    <color name="hero_chip_bg">#14FFFFFF</color> <!-- 8% white -->
 
-    <color name="textPrimary">#FFFFFF</color>
-    <color name="textSecondary">#8E8E8E</color>
-    <color name="textOnPrimary">#FFFFFF</color>
-    <color name="textHint">#4A4A4A</color>
+    <color name="positive">#4ADE80</color>
+    <color name="negative">#F87171</color>
 
-    <color name="positive">#00E676</color>
-    <color name="negative">#FF5252</color>
+    <color name="accent">#6366F1</color>
 
-    <color name="divider">#1AFFFFFF</color>
-    <color name="empty_directory_hint">#33FFFFFF</color>
-    <color name="textHeader">#88FFFFFF</color>
+    <!-- Legacy / System compatibility -->
+    <color name="colorPrimary">#0B0C0F</color>
+    <color name="colorPrimaryDark">#0B0C0F</color>
+    <color name="colorAccent">#6366F1</color>
+    <color name="background">@color/bg</color>
+    <color name="surface">@color/bg_elev</color>
+    <color name="textPrimary">@color/text</color>
+    <color name="textSecondary">@color/text_2</color>
+
+    <color name="transparent">#00000000</color>
+
+    <!-- Sheet Colors -->
+    <color name="sheet_bg">#111111</color>
+    <color name="sheet_input_bg">#1A1A1A</color>
+    <color name="sheet_border">#252525</color>
+    <color name="sheet_text">#FFFFFF</color>
+    <color name="sheet_text_muted">#9AA0A6</color>
+    <color name="sheet_text_dim">#666666</color>
+    <color name="sheet_chip_bg">#222222</color>
+    <color name="sheet_handle">#333333</color>
 </resources>

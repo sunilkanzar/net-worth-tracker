@@ -26,37 +26,56 @@ public class SelectionHighlightRenderer extends LineChartRenderer {
 
     @Override
     public void drawHighlighted(Canvas c, Highlight[] indices) {
-        super.drawHighlighted(c, indices);
-
         LineData lineData = mChart.getLineData();
-        if (lineData == null) return;
+        if (lineData == null || indices.length == 0) return;
 
-        for (Highlight high : indices) {
-            ILineDataSet set = lineData.getDataSetByIndex(high.getDataSetIndex());
+        // Get the X value of the first highlight
+        float xVal = indices[0].getX();
+
+        // Draw vertical highlight line if enabled for the first dataset
+        ILineDataSet mainSet = lineData.getDataSetByIndex(indices[0].getDataSetIndex());
+        if (mainSet != null && mainSet.isVerticalHighlightIndicatorEnabled()) {
+            drawVerticalHighlightLine(c, xVal, mainSet);
+        }
+
+        // Draw dots for all datasets at this X value
+        for (int i = 0; i < lineData.getDataSetCount(); i++) {
+            ILineDataSet set = lineData.getDataSetByIndex(i);
             if (set == null || !set.isHighlightEnabled()) continue;
 
-            Entry e = set.getEntryForXValue(high.getX(), high.getY());
-            if (e == null) continue;
+            Entry e = set.getEntryForXValue(xVal, Float.NaN);
+            if (e == null || e.getX() != xVal) continue;
 
             float[] pts = {e.getX(), e.getY()};
             mChart.getTransformer(set.getAxisDependency()).pointValuesToPixel(pts);
             float x = pts[0];
             float y = pts[1];
 
+            if (!mViewPortHandler.isInBounds(x, y)) continue;
+
             int lineColor = set.getColor();
 
-            // Outer glow
-            circlePaint.setColor(lineColor);
-            circlePaint.setAlpha(50);
-            c.drawCircle(x, y, 20f, circlePaint);
-
-            // Selected dot (larger than normal 4dp)
-            circlePaint.setAlpha(255);
-            c.drawCircle(x, y, 8f, circlePaint);
-
-            // Hole
+            // Selected dot background (the "hole")
+            circlePaint.setStyle(Paint.Style.FILL);
             circlePaint.setColor(holeColor);
-            c.drawCircle(x, y, 4f, circlePaint);
+            c.drawCircle(x, y, 14f, circlePaint);
+
+            // Selected dot border
+            circlePaint.setStyle(Paint.Style.STROKE);
+            circlePaint.setColor(lineColor);
+            circlePaint.setStrokeWidth(7f);
+            c.drawCircle(x, y, 14f, circlePaint);
         }
+    }
+
+    private void drawVerticalHighlightLine(Canvas c, float xVal, ILineDataSet set) {
+        mHighlightPaint.setColor(set.getHighLightColor());
+        mHighlightPaint.setStrokeWidth(set.getHighlightLineWidth());
+        mHighlightPaint.setPathEffect(set.getDashPathEffectHighlight());
+
+        float[] pts = {xVal, 0};
+        mChart.getTransformer(set.getAxisDependency()).pointValuesToPixel(pts);
+
+        c.drawLine(pts[0], mViewPortHandler.contentTop(), pts[0], mViewPortHandler.contentBottom(), mHighlightPaint);
     }
 }

@@ -1,8 +1,11 @@
 package com.kanzar.networthtracker;
 
+import android.animation.ObjectAnimator;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -10,6 +13,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import androidx.viewpager2.widget.ViewPager2;
 import android.animation.ObjectAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -48,6 +52,7 @@ import androidx.credentials.exceptions.ClearCredentialException;
 import androidx.credentials.exceptions.GetCredentialException;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -63,6 +68,7 @@ import com.google.api.services.drive.DriveScopes;
 import com.kanzar.networthtracker.api.repositories.DriveServiceHelper;
 
 import java.util.Collections;
+import java.util.Locale;
 
 import com.google.android.gms.tasks.Tasks;
 import com.google.gson.Gson;
@@ -117,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
     private ActivityMainBinding binding;
     private MonthPagerAdapter pagerAdapter;
     private ObjectAnimator syncAnim;
+    private BottomSheetBehavior<View> assetSheetBehavior;
     private boolean updatingForm = false;
     private boolean firstResume = true;
 
@@ -160,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        setupBottomSheet();
         setupViewPager();
         credentialManager = CredentialManager.create(this);
         binding.drawerLayout.addDrawerListener(new androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener() {
@@ -168,11 +176,7 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
                 // Collapse import submenu so it starts closed next time
                 if (binding.navImportSubmenu.getVisibility() == View.VISIBLE) {
                     binding.navImportSubmenu.setVisibility(View.GONE);
-                    binding.navImport.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                            androidx.core.content.ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_import),
-                            null,
-                            androidx.core.content.ContextCompat.getDrawable(MainActivity.this, R.drawable.ic_chevron_down),
-                            null);
+                    binding.navImportChevron.setRotation(0f);
                 }
             }
         });
@@ -185,18 +189,54 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
     private void setupViewPager() {
         pagerAdapter = new MonthPagerAdapter(this);
         binding.viewPager.setAdapter(pagerAdapter);
-        binding.viewPager.setOffscreenPageLimit(ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT);
+        binding.viewPager.setOffscreenPageLimit(1); // Reduce initial load
         int startPos = MonthPagerAdapter.positionOf(month.getMonth(), month.getYear());
         binding.viewPager.setCurrentItem(startPos, false);
         binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 int[] my = MonthPagerAdapter.monthYearAt(position);
-                month = new Month(my[0], my[1]);
+                month = new Month(my[0], my[1], false); // Don't calculate on UI thread
                 binding.monthName.setText(month.toString());
                 closeAssetView();
             }
         });
+    }
+
+    private void setupBottomSheet() {
+        assetSheetBehavior = BottomSheetBehavior.from(binding.newAssetLayout);
+        assetSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        assetSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+                if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                    onAssetViewClosed();
+                } else if (newState == BottomSheetBehavior.STATE_EXPANDED) {
+                    binding.fabScrim.setVisibility(View.VISIBLE);
+                    binding.fabScrim.setAlpha(1f);
+                }
+            }
+
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                // slideOffset is -1 for hidden, 1 for expanded (when peekHeight is 0)
+                float alpha = (slideOffset + 1f); 
+                if (alpha > 0) {
+                    binding.fabScrim.setVisibility(View.VISIBLE);
+                    binding.fabScrim.setAlpha(Math.min(1f, alpha));
+                } else {
+                    binding.fabScrim.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
+
+    private void onAssetViewClosed() {
+        binding.mainFab.show();
+        binding.fabScrim.setVisibility(View.GONE);
+        if (fabExpanded) {
+            collapseFab();
+        }
     }
 
     private MonthPageFragment getCurrentFragment() {
@@ -286,12 +326,7 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
         binding.navImport.setOnClickListener(v -> {
             boolean open = binding.navImportSubmenu.getVisibility() == View.VISIBLE;
             binding.navImportSubmenu.setVisibility(open ? View.GONE : View.VISIBLE);
-            binding.navImport.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                    androidx.core.content.ContextCompat.getDrawable(this, R.drawable.ic_import),
-                    null,
-                    androidx.core.content.ContextCompat.getDrawable(this,
-                            open ? R.drawable.ic_chevron_down : R.drawable.ic_chevron_right),
-                    null);
+            binding.navImportChevron.setRotation(open ? 0f : 90f);
         });
 
         binding.navImportBackup.setOnClickListener(v -> {
@@ -323,6 +358,11 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
                     String[] assetNames = getAssetNames(s.toString());
                     binding.newAssetName.setAdapter(new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_dropdown_item_1line, assetNames));
                 }
+                if (s.length() > 0) {
+                    binding.assetInitial.setText(s.toString().substring(0, 1).toUpperCase());
+                } else {
+                    binding.assetInitial.setText("+");
+                }
             }
             @Override public void afterTextChanged(Editable s) {}
         });
@@ -331,14 +371,32 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (updatingForm) return;
+                
+                String input = s.toString();
+                if (input.equals("-")) {
+                    updateSign(false);
+                    return;
+                }
+                
+                double change = toDouble(binding.newAssetChange);
+                if (input.startsWith("-") || change < 0) {
+                    updateSign(false);
+                } else if (input.length() > 0 && change > 0) {
+                    updateSign(true);
+                }
+                
                 Asset asset = getNewAsset();
                 Asset previous = asset.getPrevious();
                 double prevValue = (previous != null) ? previous.getValue() : 0.0;
-                double change = toDouble(binding.newAssetChange);
-                BigDecimal newValue = BigDecimal.valueOf(prevValue).add(BigDecimal.valueOf(change));
+                
+                // Effective change is now exactly what's in the box
+                double effectiveChange = change;
+                
+                BigDecimal newValue = BigDecimal.valueOf(prevValue).add(BigDecimal.valueOf(effectiveChange));
                 if (toDouble(binding.newAssetValue) != newValue.doubleValue()) {
                     updatingForm = true;
                     binding.newAssetValue.setText(formatStringValue(newValue.doubleValue()));
+                    binding.newAssetValueFormatted.setText(formatString(newValue.doubleValue()));
                     updatingForm = false;
                 }
             }
@@ -349,23 +407,83 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (updatingForm) return;
+                double val = toDouble(binding.newAssetValue);
+                binding.newAssetValueFormatted.setText(formatString(val));
                 Asset asset = getNewAsset();
                 Asset previous = asset.getPrevious();
                 double prevValue = (previous != null) ? previous.getValue() : 0.0;
-                BigDecimal change = BigDecimal.valueOf(asset.getValue()).subtract(BigDecimal.valueOf(prevValue));
+                BigDecimal change = BigDecimal.valueOf(val).subtract(BigDecimal.valueOf(prevValue));
+                
                 if (toDouble(binding.newAssetChange) != change.doubleValue()) {
                     updatingForm = true;
                     binding.newAssetChange.setText(formatStringValue(change.doubleValue()));
+                    updateSign(change.doubleValue() >= 0);
                     updatingForm = false;
                 }
             }
             @Override public void afterTextChanged(Editable s) {}
         });
 
+        binding.btnPlus.setOnClickListener(v -> {
+            updateSign(true);
+            String s = binding.newAssetChange.getText().toString();
+            if (s.startsWith("-")) {
+                binding.newAssetChange.setText(s.substring(1));
+            }
+        });
+
+        binding.btnMinus.setOnClickListener(v -> {
+            updateSign(false);
+            String s = binding.newAssetChange.getText().toString();
+            if (!s.startsWith("-")) {
+                binding.newAssetChange.setText("-" + s);
+            }
+        });
+
+        binding.pillSame.setOnClickListener(v -> {
+            updatingForm = true;
+            binding.newAssetChange.setText("0");
+            updateSign(true);
+            Asset asset = getNewAsset();
+            Asset previous = asset.getPrevious();
+            double prevValue = (previous != null) ? previous.getValue() : 0.0;
+            binding.newAssetValue.setText(formatStringValue(prevValue));
+            binding.newAssetValueFormatted.setText(formatString(prevValue));
+            updatingForm = false;
+        });
+
+        binding.pillPlus5.setOnClickListener(v -> {
+            Asset asset = getNewAsset();
+            Asset previous = asset.getPrevious();
+            double prevValue = (previous != null) ? previous.getValue() : 0.0;
+            double change = Math.round(prevValue * 0.05 * 100.0) / 100.0;
+            updatingForm = true;
+            binding.newAssetChange.setText(formatStringValue(change));
+            updateSign(true);
+            double newValue = prevValue + change;
+            binding.newAssetValue.setText(formatStringValue(newValue));
+            binding.newAssetValueFormatted.setText(formatString(newValue));
+            updatingForm = false;
+        });
+
+        binding.pillMinus5.setOnClickListener(v -> {
+            Asset asset = getNewAsset();
+            Asset previous = asset.getPrevious();
+            double prevValue = (previous != null) ? previous.getValue() : 0.0;
+            double change = -Math.round(prevValue * 0.05 * 100.0) / 100.0;
+            updatingForm = true;
+            binding.newAssetChange.setText(formatStringValue(change));
+            updateSign(false);
+            double newValue = prevValue + change;
+            binding.newAssetValue.setText(formatStringValue(newValue));
+            binding.newAssetValueFormatted.setText(formatString(newValue));
+            updatingForm = false;
+        });
+
         // Main FAB: toggle speed-dial
-        binding.newAssetSave.setOnClickListener(v -> {
+        binding.mainFab.setOnClickListener(v -> {
             new Events().send(new ButtonClicked("newAssetSave"));
-            if (binding.newAssetLayout.getVisibility() == View.VISIBLE) {
+            if (assetSheetBehavior.getState() != BottomSheetBehavior.STATE_HIDDEN) {
                 closeAssetView();
                 return;
             }
@@ -385,17 +503,24 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
         });
 
         // Scrim: dismiss on tap outside
-        binding.fabScrim.setOnClickListener(v -> collapseFab());
+        binding.fabScrim.setOnClickListener(v -> {
+            if (assetSheetBehavior.getState() != BottomSheetBehavior.STATE_HIDDEN) {
+                closeAssetView();
+            } else {
+                collapseFab();
+            }
+        });
 
         binding.btnSaveAsset.setOnClickListener(v -> saveAsset());
 
-        View.OnClickListener openGoals = v -> {
+        binding.btnCloseSheet.setOnClickListener(v -> closeAssetView());
+
+        binding.drawerSetGoalBtn.setOnClickListener(v -> {
             Intent goalsIntent = new Intent(this, GoalActivity.class);
             goalsIntent.putExtra("current_net_worth", month.getValue());
             startActivity(goalsIntent);
-        };
-        binding.editGoals.setOnClickListener(openGoals);
-        binding.navGoals.setOnClickListener(openGoals);
+            binding.drawerLayout.closeDrawers();
+        });
     }
 
     // ── Authentication ──────────────────────────────────────────────────────
@@ -579,7 +704,10 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
                 boolean localEmpty = realm.where(Asset.class).count() == 0;
                 if (fileId != null && localEmpty) {
                     String json = Tasks.await(driveServiceHelper.readFile(fileId));
-                    List<Asset> remoteAssets = new Gson().fromJson(json, new TypeToken<List<Asset>>(){}.getType());
+                    Gson gson = new com.google.gson.GsonBuilder()
+                            .serializeSpecialFloatingPointValues()
+                            .create();
+                    List<Asset> remoteAssets = gson.fromJson(json, new TypeToken<List<Asset>>(){}.getType());
                     if (remoteAssets != null && !remoteAssets.isEmpty()) {
                         realm.executeTransaction(r -> r.copyToRealmOrUpdate(remoteAssets));
                     }
@@ -587,7 +715,10 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
 
                 // Always push local state to Drive
                 List<Asset> localAssets = realm.where(Asset.class).findAll();
-                String localJson = new Gson().toJson(realm.copyFromRealm(localAssets));
+                Gson gson = new com.google.gson.GsonBuilder()
+                        .serializeSpecialFloatingPointValues()
+                        .create();
+                String localJson = gson.toJson(realm.copyFromRealm(localAssets));
 
                 if (fileId == null) {
                     Tasks.await(driveServiceHelper.createFile("assets.json", localJson));
@@ -693,7 +824,7 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
     private void showSyncing(boolean syncing) {
         if (syncing) {
             int from = ContextCompat.getColor(this, R.color.divider);
-            int to   = ContextCompat.getColor(this, R.color.colorAccent);
+            int to   = ContextCompat.getColor(this, Tools.getAccentColor());
             syncAnim = ObjectAnimator.ofArgb(binding.bottomAppBarCard, "strokeColor", from, to);
             syncAnim.setDuration(700);
             syncAnim.setRepeatMode(ObjectAnimator.REVERSE);
@@ -720,7 +851,13 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
         binding.googleSignIn.setVisibility(signedIn ? View.GONE : View.VISIBLE);
         binding.signedInLayout.setVisibility(signedIn ? View.VISIBLE : View.GONE);
         if (signedIn) {
-            binding.userEmail.setText(Prefs.getString(Prefs.PREFS_USER_EMAIL, ""));
+            String email = Prefs.getString(Prefs.PREFS_USER_EMAIL, "");
+            binding.userEmail.setText(email);
+            if (!email.isEmpty()) {
+                binding.drawerAvatarText.setText(email.substring(0, 1).toUpperCase());
+            } else {
+                binding.drawerAvatarText.setText("W");
+            }
             triggerSync();
         }
     }
@@ -806,8 +943,8 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
                         getString(R.string.menu_delete)
                 }, (dialog, which) -> {
                     if (which == 0) {
-                        Intent intent = new Intent(this, AssetTrendActivity.class);
-                        intent.putExtra(AssetTrendActivity.EXTRA_PINNED_ASSET, item.getName());
+                        Intent intent = new Intent(this, SingleAssetTrendActivity.class);
+                        intent.putExtra(SingleAssetTrendActivity.EXTRA_ASSET_NAME, item.getName());
                         startActivity(intent);
                     } else if (which == 1) {
                         new Events().send(new AssetDeleted(item));
@@ -844,6 +981,8 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
     private Asset getNewAsset() {
         String name = binding.newAssetName.getText().toString();
         double value = toDouble(binding.newAssetValue);
+        // The sign logic for change is handled in listeners, but the Asset itself 
+        // just takes the final value from the main input.
         return new Asset(name, value, month.getMonth(), month.getYear());
     }
 
@@ -851,11 +990,13 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
         String name = binding.newAssetName.getText().toString();
         if (name.isEmpty()) {
             binding.newAssetName.setError(getString(R.string.new_asset_name_empty));
+            binding.newAssetName.requestFocus();
             return;
         }
         String valueStr = binding.newAssetValue.getText().toString();
         if (valueStr.isEmpty()) {
             binding.newAssetValue.setError(getString(R.string.new_asset_value_empty));
+            binding.newAssetValue.requestFocus();
             return;
         }
         Asset asset = getNewAsset();
@@ -873,27 +1014,98 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
         }
     }
 
+    private void updateSign(boolean isPlus) {
+        int accentColor = ContextCompat.getColor(this, Tools.getAccentColor());
+        int bgElev = ContextCompat.getColor(this, R.color.sheet_input_bg);
+        int textDim = ContextCompat.getColor(this, R.color.sheet_text_dim);
+
+        if (isPlus) {
+            binding.btnPlus.setCardBackgroundColor(ColorStateList.valueOf(bgElev));
+            binding.btnPlus.setCardElevation(2f * getResources().getDisplayMetrics().density);
+            binding.txtPlus.setTextColor(accentColor);
+
+            binding.btnMinus.setCardBackgroundColor(ColorStateList.valueOf(Color.TRANSPARENT));
+            binding.btnMinus.setCardElevation(0f);
+            binding.txtMinus.setTextColor(textDim);
+        } else {
+            binding.btnPlus.setCardBackgroundColor(ColorStateList.valueOf(Color.TRANSPARENT));
+            binding.btnPlus.setCardElevation(0f);
+            binding.txtPlus.setTextColor(textDim);
+
+            binding.btnMinus.setCardBackgroundColor(ColorStateList.valueOf(bgElev));
+            binding.btnMinus.setCardElevation(2f * getResources().getDisplayMetrics().density);
+            binding.txtMinus.setTextColor(accentColor);
+        }
+    }
+
     private void openAssetView(@Nullable String name, @Nullable Double value) {
         updatingForm = true;
-        binding.newAssetLayout.setVisibility(View.VISIBLE);
+        
+        String monthName = month.toString();
+        boolean isNew = name == null;
+
+        if (isNew) {
+            binding.sheetStepLabel.setText(R.string.sheet_new_entry);
+            binding.sheetTitle.setText(R.string.sheet_add_title);
+            binding.labelAssetName.setVisibility(View.VISIBLE);
+            binding.newAssetName.setVisibility(View.VISIBLE);
+            binding.assetInitialCard.setVisibility(View.GONE);
+            binding.pillSame.setVisibility(View.GONE);
+            binding.pillPlus5.setVisibility(View.GONE);
+            binding.pillMinus5.setVisibility(View.GONE);
+        } else {
+            binding.sheetStepLabel.setText("Edit · " + monthName);
+            binding.sheetTitle.setText(name);
+            binding.labelAssetName.setVisibility(View.GONE);
+            binding.newAssetName.setVisibility(View.GONE);
+            binding.assetInitialCard.setVisibility(View.VISIBLE);
+            binding.pillSame.setVisibility(View.VISIBLE);
+            binding.pillPlus5.setVisibility(View.VISIBLE);
+            binding.pillMinus5.setVisibility(View.VISIBLE);
+        }
+        
         binding.newAssetName.setText(name != null ? name : "");
         binding.newAssetValue.setText(value != null ? formatStringValue(value) : "");
+        
+        if (name != null && !name.isEmpty()) {
+            binding.assetInitial.setText(name.substring(0, 1).toUpperCase());
+            int color = Tools.getAssetColor(name);
+            binding.assetInitialCard.setCardBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.sheet_input_bg)));
+            binding.assetInitial.setTextColor(color);
+        } else {
+            binding.assetInitial.setText("+");
+            binding.assetInitialCard.setCardBackgroundColor(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.sheet_chip_bg)));
+            binding.assetInitial.setTextColor(ContextCompat.getColor(this, R.color.sheet_text_dim));
+        }
+
         // Calculate correct change from previous month
         if (name != null && value != null) {
             Asset temp = new Asset(name, value, month.getMonth(), month.getYear());
             Asset prev = temp.getPrevious();
             double prevVal = (prev != null) ? prev.getValue() : 0.0;
-            binding.newAssetChange.setText(formatStringValue(value - prevVal));
+            double change = value - prevVal;
+            binding.newAssetChange.setText(formatStringValue(change));
+            binding.newAssetValueFormatted.setText(formatString(value));
+            updateSign(change >= 0);
         } else {
             binding.newAssetChange.setText("");
+            binding.newAssetValueFormatted.setText("0");
+            updateSign(true);
         }
         updatingForm = false;
+        
+        assetSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        binding.mainFab.hide();
         if (name != null) binding.newAssetName.setSelection(name.length());
     }
 
+    private String formatString(double value) {
+        return java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("en", "IN"))
+                .format(value).replace("₹", "").trim();
+    }
+
     private void closeAssetView() {
-        binding.newAssetLayout.setVisibility(View.GONE);
-        collapseFab();
+        assetSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
 
     private void toggleFab() {
@@ -903,17 +1115,19 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
 
     private void expandFab() {
         fabExpanded = true;
-        binding.newAssetSave.animate().rotation(45f).setDuration(200).start();
+        binding.mainFab.animate().rotation(45f).setDuration(200).start();
+        binding.mainFab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#1F2937")));
         binding.fabScrim.setVisibility(View.VISIBLE);
         binding.fabScrim.animate().alpha(1f).setDuration(200).start();
         showFabItem(binding.fabAssetContainer, 0);
-        showFabItem(binding.fabNoteContainer, 60);
+        showFabItem(binding.fabNoteContainer, 54);
     }
 
     private void collapseFab() {
         if (!fabExpanded) return;
         fabExpanded = false;
-        binding.newAssetSave.animate().rotation(0f).setDuration(200).start();
+        binding.mainFab.animate().rotation(0f).setDuration(200).start();
+        binding.mainFab.setBackgroundTintList(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(this, Tools.getAccentColor())));
         binding.fabScrim.animate().alpha(0f).setDuration(200)
                 .withEndAction(() -> binding.fabScrim.setVisibility(View.GONE)).start();
         hideFabItem(binding.fabAssetContainer);
@@ -940,7 +1154,7 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
             public void handleOnBackPressed() {
                 if (fabExpanded) {
                     collapseFab();
-                } else if (binding.newAssetLayout.getVisibility() == View.VISIBLE) {
+                } else if (assetSheetBehavior != null && assetSheetBehavior.getState() != BottomSheetBehavior.STATE_HIDDEN) {
                     closeAssetView();
                 } else {
                     setEnabled(false);
@@ -970,11 +1184,56 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
     @Override
     protected void onResume() {
         super.onResume();
+        applyAccentColor();
         if (firstResume) {
             firstResume = false;
             return;
         }
-        refreshCurrentPage();
+        refreshAllLoadedPages();
+    }
+
+    private void applyAccentColor() {
+        int accentColor = ContextCompat.getColor(this, Tools.getAccentColor());
+        ColorStateList accentList = ColorStateList.valueOf(accentColor);
+        
+        binding.previousMonth.setImageTintList(accentList);
+        binding.nextMonth.setImageTintList(accentList);
+        
+        if (!fabExpanded) {
+            binding.mainFab.setBackgroundTintList(accentList);
+        }
+
+        binding.sheetStepLabel.setTextColor(accentColor);
+        binding.btnSaveAsset.setBackgroundTintList(accentList);
+        
+        // Navigation Drawer accents
+        binding.drawerGoal1yRow.goalPercent.setTextColor(accentColor);
+        binding.drawerGoal1yRow.goalProgress.setProgressTintList(accentList);
+        binding.drawerGoal3yRow.goalPercent.setTextColor(accentColor);
+        binding.drawerGoal3yRow.goalProgress.setProgressTintList(accentList);
+        binding.drawerGoal5yRow.goalPercent.setTextColor(accentColor);
+        binding.drawerGoal5yRow.goalProgress.setProgressTintList(accentList);
+        
+        binding.drawerSetGoalBtn.setTextColor(accentColor);
+        binding.drawerAvatarContainer.setBackgroundTintList(accentList);
+        binding.signOut.setImageTintList(accentList);
+        
+        // Loop through the drawer to find section headers
+        applyAccentToDrawerHeaders(binding.navigation, accentColor);
+    }
+
+    private void applyAccentToDrawerHeaders(ViewGroup group, int color) {
+        for (int i = 0; i < group.getChildCount(); i++) {
+            View v = group.getChildAt(i);
+            if (v instanceof TextView) {
+                TextView tv = (TextView) v;
+                if (tv.getLetterSpacing() >= 0.09f) {
+                    tv.setTextColor(color);
+                }
+            } else if (v instanceof ViewGroup) {
+                applyAccentToDrawerHeaders((ViewGroup) v, color);
+            }
+        }
     }
 
     @Override
@@ -1009,39 +1268,57 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
         float g1 = Prefs.getFloat(Prefs.PREFS_GOAL_1Y, 0f);
         float g3 = Prefs.getFloat(Prefs.PREFS_GOAL_3Y, 0f);
         float g5 = Prefs.getFloat(Prefs.PREFS_GOAL_5Y, 0f);
+        boolean hasAny = g1 > 0 || g3 > 0 || g5 > 0;
 
-        boolean anyGoal = g1 > 0 || g3 > 0 || g5 > 0;
-        int goalVis = anyGoal ? View.VISIBLE : View.GONE;
-        binding.goalsCard.setVisibility(goalVis);
-        binding.goalsDivider.setVisibility(goalVis);
-        // Show "Set Goals" nav item only when no goals exist; once set, user edits via the card
-        binding.navGoals.setVisibility(anyGoal ? View.GONE : View.VISIBLE);
-        if (!anyGoal) return;
+        binding.drawerGoalSection.setVisibility(hasAny ? View.VISIBLE : View.GONE);
+        binding.drawerSetGoalBtn.setVisibility(hasAny ? View.GONE : View.VISIBLE);
 
-        double current = month.getValue();
-        int setYear = Prefs.getInt(Prefs.PREFS_GOAL_SET_YEAR, Calendar.getInstance().get(Calendar.YEAR));
+        if (!hasAny) return;
 
-        updateGoalRow(binding.goal1yRow, binding.goal1yLabel, binding.goal1yBar, binding.goal1yPercent,
-                g1, current, setYear + 1);
-        updateGoalRow(binding.goal3yRow, binding.goal3yLabel, binding.goal3yBar, binding.goal3yPercent,
-                g3, current, setYear + 3);
-        updateGoalRow(binding.goal5yRow, binding.goal5yLabel, binding.goal5yBar, binding.goal5yPercent,
-                g5, current, setYear + 5);
+        executorService.execute(() -> {
+            double current;
+            try (Realm realm = Realm.getDefaultInstance()) {
+                current = month.getValue(realm);
+            }
+
+            final double nw = current;
+            runOnUiThread(() -> {
+                int setYear = Prefs.getInt(Prefs.PREFS_GOAL_SET_YEAR, Calendar.getInstance().get(Calendar.YEAR));
+
+                bindGoalRow(binding.drawerGoal1yRow.getRoot(), binding.drawerGoal1yRow.goalLabel, 
+                        binding.drawerGoal1yRow.goalPercent, binding.drawerGoal1yRow.goalProgress,
+                        g1, nw, setYear + 1);
+                bindGoalRow(binding.drawerGoal3yRow.getRoot(), binding.drawerGoal3yRow.goalLabel,
+                        binding.drawerGoal3yRow.goalPercent, binding.drawerGoal3yRow.goalProgress,
+                        g3, nw, setYear + 3);
+                bindGoalRow(binding.drawerGoal5yRow.getRoot(), binding.drawerGoal5yRow.goalLabel,
+                        binding.drawerGoal5yRow.goalPercent, binding.drawerGoal5yRow.goalProgress,
+                        g5, nw, setYear + 5);
+
+                binding.drawerGoalSection.setOnClickListener(v -> {
+                    Intent goalsIntent = new Intent(this, GoalActivity.class);
+                    goalsIntent.putExtra("current_net_worth", nw);
+                    startActivity(goalsIntent);
+                    binding.drawerLayout.closeDrawers();
+                });
+            });
+        });
     }
 
-    private void updateGoalRow(View row, TextView label, android.widget.ProgressBar bar, TextView percent,
-                                float goal, double current, int targetYear) {
+    private void bindGoalRow(View row, TextView label, TextView percent,
+                              android.widget.ProgressBar bar,
+                              float goal, double current, int targetYear) {
         if (goal <= 0) {
             row.setVisibility(View.GONE);
             return;
         }
         row.setVisibility(View.VISIBLE);
-        label.setText(String.valueOf(targetYear));
-
+        label.setText(String.format(Locale.getDefault(), "%d GOAL", targetYear));
         int progress = (int) Math.min(Math.max(current / goal * 100, 0), 100);
+        percent.setText(progress + "%");
         bar.setProgress(progress);
-        percent.setText(getString(R.string.helper_text, String.valueOf(progress)).replace("Click to add ", "").replace(" to this month", "%"));
     }
+
 
     private void showMonthYearPicker() {
         // Month names (Jan–Dec, trim trailing empty entry from DateFormatSymbols)

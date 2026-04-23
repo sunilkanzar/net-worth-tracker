@@ -24,6 +24,7 @@
     <string name="allocation_assets">Assets</string>
     <string name="allocation_liabilities">Liabilities</string>
     <string name="helper_text">Click to add %1$s to this month</string>
+    <string name="tap_to_add">Tap to add value for this month</string>
     <string name="import_choose_file">Choose backup</string>
     <string name="import_confirmation">Do you want to import %1$d items, existing will be overwritten</string>
     <string name="import_empty">No entries found, check format</string>
@@ -87,6 +88,7 @@
     <string name="pref_theme_light">Light</string>
     <string name="pref_theme_dark">Dark</string>
     <string name="pref_clear_all_data">Clear All Data</string>
+    <string name="pref_clear_data_summary">This cannot be undone</string>
     <string name="drawer_clear_all_data">Clear All Data</string>
     <string name="clear_all_data_confirm_title">Clear All Data?</string>
     <string name="clear_all_data_confirm_msg">This will permanently delete all your asset data from this device and from Google Drive. Local backup files will not be affected if any. It is recommended to take manual export.</string>
@@ -108,11 +110,40 @@
     <string name="trend_clear_all">Clear All</string>
     <string name="widget_growth">Growth</string>
     <string name="widget_no_entries">No entries</string>
+    <string name="sort">Sort</string>
+    <string name="sort_by">Sort by</string>
+    <string name="sort_value_desc">Value (High to Low)</string>
+    <string name="sort_value_asc">Value (Low to High)</string>
+    <string name="sort_name_asc">Name (A to Z)</string>
+    <string name="sort_name_desc">Name (Z to A)</string>
+    <string name="sort_change_desc">Change (Most gain first)</string>
+    <string name="sort_change_asc">Change (Most loss first)</string>
+    <string name="sort_percent_desc">% Change (High to Low)</string>
+    <string name="sort_percent_asc">% Change (Low to High)</string>
 
     <string name="empty_month_copy_action">Copy from %1$s</string>
     <string name="empty_month_copy_success">Assets copied from %1$s</string>
 
     <string name="pref_section_number">Number</string>
     <string name="pref_section_appearance">Appearance</string>
+    <string name="pref_accent_label">Accent color</string>
+    <string name="pref_section_data">Data</string>
+    <string name="pref_data_autosave">Auto-Backup Frequency</string>
+    <string name="pref_autosave_daily">Every day</string>
+    <string name="pref_autosave_weekly">Every week</string>
+    <string name="pref_autosave_monthly">Every month</string>
+    <string name="pref_autosave_quarterly">Every quarter</string>
+    <string name="pref_autosave_half_yearly">Every half year</string>
+    <string name="pref_autosave_yearly">Every year</string>
+    <string name="pref_data_reminders">Reminders</string>
+    <string name="pref_data_reminders_summary">1st of every month, 9:00 AM</string>
     <string name="pref_section_other">Other</string>
+    <string name="pref_app_version">Net Worth Tracker · v2.0</string>
+    <string name="vs_month">vs %1$s</string>
+    <string name="label_asset_name">ASSET NAME</string>
+    <string name="label_current_value">CURRENT VALUE (₹)</string>
+    <string name="sheet_new_entry">New entry</string>
+    <string name="sheet_add_title">Add asset or liability</string>
+    <string name="plus">+</string>
+    <string name="minus">−</string>
 </resources>

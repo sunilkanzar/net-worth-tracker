@@ -8,17 +8,23 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
-        android:elevation="0dp">
+        android:background="@color/bg_elev"
+        android:elevation="0dp"
+        app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_chevron_left"
-            app:navigationIconTint="@color/textOnPrimary"
+            app:navigationIconTint="@color/text"
             app:title="@string/pref_activity_title"
-            app:titleTextColor="@color/textOnPrimary" />
+            app:titleTextColor="@color/text" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/border" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -31,91 +37,121 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <LinearLayout
+            <!-- SECTION: NUMBER -->
+            <TextView
+                style="@style/PreferenceSectionHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
+                android:text="@string/pref_section_number" />
 
-                <!-- SECTION: NUMBER -->
-                <TextView
-                    style="@style/PreferenceSectionHeader"
+            <androidx.cardview.widget.CardView style="@style/PreferenceCard">
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/pref_section_number" />
+                    android:orientation="vertical">
 
-                <androidx.cardview.widget.CardView style="@style/PreferenceCard">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                    <include
+                        android:id="@+id/rowCurrency"
+                        layout="@layout/item_preference_row" />
 
-                        <include
-                            android:id="@+id/rowCurrency"
-                            layout="@layout/item_preference_row" />
+                    <View style="@style/PreferenceDivider" />
 
-                        <View style="@style/PreferenceDivider" />
+                    <include
+                        android:id="@+id/rowFormat"
+                        layout="@layout/item_preference_row" />
 
-                        <include
-                            android:id="@+id/rowFormat"
-                            layout="@layout/item_preference_row" />
+                    <View style="@style/PreferenceDivider" />
 
-                        <View style="@style/PreferenceDivider" />
+                    <include
+                        android:id="@+id/rowSeparator"
+                        layout="@layout/item_preference_row" />
 
-                        <include
-                            android:id="@+id/rowSeparator"
-                            layout="@layout/item_preference_row" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
 
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
+            <!-- SECTION: APPEARANCE -->
+            <TextView
+                style="@style/PreferenceSectionHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/pref_section_appearance" />
 
-                <!-- SECTION: APPEARANCE -->
-                <TextView
-                    style="@style/PreferenceSectionHeader"
+            <androidx.cardview.widget.CardView style="@style/PreferenceCard">
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:text="@string/pref_section_appearance" />
-
-                <androidx.cardview.widget.CardView style="@style/PreferenceCard">
+                    android:orientation="vertical">
 
                     <include
                         android:id="@+id/rowTheme"
                         layout="@layout/item_preference_row" />
 
-                </androidx.cardview.widget.CardView>
+                    <View style="@style/PreferenceDivider" />
 
-                <!-- SECTION: OTHER -->
-                <TextView
-                    style="@style/PreferenceSectionHeader"
+                    <include
+                        android:id="@+id/rowAccent"
+                        layout="@layout/item_preference_row" />
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- SECTION: DATA -->
+            <TextView
+                style="@style/PreferenceSectionHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/pref_section_data" />
+
+            <androidx.cardview.widget.CardView style="@style/PreferenceCard">
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="24dp"
-                    android:text="@string/pref_section_other" />
+                    android:orientation="vertical">
 
-                <androidx.cardview.widget.CardView style="@style/PreferenceCard">
+                    <include
+                        android:id="@+id/rowBackup"
+                        layout="@layout/item_preference_row" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnClearAll"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="64dp"
-                        android:gravity="start|center_vertical"
-                        android:paddingStart="16dp"
-                        android:paddingEnd="16dp"
-                        android:text="@string/pref_clear_all_data"
-                        android:textColor="#CF6679"
-                        android:textSize="16sp"
-                        app:icon="@drawable/ic_delete"
-                        app:iconPadding="16dp"
-                        app:iconTint="#CF6679"
-                        app:rippleColor="#20CF6679" />
+                    <View style="@style/PreferenceDivider" />
 
-                </androidx.cardview.widget.CardView>
+                    <include
+                        android:id="@+id/rowReminders"
+                        layout="@layout/item_preference_row" />
 
-            </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- SECTION: OTHER -->
+            <TextView
+                style="@style/PreferenceSectionHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/pref_section_other" />
+
+            <androidx.cardview.widget.CardView style="@style/PreferenceCard">
+
+                <include
+                    android:id="@+id/rowClearAll"
+                    layout="@layout/item_preference_row" />
+
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
+                android:gravity="center"
+                android:text="@string/pref_app_version"
+                android:textColor="@color/text_4"
+                android:textSize="11sp" />
+
         </LinearLayout>
     </ScrollView>
 

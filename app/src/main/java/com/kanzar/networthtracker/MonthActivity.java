@@ -3,12 +3,11 @@ package com.kanzar.networthtracker;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import com.kanzar.networthtracker.adapters.MonthAdapter;
 import com.kanzar.networthtracker.databinding.ActivityMonthBinding;
 import com.kanzar.networthtracker.helpers.Month;
+import com.kanzar.networthtracker.helpers.Tools;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,9 +39,35 @@ public class MonthActivity extends AppCompatActivity implements MonthAdapter.OnI
 
         Collections.reverse(months);
 
+        setupHeroCard(months);
+
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new MonthAdapter(months, this);
         binding.recyclerView.setAdapter(adapter);
+    }
+
+    private void setupHeroCard(List<Month> months) {
+        if (months.isEmpty()) {
+            binding.heroCard.setVisibility(android.view.View.GONE);
+            return;
+        }
+
+        double latestTotal = months.get(0).getValue();
+        double minVal = Double.MAX_VALUE;
+        double maxVal = -Double.MAX_VALUE;
+
+        // Calculate for the last 12 months (or fewer if not available)
+        int range = Math.min(months.size(), 12);
+        for (int i = 0; i < range; i++) {
+            double val = months.get(i).getValue();
+            if (val < minVal) minVal = val;
+            if (val > maxVal) maxVal = val;
+        }
+
+        binding.heroTotal.setText(Tools.formatAmount(latestTotal, true));
+        binding.heroDate.setText(months.get(0).toStringMMMYY());
+        binding.heroMinMax.setText(String.format("Low %s · High %s",
+                Tools.formatAmount(minVal), Tools.formatAmount(maxVal)));
     }
 
     @Override

@@ -5,6 +5,8 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
+
 import com.github.mikephil.charting.components.MarkerView;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.highlight.Highlight;
@@ -12,6 +14,7 @@ import com.github.mikephil.charting.utils.MPPointF;
 import com.kanzar.networthtracker.R;
 import com.kanzar.networthtracker.databinding.ViewTrendMarkerBinding;
 import com.kanzar.networthtracker.helpers.Month;
+import com.kanzar.networthtracker.helpers.Prefs;
 import com.kanzar.networthtracker.helpers.Tools;
 
 import java.util.List;
@@ -53,10 +56,12 @@ public class TrendMarkerView extends MarkerView {
         float value = e.getY();
         boolean isLiability = value < 0;
 
+        boolean privacyMode = Prefs.getBoolean("privacy_mode", false);
+
         binding.markerAsset.setText(assetName);
         binding.markerMonth.setText(monthLabel);
-        binding.markerValue.setText(Tools.formatAmount(value, true));
-        binding.markerValue.setTextColor(isLiability ? 0xFFFF5252 : 0xFF00E5FF);
+        binding.markerValue.setText(privacyMode ? "****" : Tools.formatAmount(value, true));
+        binding.markerValue.setTextColor(ContextCompat.getColor(getContext(), isLiability ? R.color.negative : R.color.positive));
 
         super.refreshContent(e, highlight);
     }

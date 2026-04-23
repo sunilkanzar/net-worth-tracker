@@ -7,6 +7,25 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
 
+    <queries>
+        <package android:name="com.google.android.gms" />
+        <intent>
+            <action android:name="com.google.android.gms.auth.api.signin.SERVICE_CONFIG_UPDATED" />
+        </intent>
+        <intent>
+            <action android:name="com.google.android.gms.auth.api.identity.service.signin.START" />
+        </intent>
+        <intent>
+            <action android:name="com.google.android.gms.auth.api.identity.service.authorization.START" />
+        </intent>
+        <intent>
+            <action android:name="androidx.credentials.TYPE_PASSWORD_AUTHENTICATION" />
+        </intent>
+        <intent>
+            <action android:name="androidx.credentials.TYPE_PASSKEY_AUTHENTICATION" />
+        </intent>
+    </queries>
+
     <application
         android:name="com.kanzar.networthtracker.CoreApplication"
         android:allowBackup="true"
@@ -15,6 +34,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppThemeNoActionBar">
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
 
         <activity android:name="com.kanzar.networthtracker.CommentActivity" android:exported="false"/>
 
@@ -50,6 +73,7 @@
         <activity android:name="com.kanzar.networthtracker.ChartActivity" android:exported="false"/>
         <activity android:name="com.kanzar.networthtracker.AllocationActivity" android:exported="false"/>
         <activity android:name="com.kanzar.networthtracker.AssetTrendActivity" android:exported="false"/>
+        <activity android:name="com.kanzar.networthtracker.SingleAssetTrendActivity" android:exported="false"/>
         <activity android:name="com.kanzar.networthtracker.GoalActivity" android:exported="false"/>
         <activity android:name="com.kanzar.networthtracker.PreferencesActivity" android:exported="false"/>
 

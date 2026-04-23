@@ -4,7 +4,11 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.SpannableString;
 import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
+import android.text.style.StyleSpan;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +26,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import android.content.res.ColorStateList;
 
 import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.charts.PieChart;
@@ -31,9 +36,11 @@ import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.PercentFormatter;
+import com.google.android.material.tabs.TabLayout;
 import com.kanzar.networthtracker.databinding.ActivityAllocationBinding;
 import com.kanzar.networthtracker.databinding.DialogAssetSelectBinding;
 import com.kanzar.networthtracker.helpers.Month;
+import com.kanzar.networthtracker.helpers.Prefs;
 import com.kanzar.networthtracker.helpers.Tools;
 import com.kanzar.networthtracker.models.Asset;
 import com.kanzar.networthtracker.models.AssetFields;
@@ -46,6 +53,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,15 +63,14 @@ import io.realm.Sort;
 public class AllocationActivity extends AppCompatActivity {
 
     private static final int[] ASSET_COLORS = {
-        0xFF42A5F5, 0xFF26C6DA, 0xFF66BB6A, 0xFFAB47BC,
-        0xFF29B6F6, 0xFF26A69A, 0xFF9CCC65, 0xFF7E57C2,
-        0xFF5C6BC0, 0xFF00BCD4, 0xFF43A047, 0xFF8D6E63
+        0xFF3B82F6, 0xFF22D3EE, 0xFF10B981, 0xFFA855F7,
+        0xFF6366F1, 0xFFEF4444, 0xFFEAB308, 0xFFF97316,
+        0xFF14B8A6, 0xFF84CC16, 0xFFE11D48, 0xFF0EA5E9
     };
 
     private static final int[] LIABILITY_COLORS = {
-        0xFFEF5350, 0xFFFF7043, 0xFFFFCA28, 0xFFEC407A,
-        0xFFFF5252, 0xFFFF6D00, 0xFFFFD600, 0xFFD81B60,
-        0xFFE53935, 0xFFF4511E, 0xFFFFAB00, 0xFFC62828
+        0xFFEF4444, 0xFFF97316, 0xFFEAB308, 0xFFF43F5E,
+        0xFFFB923C, 0xFFFACC15, 0xFFEC4899, 0xFFFF7043
     };
 
     private Month month;
@@ -98,7 +105,37 @@ public class AllocationActivity extends AppCompatActivity {
         binding.nextMonth.setOnClickListener(v -> { month.next(); loadData(); });
         binding.monthName.setOnClickListener(v -> showMonthYearPicker());
 
+        applyAccentColor();
+
+        binding.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition() == 0) {
+                    binding.assetCard.setVisibility(View.VISIBLE);
+                    binding.liabilityCard.setVisibility(View.GONE);
+                } else {
+                    binding.assetCard.setVisibility(View.GONE);
+                    binding.liabilityCard.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override public void onTabUnselected(TabLayout.Tab tab) {}
+            @Override public void onTabReselected(TabLayout.Tab tab) {}
+        });
+
         loadData();
+    }
+
+    private void applyAccentColor() {
+        int accentColor = ContextCompat.getColor(this, Tools.getAccentColor());
+        ColorStateList accentList = ColorStateList.valueOf(accentColor);
+        
+        binding.previousMonth.setImageTintList(accentList);
+        binding.nextMonth.setImageTintList(accentList);
+        binding.tabLayout.setSelectedTabIndicatorColor(accentColor);
+        binding.tabLayout.setTabTextColors(ContextCompat.getColor(this, R.color.text_3), accentColor);
+        
+        binding.assetTotal.setTextColor(accentColor);
     }
 
     // ── Menu ─────────────────────────────────────────────────────────────────
@@ -116,9 +153,6 @@ public class AllocationActivity extends AppCompatActivity {
         if (id == R.id.action_toggle_chart) {
             isTreemapMode = !isTreemapMode;
             applyChartMode();
-            return true;
-        } else if (id == R.id.action_filter_allocation) {
-            showFilterDialog();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -185,162 +219,98 @@ public class AllocationActivity extends AppCompatActivity {
 
     private void rebuildCharts() {
         // ── Assets ──
+        double assetTotal = 0;
+        List<PieEntry> assetEntries = new ArrayList<>();
         List<Asset> filteredAssets = new ArrayList<>();
         for (Asset a : allAssets) {
-            if (selectedAssetNames.contains(a.getName())) filteredAssets.add(a);
+            if (selectedAssetNames.contains(a.getName())) {
+                assetEntries.add(new PieEntry((float) a.getValue(), a.getName()));
+                assetTotal += a.getValue();
+                filteredAssets.add(a);
+            }
         }
 
-        if (filteredAssets.isEmpty()) {
+        boolean privacyMode = Prefs.getBoolean("privacy_mode", false);
+        if (assetEntries.isEmpty()) {
             binding.assetChart.setVisibility(View.INVISIBLE);
             binding.assetTreemap.setVisibility(View.INVISIBLE);
             binding.assetTotal.setText("—");
         } else {
-            double assetTotal = 0;
-            List<PieEntry> assetEntries = new ArrayList<>();
-            for (Asset a : filteredAssets) {
-                assetEntries.add(new PieEntry((float) a.getValue(), a.getName()));
-                assetTotal += a.getValue();
-            }
-            binding.assetTotal.setText(Tools.formatAmount(assetTotal, true));
-            setupDonut(binding.assetChart, assetEntries, ASSET_COLORS, Tools.formatAmount(assetTotal, true));
+            binding.assetTotal.setText(privacyMode ? "****" : Tools.formatAmount(assetTotal, true));
+            setupDonut(binding.assetChart, assetEntries, ASSET_COLORS, privacyMode ? "****" : Tools.formatCompact(assetTotal));
             binding.assetTreemap.setItems(buildTreemapItems(filteredAssets, true));
             applyChartMode();
         }
+        populateLegend(binding.assetLegendContainer, allAssets, ASSET_COLORS, selectedAssetNames, assetTotal);
 
         // ── Liabilities ──
+        double liabilityTotal = 0;
+        List<PieEntry> liabilityEntries = new ArrayList<>();
         List<Asset> filteredLiabilities = new ArrayList<>();
         for (Asset a : allLiabilities) {
-            if (selectedLiabilityNames.contains(a.getName())) filteredLiabilities.add(a);
+            if (selectedLiabilityNames.contains(a.getName())) {
+                liabilityEntries.add(new PieEntry((float) Math.abs(a.getValue()), a.getName()));
+                liabilityTotal += Math.abs(a.getValue());
+                filteredLiabilities.add(a);
+            }
         }
 
-        if (filteredLiabilities.isEmpty()) {
+        if (liabilityEntries.isEmpty()) {
             binding.liabilityChart.setVisibility(View.INVISIBLE);
             binding.liabilityTreemap.setVisibility(View.INVISIBLE);
             binding.liabilityTotal.setText("—");
         } else {
-            double liabilityTotal = 0;
-            List<PieEntry> liabilityEntries = new ArrayList<>();
-            for (Asset a : filteredLiabilities) {
-                liabilityEntries.add(new PieEntry((float) Math.abs(a.getValue()), a.getName()));
-                liabilityTotal += Math.abs(a.getValue());
-            }
-            binding.liabilityTotal.setText("-" + Tools.formatAmount(liabilityTotal, true));
+            binding.liabilityTotal.setText(privacyMode ? "****" : "-" + Tools.formatAmount(liabilityTotal, true));
             setupDonut(binding.liabilityChart, liabilityEntries, LIABILITY_COLORS,
-                    "-" + Tools.formatAmount(liabilityTotal, true));
+                    privacyMode ? "****" : "-" + Tools.formatCompact(liabilityTotal));
             binding.liabilityTreemap.setItems(buildTreemapItems(filteredLiabilities, false));
             applyChartMode();
         }
+        populateLegend(binding.liabilityLegendContainer, allLiabilities, LIABILITY_COLORS, selectedLiabilityNames, liabilityTotal);
     }
 
-    // ── Filter dialog ────────────────────────────────────────────────────────
+    private void populateLegend(LinearLayout container, List<Asset> items, int[] colors, Set<String> selectionSet, double totalSelectedValue) {
+        container.removeAllViews();
+        boolean privacyMode = Prefs.getBoolean("privacy_mode", false);
 
-    private void showFilterDialog() {
-        if (allAssets.isEmpty() && allLiabilities.isEmpty()) return;
+        for (int i = 0; i < items.size(); i++) {
+            Asset item = items.get(i);
+            View view = getLayoutInflater().inflate(R.layout.item_allocation_legend, container, false);
 
-        // Build combined display list: assets first, then liabilities with prefix
-        // allItemNames[i] = display name
-        // masterChecked[i] = checked state
-        // isLiabilityItem[i] = whether it's a liability
-        // realName[i] = actual asset name (no prefix)
+            View colorIndicator = view.findViewById(R.id.legendColor);
+            TextView nameText = view.findViewById(R.id.legendName);
+            TextView pctText = view.findViewById(R.id.legendPercentage);
+            TextView valueText = view.findViewById(R.id.legendValue);
 
-        final List<String> allItemNames   = new ArrayList<>();
-        final List<String> realNames      = new ArrayList<>();
-        final List<Boolean> isLiability   = new ArrayList<>();
-
-        for (Asset a : allAssets) {
-            allItemNames.add(a.getName());
-            realNames.add(a.getName());
-            isLiability.add(false);
-        }
-        for (Asset a : allLiabilities) {
-            allItemNames.add("[L]  " + a.getName());
-            realNames.add(a.getName());
-            isLiability.add(true);
-        }
-
-        final boolean[] masterChecked = new boolean[allItemNames.size()];
-        for (int i = 0; i < allItemNames.size(); i++) {
-            Set<String> sel = isLiability.get(i) ? selectedLiabilityNames : selectedAssetNames;
-            masterChecked[i] = sel.contains(realNames.get(i));
-        }
-
-        // filteredIndices: ListView row → index in allItemNames
-        final List<Integer> filteredIndices = new ArrayList<>();
-        for (int i = 0; i < allItemNames.size(); i++) filteredIndices.add(i);
-
-        DialogAssetSelectBinding dialogBinding = DialogAssetSelectBinding.inflate(getLayoutInflater());
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_multiple_choice);
-        for (int idx : filteredIndices) adapter.add(allItemNames.get(idx));
-        dialogBinding.assetList.setAdapter(adapter);
-
-        for (int row = 0; row < filteredIndices.size(); row++) {
-            dialogBinding.assetList.setItemChecked(row, masterChecked[filteredIndices.get(row)]);
-        }
-
-        dialogBinding.assetList.setOnItemClickListener((parent, view, position, id) -> {
-            if (position < filteredIndices.size()) {
-                masterChecked[filteredIndices.get(position)] = dialogBinding.assetList.isItemChecked(position);
+            int color = colors[i % colors.length];
+            if (colorIndicator.getBackground() != null) {
+                colorIndicator.getBackground().mutate().setTint(color);
             }
-        });
 
-        dialogBinding.searchAsset.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
-            @Override public void afterTextChanged(Editable s) {}
-            @Override
-            public void onTextChanged(CharSequence s, int st, int before, int count) {
-                String q = s.toString().toLowerCase().trim();
-                filteredIndices.clear();
-                for (int i = 0; i < allItemNames.size(); i++) {
-                    if (q.isEmpty() || allItemNames.get(i).toLowerCase().contains(q))
-                        filteredIndices.add(i);
-                }
-                adapter.clear();
-                for (int idx : filteredIndices) adapter.add(allItemNames.get(idx));
-                adapter.notifyDataSetChanged();
-                for (int row = 0; row < filteredIndices.size(); row++) {
-                    dialogBinding.assetList.setItemChecked(row, masterChecked[filteredIndices.get(row)]);
-                }
+            nameText.setText(item.getName());
+            valueText.setText(privacyMode ? "****" : Tools.formatCompact(Math.abs(item.getValue())));
+
+            boolean isSelected = selectionSet.contains(item.getName());
+            if (isSelected) {
+                view.setAlpha(1.0f);
+                float pct = totalSelectedValue > 0 ? (float) (Math.abs(item.getValue()) / totalSelectedValue) * 100f : 0f;
+                pctText.setText(String.format(Locale.US, "%.1f%%", pct));
+            } else {
+                view.setAlpha(0.3f);
+                pctText.setText("0.0%");
             }
-        });
 
-        dialogBinding.btnSelectAll.setOnClickListener(v -> {
-            for (int row = 0; row < filteredIndices.size(); row++) {
-                masterChecked[filteredIndices.get(row)] = true;
-                dialogBinding.assetList.setItemChecked(row, true);
-            }
-        });
+            view.setOnClickListener(v -> {
+                if (isSelected) selectionSet.remove(item.getName());
+                else selectionSet.add(item.getName());
+                rebuildCharts();
+            });
 
-        dialogBinding.btnClearAll.setOnClickListener(v -> {
-            for (int row = 0; row < filteredIndices.size(); row++) {
-                masterChecked[filteredIndices.get(row)] = false;
-                dialogBinding.assetList.setItemChecked(row, false);
-            }
-        });
-
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.trend_select_title)
-                .setView(dialogBinding.getRoot())
-                .setPositiveButton(R.string.trend_show, (dialog, which) -> {
-                    Set<String> newAssets      = new HashSet<>();
-                    Set<String> newLiabilities = new HashSet<>();
-                    for (int i = 0; i < allItemNames.size(); i++) {
-                        if (!masterChecked[i]) continue;
-                        if (isLiability.get(i)) newLiabilities.add(realNames.get(i));
-                        else                    newAssets.add(realNames.get(i));
-                    }
-                    if (newAssets.isEmpty() && newLiabilities.isEmpty()) {
-                        Toast.makeText(this, R.string.trend_select_none, Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    selectedAssetNames     = newAssets;
-                    selectedLiabilityNames = newLiabilities;
-                    rebuildCharts();
-                })
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
+            container.addView(view);
+        }
     }
+
+
 
     // ── Treemap helpers ───────────────────────────────────────────────────────
 
@@ -422,14 +392,20 @@ public class AllocationActivity extends AppCompatActivity {
         chart.setUsePercentValues(true);
         chart.setDrawHoleEnabled(true);
         chart.setHoleColor(Color.TRANSPARENT);
-        chart.setHoleRadius(56f);
-        chart.setTransparentCircleRadius(61f);
-        chart.setTransparentCircleColor(Color.argb(30, 255, 255, 255));
+        chart.setHoleRadius(72f);
+        chart.setTransparentCircleRadius(0f);
         chart.setDrawCenterText(true);
-        chart.setCenterText(centerText);
-        chart.setCenterTextColor(labelColor);
-        chart.setCenterTextSize(13f);
-        chart.setCenterTextTypeface(Typeface.DEFAULT_BOLD);
+
+        // Multi-line center text: "TOTAL" small above, amount large below
+        SpannableString s = new SpannableString("TOTAL\n" + centerText);
+        s.setSpan(new RelativeSizeSpan(0.6f), 0, 5, 0);
+        s.setSpan(new ForegroundColorSpan(secondaryLabelColor), 0, 5, 0);
+        s.setSpan(new StyleSpan(Typeface.BOLD), 0, 5, 0);
+        s.setSpan(new RelativeSizeSpan(1.4f), 6, s.length(), 0);
+        s.setSpan(new ForegroundColorSpan(labelColor), 6, s.length(), 0);
+        s.setSpan(new StyleSpan(Typeface.BOLD), 6, s.length(), 0);
+
+        chart.setCenterText(s);
         chart.setRotationEnabled(true);
         chart.setHighlightPerTapEnabled(true);
         chart.setBackgroundColor(Color.TRANSPARENT);
@@ -441,38 +417,18 @@ public class AllocationActivity extends AppCompatActivity {
         chart.setDescription(desc);
 
         Legend legend = chart.getLegend();
-        legend.setEnabled(true);
-        legend.setTextColor(secondaryLabelColor);
-        legend.setTextSize(11f);
-        legend.setForm(Legend.LegendForm.CIRCLE);
-        legend.setFormSize(10f);
-        legend.setXEntrySpace(12f);
-        legend.setYEntrySpace(4f);
-        legend.setWordWrapEnabled(true);
-        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
-        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
-        legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
-        legend.setDrawInside(false);
+        legend.setEnabled(false);
 
         List<Integer> colorList = new ArrayList<>();
         for (int i = 0; i < entries.size(); i++) colorList.add(colors[i % colors.length]);
 
         PieDataSet dataSet = new PieDataSet(entries, "");
         dataSet.setColors(colorList);
-        dataSet.setSliceSpace(2f);
-        dataSet.setSelectionShift(6f);
-        dataSet.setValueLinePart1OffsetPercentage(80f);
-        dataSet.setValueLinePart1Length(0.4f);
-        dataSet.setValueLinePart2Length(0.3f);
-        dataSet.setYValuePosition(PieDataSet.ValuePosition.OUTSIDE_SLICE);
-        dataSet.setValueLineColor(secondaryLabelColor);
+        dataSet.setSliceSpace(3f);
+        dataSet.setSelectionShift(8f);
+        dataSet.setDrawValues(false);
 
         PieData pieData = new PieData(dataSet);
-        pieData.setValueFormatter(new PercentFormatter(chart));
-        pieData.setValueTextSize(10f);
-        pieData.setValueTextColor(labelColor);
-        pieData.setValueTypeface(Typeface.DEFAULT_BOLD);
-
         chart.setData(pieData);
         chart.animateY(700, Easing.EaseInOutQuad);
         chart.invalidate();

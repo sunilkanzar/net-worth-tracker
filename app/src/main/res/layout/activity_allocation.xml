@@ -20,139 +20,204 @@
             app:navigationIcon="@drawable/ic_chevron_left"
             app:navigationIconTint="@color/textPrimary"/>
 
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/background"
+            app:tabIndicatorColor="@color/colorAccent"
+            app:tabSelectedTextColor="@color/colorAccent"
+            app:tabTextColor="@color/textSecondary"
+            app:tabRippleColor="@null"
+            app:tabIndicatorHeight="3dp"
+            app:tabIndicatorFullWidth="false">
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/allocation_assets" />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/allocation_liabilities" />
+
+        </com.google.android.material.tabs.TabLayout>
+
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Full-height container below toolbar -->
-    <LinearLayout
+    <!-- Scrollable content -->
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingBottom="56dp"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        android:paddingBottom="100dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <!-- Assets section -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingTop="8dp">
+            android:padding="16dp">
 
-            <LinearLayout
+            <!-- Assets section -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/assetCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:gravity="center_vertical">
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/divider">
 
-                <TextView
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/allocation_assets"
-                    android:textColor="@color/textSecondary"
-                    android:textSize="10sp"
-                    android:fontFamily="sans-serif-black"
-                    android:textAllCaps="true"
-                    android:letterSpacing="0.2"/>
+                    android:orientation="vertical"
+                    android:padding="18dp">
 
-                <TextView
-                    android:id="@+id/assetTotal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/colorAccent"
-                    android:textSize="14sp"
-                    android:fontFamily="sans-serif-black"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="bottom"
+                        android:layout_marginBottom="12dp">
 
-            </LinearLayout>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/allocation_assets"
+                            android:textColor="@color/textSecondary"
+                            android:textSize="11sp"
+                            android:fontFamily="sans-serif-black"
+                            android:textAllCaps="true"
+                            android:letterSpacing="0.12"/>
 
-            <!-- Chart container: PieChart + TreemapView stacked -->
-            <FrameLayout
+                        <TextView
+                            android:id="@+id/assetTotal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/colorAccent"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="-0.02"/>
+
+                    </LinearLayout>
+
+                    <!-- Chart container -->
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="280dp">
+
+                        <com.github.mikephil.charting.charts.PieChart
+                            android:id="@+id/assetChart"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"/>
+
+                        <com.kanzar.networthtracker.views.TreemapView
+                            android:id="@+id/assetTreemap"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:visibility="gone"/>
+
+                    </FrameLayout>
+
+                    <!-- Custom Legend -->
+                    <LinearLayout
+                        android:id="@+id/assetLegendContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="10dp" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Liabilities section -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/liabilityCard"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:cardBackgroundColor="@color/surface"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/divider">
 
-                <com.github.mikephil.charting.charts.PieChart
-                    android:id="@+id/assetChart"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
 
-                <com.kanzar.networthtracker.views.TreemapView
-                    android:id="@+id/assetTreemap"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="gone"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="bottom"
+                        android:layout_marginBottom="12dp">
 
-            </FrameLayout>
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/allocation_liabilities"
+                            android:textColor="@color/textSecondary"
+                            android:textSize="11sp"
+                            android:fontFamily="sans-serif-black"
+                            android:textAllCaps="true"
+                            android:letterSpacing="0.12"/>
+
+                        <TextView
+                            android:id="@+id/liabilityTotal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/negative"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:letterSpacing="-0.02"/>
+
+                    </LinearLayout>
+
+                    <!-- Chart container -->
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="280dp">
+
+                        <com.github.mikephil.charting.charts.PieChart
+                            android:id="@+id/liabilityChart"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"/>
+
+                        <com.kanzar.networthtracker.views.TreemapView
+                            android:id="@+id/liabilityTreemap"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:visibility="gone"/>
+
+                    </FrameLayout>
+
+                    <!-- Custom Legend -->
+                    <LinearLayout
+                        android:id="@+id/liabilityLegendContainer"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="10dp" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
 
-        <!-- Divider -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/divider"/>
+    </androidx.core.widget.NestedScrollView>
 
-        <!-- Liabilities section -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:paddingTop="8dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/allocation_liabilities"
-                    android:textColor="@color/textSecondary"
-                    android:textSize="10sp"
-                    android:fontFamily="sans-serif-black"
-                    android:textAllCaps="true"
-                    android:letterSpacing="0.2"/>
-
-                <TextView
-                    android:id="@+id/liabilityTotal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/negative"
-                    android:textSize="14sp"
-                    android:fontFamily="sans-serif-black"/>
-
-            </LinearLayout>
-
-            <!-- Chart container: PieChart + TreemapView stacked -->
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
-
-                <com.github.mikephil.charting.charts.PieChart
-                    android:id="@+id/liabilityChart"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
-
-                <com.kanzar.networthtracker.views.TreemapView
-                    android:id="@+id/liabilityTreemap"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="gone"/>
-
-            </FrameLayout>
-
-        </LinearLayout>
-
-    </LinearLayout>
 
     <!-- Bottom month navigation bar -->
     <com.google.android.material.card.MaterialCardView

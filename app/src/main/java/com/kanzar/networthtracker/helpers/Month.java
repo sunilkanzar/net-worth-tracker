@@ -19,16 +19,24 @@ public class Month {
     private double value;
 
     public Month() {
+        this(false);
+    }
+
+    public Month(boolean calculate) {
         Calendar calendar = Calendar.getInstance();
         this.month = calendar.get(Calendar.MONTH) + 1;
         this.year = calendar.get(Calendar.YEAR);
-        calculateValues();
+        if (calculate) calculateValues();
     }
 
     public Month(int month, int year) {
+        this(month, year, false);
+    }
+
+    public Month(int month, int year, boolean calculate) {
         this.month = month;
         this.year = year;
-        calculateValues();
+        if (calculate) calculateValues();
     }
 
     public int getMonth() {
@@ -53,13 +61,13 @@ public class Month {
         return value;
     }
 
-    public double getValueChange() {
-        return value - getPreviousMonth().getValue();
+    public double getValueChange(Realm realm) {
+        return value - getPreviousMonth(false).getValue(realm);
     }
 
 
-    public double getPercent() {
-        return Tools.getPercent(getPreviousMonth().getValue(), value);
+    public double getPercent(Realm realm) {
+        return Tools.getPercent(getPreviousMonth(false).getValue(realm), value);
     }
 
     public Month getFirst() {
@@ -90,42 +98,73 @@ public class Month {
         return new Month();
     }
 
+    public double getValue(Realm realm) {
+        calculateValues(realm);
+        return value;
+    }
+
     public Month getPreviousMonth() {
+        return getPreviousMonth(false);
+    }
+
+    public Month getPreviousMonth(boolean calculate) {
         int pm = month == 1 ? 12 : month - 1;
         int py = month == 1 ? year - 1 : year;
-        return new Month(pm, py);
+        return new Month(pm, py, calculate);
+    }
+
+    public Month getPreviousMonth(Realm realm) {
+        int pm = month == 1 ? 12 : month - 1;
+        int py = month == 1 ? year - 1 : year;
+        Month m = new Month(pm, py, false);
+        m.calculateValues(realm);
+        return m;
     }
 
 
     public final void calculateValues() {
         try (Realm realm = Realm.getDefaultInstance()) {
-            Number sum = realm
-                    .where(Asset.class)
-                    .equalTo(AssetFields.YEAR, year)
-                    .equalTo(AssetFields.MONTH, month)
-                    .sum(AssetFields.VALUE);
-            this.value = sum != null ? sum.doubleValue() : 0.0;
+            calculateValues(realm);
         }
     }
 
+    public final void calculateValues(Realm realm) {
+        Number sum = realm
+                .where(Asset.class)
+                .equalTo(AssetFields.YEAR, year)
+                .equalTo(AssetFields.MONTH, month)
+                .sum(AssetFields.VALUE);
+        this.value = sum != null ? sum.doubleValue() : 0.0;
+    }
+
     public void previous() {
+        previous(null);
+    }
+
+    public void previous(Realm realm) {
         if (month == 1) {
             year--;
             month = 12;
         } else {
             month--;
         }
-        calculateValues();
+        if (realm != null) calculateValues(realm);
+        else calculateValues();
     }
 
     public void next() {
+        next(null);
+    }
+
+    public void next(Realm realm) {
         if (month == 12) {
             month = 1;
             year++;
         } else {
             month++;
         }
-        calculateValues();
+        if (realm != null) calculateValues(realm);
+        else calculateValues();
     }
 
     @NonNull
@@ -135,35 +174,58 @@ public class Month {
     }
 
 
+    public String toStringMMMYY() {
+        String fullMonth = new DateFormatSymbols().getMonths()[month - 1];
+        String shortMonth = fullMonth.length() > 3 ? fullMonth.substring(0, 3) : fullMonth;
+        String yearStr = String.valueOf(year);
+        String yearShort = yearStr.length() >= 4 ? yearStr.substring(2, 4) : yearStr;
+        return shortMonth + " " + yearShort;
+    }
+
     public String toStringMMYY() {
         String yearStr = String.valueOf(year);
         String yearShort = yearStr.length() >= 4 ? yearStr.substring(2, 4) : yearStr;
         return month + "." + yearShort;
     }
 
-    public List<Asset> getAssets() {
-        Month prevMonth = getPreviousMonth();
-        Month nextMonth = new Month(month, year);
-        nextMonth.next();
-
-        List<Asset> result = new ArrayList<>(query(this.month, this.year));
-        result.addAll(getHelpers(result, prevMonth.month, prevMonth.year));
-        result.addAll(getHelpers(result, nextMonth.month, nextMonth.year));
+    public List<Asset> getAssets(Realm realm) {
+        List<Asset> result = new ArrayList<>(query(realm, this.month, this.year));
+        
+        // Only show placeholders from the immediate previous month
+        Month pm = getPreviousMonth();
+        if (pm.hasAssets(realm)) {
+            result.addAll(getHelpers(realm, result, pm.getMonth(), pm.getYear()));
+        }
 
         return result;
     }
 
-    public boolean hasAssets() {
-        return !query(this.month, this.year).isEmpty();
+    public List<Asset> getAssets() {
+        try (Realm realm = Realm.getDefaultInstance()) {
+            return getAssets(realm);
+        }
     }
 
-    private List<Asset> getHelpers(List<Asset> existingAssets, int month, int year) {
-        List<String> existingNames = new ArrayList<>();
+    public boolean hasAssets(Realm realm) {
+        return realm.where(Asset.class)
+                .equalTo(AssetFields.MONTH, this.month)
+                .equalTo(AssetFields.YEAR, this.year)
+                .count() > 0;
+    }
+
+    public boolean hasAssets() {
+        try (Realm realm = Realm.getDefaultInstance()) {
+            return hasAssets(realm);
+        }
+    }
+
+    private List<Asset> getHelpers(Realm realm, List<Asset> existingAssets, int month, int year) {
+        java.util.Set<String> existingNames = new java.util.HashSet<>();
         for (Asset asset : existingAssets) {
             existingNames.add(asset.getName());
         }
 
-        List<Asset> otherAssets = query(month, year);
+        List<Asset> otherAssets = query(realm, month, year);
         List<Asset> helpers = new ArrayList<>();
         for (Asset asset : otherAssets) {
             if (!existingNames.contains(asset.getName())) {
@@ -174,14 +236,12 @@ public class Month {
         return helpers;
     }
 
-    private List<Asset> query(int month, int year) {
-        try (Realm realm = Realm.getDefaultInstance()) {
-            return realm.copyFromRealm(realm
-                    .where(Asset.class)
-                    .equalTo(AssetFields.MONTH, month)
-                    .equalTo(AssetFields.YEAR, year)
-                    .sort(AssetFields.VALUE, Sort.DESCENDING)
-                    .findAll());
-        }
+    private List<Asset> query(Realm realm, int month, int year) {
+        return realm.copyFromRealm(realm
+                .where(Asset.class)
+                .equalTo(AssetFields.MONTH, month)
+                .equalTo(AssetFields.YEAR, year)
+                .sort(AssetFields.VALUE, Sort.DESCENDING)
+                .findAll());
     }
 }

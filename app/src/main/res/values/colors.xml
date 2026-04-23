@@ -1,31 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Light Mode: CRED-Inspired Premium -->
-    <color name="colorPrimary">#000000</color>
-    <color name="colorPrimaryDark">#000000</color>
-    <color name="colorPrimaryLight">#1A1A1A</color>
-    <color name="colorAccent">#00E5FF</color> <!-- CRED Cyan -->
+    <!-- Light Mode Tokens -->
+    <color name="bg">#F5F6F7</color>
+    <color name="bg_elev">#FFFFFF</color>
+    <color name="bg_alt">#F8FAFC</color>
+    <color name="border">#EEF0F2</color>
+    <color name="border_strong">#E2E8F0</color>
+    <color name="text">#0F172A</color>
+    <color name="text_2">#475569</color>
+    <color name="text_3">#64748B</color>
+    <color name="text_4">#94A3B8</color>
+    <color name="divider">#F1F5F9</color>
+    <color name="chip">#F1F5F9</color>
+    <color name="marker_bg">#F2FFFFFF</color>
 
-    <color name="background">#F4F5F7</color>
-    <color name="backgroundContent">#FFFFFF</color>
-    <color name="backgroundHelper">#EDF0F2</color>
-    <color name="surface">#FFFFFF</color>
-    <color name="surfaceElevated">#FFFFFF</color>
+    <!-- Hero Card (Dark even in light mode) -->
+    <color name="hero_bg_start">#15161A</color>
+    <color name="hero_bg_end">#0A0B0E</color>
+    <color name="hero_text">#FFFFFF</color>
+    <color name="hero_text_muted">#80FFFFFF</color> <!-- 50% white -->
+    <color name="hero_border">#14FFFFFF</color> <!-- 8% white -->
+    <color name="hero_chip_bg">#0FFFFFFF</color> <!-- 6% white -->
 
-    <color name="textPrimary">#121212</color>
-    <color name="textSecondary">#5E5E5E</color>
+    <color name="positive">#4ADE80</color>
+    <color name="positive_soft">#D1FAE5</color>
+    <color name="negative">#F87171</color>
+    <color name="negative_soft">#FEE2E2</color>
+
+    <color name="accent">#6366F1</color> <!-- Switching default accent to Indigo as per design -->
+    <color name="accent_soft">#D1FAE5</color>
+
+    <color name="emerald">#10B981</color>
+    <color name="emerald_soft">#D1FAE5</color>
+    <color name="blue">#3B82F6</color>
+    <color name="blue_soft">#DBEAFE</color>
+    <color name="indigo">#6366F1</color>
+    <color name="indigo_soft">#E0E7FF</color>
+    <color name="violet">#8B5CF6</color>
+    <color name="violet_soft">#EDE9FE</color>
+    <color name="rose">#F43F5E</color>
+    <color name="rose_soft">#FFE4E6</color>
+    <color name="amber">#F59E0B</color>
+    <color name="amber_soft">#FEF3C7</color>
+
+    <color name="surfaceElevated">@color/bg_elev</color>
     <color name="textOnPrimary">#FFFFFF</color>
-    <color name="textHint">#ADADAD</color>
+    <color name="backgroundContent">@color/bg</color>
+    <color name="textHeader">@color/text_3</color>
+    <color name="ic_launcher_background">@color/bg</color>
 
-    <color name="positive">#00AB55</color>
-    <color name="negative">#FF4842</color>
+    <!-- Sheet Colors (Light Mode) -->
+    <color name="sheet_bg">@color/bg_elev</color>
+    <color name="sheet_input_bg">@color/bg</color>
+    <color name="sheet_border">@color/border_strong</color>
+    <color name="sheet_text">@color/text</color>
+    <color name="sheet_text_muted">@color/text_2</color>
+    <color name="sheet_text_dim">@color/text_4</color>
+    <color name="sheet_chip_bg">@color/chip</color>
+    <color name="sheet_handle">@color/text_4</color>
+    <color name="design_indigo">#6366F1</color>
 
-    <color name="divider">#E0E0E0</color>
-    <color name="empty_directory_hint">#ADADAD</color>
-    <color name="ic_launcher_background">#000000</color>
+    <!-- Legacy / System compatibility -->
+    <color name="colorPrimary">#0F172A</color>
+    <color name="colorPrimaryDark">#0F172A</color>
+    <color name="colorAccent">#6366F1</color>
+    <color name="background">@color/bg</color>
+    <color name="surface">@color/bg_elev</color>
+    <color name="textPrimary">@color/text</color>
+    <color name="textSecondary">@color/text_2</color>
+
     <color name="transparent">#00000000</color>
-
-    <!-- Legacy -->
-    <color name="text">#121212</color>
-    <color name="textHeader">#5E5E5E</color>
 </resources>

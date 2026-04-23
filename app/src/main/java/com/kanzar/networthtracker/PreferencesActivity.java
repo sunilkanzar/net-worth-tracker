@@ -1,19 +1,25 @@
 package com.kanzar.networthtracker;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.content.ContextCompat;
 
-import com.google.android.material.appbar.MaterialToolbar;
 import com.kanzar.networthtracker.databinding.ActivityPreferencesBinding;
 import com.kanzar.networthtracker.databinding.ItemPreferenceRowBinding;
 import com.kanzar.networthtracker.helpers.Prefs;
+import com.kanzar.networthtracker.helpers.Tools;
 
 import io.realm.Realm;
 import java.util.concurrent.ExecutorService;
@@ -23,6 +29,12 @@ public class PreferencesActivity extends AppCompatActivity {
 
     private ActivityPreferencesBinding binding;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+    private static final String[] ACCENT_NAMES = {"Emerald", "Blue", "Indigo", "Violet", "Rose", "Amber"};
+    private static final String[] ACCENT_KEYS = {"emerald", "blue", "indigo", "violet", "rose", "amber"};
+    private static final int[] ACCENT_COLORS = {
+            R.color.emerald, R.color.blue, R.color.indigo, R.color.violet, R.color.rose, R.color.amber
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,8 +46,6 @@ public class PreferencesActivity extends AppCompatActivity {
 
         setupClickListeners();
         updateUI();
-
-        binding.btnClearAll.setOnClickListener(v -> confirmClearAllData());
     }
 
     private void setupClickListeners() {
@@ -43,18 +53,120 @@ public class PreferencesActivity extends AppCompatActivity {
         binding.rowFormat.getRoot().setOnClickListener(v -> showFormatDialog());
         binding.rowSeparator.getRoot().setOnClickListener(v -> showSeparatorDialog());
         binding.rowTheme.getRoot().setOnClickListener(v -> showThemeDialog());
+        binding.rowAccent.getRoot().setOnClickListener(v -> showAccentColorDialog());
+
+        binding.rowBackup.getRoot().setOnClickListener(v -> showAutosaveDialog());
+        binding.rowReminders.getRoot().setOnClickListener(v -> {
+            boolean current = binding.rowReminders.prefActionSwitch.isChecked();
+            binding.rowReminders.prefActionSwitch.setChecked(!current);
+        });
+
+        binding.rowClearAll.getRoot().setOnClickListener(v -> confirmClearAllData());
     }
 
     private void updateUI() {
+        int accentColor = ContextCompat.getColor(this, Tools.getAccentColor());
+        applyAccentColor(accentColor);
+
         setRowData(binding.rowCurrency, getString(R.string.pref_currency_label), getCurrencySummary());
         setRowData(binding.rowFormat, getString(R.string.pref_format_label), getFormatSummary());
         setRowData(binding.rowSeparator, getString(R.string.pref_separator_label), getSeparatorSummary());
+
         setRowData(binding.rowTheme, getString(R.string.pref_theme_label), getThemeSummary());
+
+        // Accent Row
+        String currentAccent = Prefs.getString(Prefs.PREFS_ACCENT_COLOR, Prefs.DEFAULT_ACCENT_COLOR);
+        setRowData(binding.rowAccent, getString(R.string.pref_accent_label), capitalize(currentAccent));
+        binding.rowAccent.prefActionIcon.setVisibility(View.GONE);
+        binding.rowAccent.prefActionColor.setVisibility(View.VISIBLE);
+        binding.rowAccent.prefActionColor.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, Tools.getAccentColor())));
+
+        // Data Rows
+        setRowData(binding.rowBackup, getString(R.string.pref_data_autosave), getAutosaveSummary());
+        setRowData(binding.rowReminders, getString(R.string.pref_data_reminders), getString(R.string.pref_data_reminders_summary));
+        binding.rowReminders.prefActionIcon.setVisibility(View.GONE);
+        binding.rowReminders.prefActionSwitch.setVisibility(View.VISIBLE);
+        binding.rowReminders.prefActionSwitch.setChecked(true);
+
+        // Clear All Row
+        setRowData(binding.rowClearAll, getString(R.string.pref_clear_all_data), getString(R.string.pref_clear_data_summary));
+        int negativeColor = ContextCompat.getColor(this, R.color.negative);
+        binding.rowClearAll.prefTitle.setTextColor(negativeColor);
+        binding.rowClearAll.prefActionIcon.setImageResource(R.drawable.ic_delete);
+        binding.rowClearAll.prefActionIcon.setImageTintList(ColorStateList.valueOf(negativeColor));
     }
 
     private void setRowData(ItemPreferenceRowBinding rowBinding, String title, String summary) {
         rowBinding.prefTitle.setText(title);
         rowBinding.prefSummary.setText(summary);
+    }
+
+    private void applyAccentColor(int color) {
+        ViewGroup root = (ViewGroup) binding.getRoot();
+        applyAccentToTextViews(root, color);
+    }
+
+    private void applyAccentToTextViews(ViewGroup group, int color) {
+        for (int i = 0; i < group.getChildCount(); i++) {
+            View v = group.getChildAt(i);
+            if (v instanceof TextView) {
+                TextView tv = (TextView) v;
+                // PreferenceSectionHeader has letterSpacing 0.1, Drawer headers have 0.12
+                if (tv.getLetterSpacing() >= 0.09f) {
+                    tv.setTextColor(color);
+                }
+            } else if (v instanceof ViewGroup) {
+                applyAccentToTextViews((ViewGroup) v, color);
+            }
+        }
+    }
+
+    private String capitalize(String str) {
+        if (str == null || str.isEmpty()) return str;
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
+    }
+
+    private void showAccentColorDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.pref_accent_label)
+                .setAdapter(new AccentAdapter(), (dialog, which) -> {
+                    Prefs.save(Prefs.PREFS_ACCENT_COLOR, ACCENT_KEYS[which]);
+                    updateUI();
+                    recreate();
+                })
+                .show();
+    }
+
+    private class AccentAdapter extends BaseAdapter {
+        @Override
+        public int getCount() { return ACCENT_NAMES.length; }
+        @Override
+        public Object getItem(int position) { return ACCENT_NAMES[position]; }
+        @Override
+        public long getItemId(int position) { return position; }
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ItemPreferenceRowBinding rowBinding;
+            View view = convertView;
+            if (view == null) {
+                rowBinding = ItemPreferenceRowBinding.inflate(LayoutInflater.from(PreferencesActivity.this), parent, false);
+                view = rowBinding.getRoot();
+            } else {
+                rowBinding = ItemPreferenceRowBinding.bind(view);
+            }
+            
+            // Critical: Disable clickability of the row itself so the ListView item click triggers
+            view.setClickable(false);
+            view.setFocusable(false);
+
+            rowBinding.prefTitle.setText(ACCENT_NAMES[position]);
+            rowBinding.prefSummary.setVisibility(View.GONE);
+            rowBinding.prefActionIcon.setVisibility(View.GONE);
+            rowBinding.prefActionColor.setVisibility(View.VISIBLE);
+            rowBinding.prefActionColor.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(PreferencesActivity.this, ACCENT_COLORS[position])));
+            
+            return view;
+        }
     }
 
     private void showCurrencyDialog() {
@@ -159,6 +271,39 @@ public class PreferencesActivity extends AppCompatActivity {
         if (val == AppCompatDelegate.MODE_NIGHT_NO) return getString(R.string.pref_theme_light);
         if (val == AppCompatDelegate.MODE_NIGHT_YES) return getString(R.string.pref_theme_dark);
         return getString(R.string.pref_theme_system);
+    }
+
+    private void showAutosaveDialog() {
+        String[] options = {
+                getString(R.string.pref_autosave_daily),
+                getString(R.string.pref_autosave_weekly),
+                getString(R.string.pref_autosave_monthly),
+                getString(R.string.pref_autosave_quarterly),
+                getString(R.string.pref_autosave_half_yearly),
+                getString(R.string.pref_autosave_yearly)
+        };
+        String[] values = {"daily", "weekly", "monthly", "quarterly", "half_yearly", "yearly"};
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.pref_data_autosave)
+                .setItems(options, (dialog, which) -> {
+                    Prefs.save(Prefs.PREFS_AUTOSAVE_FREQUENCY, values[which]);
+                    updateUI();
+                }).show();
+    }
+
+    private String getAutosaveSummary() {
+        String val = Prefs.getString(Prefs.PREFS_AUTOSAVE_FREQUENCY, Prefs.DEFAULT_AUTOSAVE_FREQUENCY);
+        String label;
+        switch (val) {
+            case "weekly": label = getString(R.string.pref_autosave_weekly); break;
+            case "monthly": label = getString(R.string.pref_autosave_monthly); break;
+            case "quarterly": label = getString(R.string.pref_autosave_quarterly); break;
+            case "half_yearly": label = getString(R.string.pref_autosave_half_yearly); break;
+            case "yearly": label = getString(R.string.pref_autosave_yearly); break;
+            default: label = getString(R.string.pref_autosave_daily); break;
+        }
+        return label + " (Local CSV)";
     }
 
     private void confirmClearAllData() {

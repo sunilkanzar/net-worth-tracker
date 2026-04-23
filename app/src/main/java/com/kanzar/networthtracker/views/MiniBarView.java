@@ -23,13 +23,18 @@ public class MiniBarView extends View {
     public MiniBarView(Context context, AttributeSet attrs, int defStyle) { super(context, attrs, defStyle); init(); }
 
     private void init() {
-        dimPaint.setColor(0x30FFFFFF);  // faint white for previous months
-        hlPaint.setColor(0xCCFFCA28);   // gold for current month
+        dimPaint.setColor(0x2EFFFFFF);  // 18% white
+        hlPaint.setColor(0xFF10B981);   // Emerald (accent)
     }
 
     public void setData(List<Float> values, int highlightIndex) {
         this.values = values;
         this.highlightIndex = highlightIndex;
+        invalidate();
+    }
+
+    public void setHighlightColor(int color) {
+        hlPaint.setColor(color);
         invalidate();
     }
 
@@ -39,16 +44,21 @@ public class MiniBarView extends View {
         int n = values.size();
         float w = getWidth();
         float h = getHeight();
-        float gap = 4f;
+        float gap = 3f;
         float barW = (w - gap * (n - 1)) / n;
-        float radius = 3f;
+        float radius = 2f;
 
         float max = 0;
-        for (float v : values) if (Math.abs(v) > max) max = Math.abs(v);
-        if (max == 0) return;
+        float min = Float.MAX_VALUE;
+        for (float v : values) {
+            if (v > max) max = v;
+            if (v < min) min = v;
+        }
+        float range = max - min;
+        if (range == 0) range = 1;
 
         for (int i = 0; i < n; i++) {
-            float barH = Math.max(4f, Math.abs(values.get(i)) / max * h);
+            float barH = ((values.get(i) - min) / range) * (h - 6) + 6;
             float left = i * (barW + gap);
             rect.set(left, h - barH, left + barW, h);
             canvas.drawRoundRect(rect, radius, radius, i == highlightIndex ? hlPaint : dimPaint);

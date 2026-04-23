@@ -13,16 +13,20 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.kanzar.networthtracker.R;
 import com.kanzar.networthtracker.helpers.Month;
+import com.kanzar.networthtracker.helpers.Prefs;
 import com.kanzar.networthtracker.helpers.Tools;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public final class MonthChart extends LineChart {
+
+    private List<Month> mMonths = new ArrayList<>();
 
     public MonthChart(Context context) {
         super(context);
@@ -36,11 +40,15 @@ public final class MonthChart extends LineChart {
         super(context, attrs, defStyle);
     }
 
+    public List<Month> getMonths() {
+        return mMonths;
+    }
+
     @Override
     protected void init() {
         super.init();
         setRenderer(new SelectionHighlightRenderer(this, mAnimator, mViewPortHandler,
-                ContextCompat.getColor(getContext(), R.color.backgroundContent)));
+                ContextCompat.getColor(getContext(), R.color.bg_elev)));
 
         int labelColor = ContextCompat.getColor(getContext(), R.color.textSecondary);
         int gridColor  = ContextCompat.getColor(getContext(), R.color.divider);
@@ -54,6 +62,16 @@ public final class MonthChart extends LineChart {
         setGridBackgroundColor(Color.TRANSPARENT);
         setDrawGridBackground(false);
         setHighlightPerDragEnabled(true);
+        setHighlightPerTapEnabled(true);
+
+        setOnTouchListener((v, event) -> {
+            if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) {
+                v.getParent().requestDisallowInterceptTouchEvent(true);
+            } else if (event.getAction() == android.view.MotionEvent.ACTION_UP || event.getAction() == android.view.MotionEvent.ACTION_CANCEL) {
+                v.getParent().requestDisallowInterceptTouchEvent(false);
+            }
+            return false;
+        });
 
         Description description = new Description();
         description.setText("");
@@ -87,12 +105,10 @@ public final class MonthChart extends LineChart {
         axisLeft.setValueFormatter(new ValueFormatter() {
             @Override
             public String getFormattedValue(float value) {
-                if (Math.abs(value) >= 1_000_000) {
-                    return Tools.formatAmount(value / 1_000_000.0) + "M";
-                } else if (Math.abs(value) >= 1_000) {
-                    return Tools.formatAmount(value / 1_000.0) + "k";
+                if (Prefs.getBoolean("privacy_mode", false)) {
+                    return "****";
                 }
-                return Tools.formatAmount(value);
+                return Tools.formatCompact(value);
             }
         });
 
@@ -101,39 +117,53 @@ public final class MonthChart extends LineChart {
     }
 
     public void updateData() {
+        updateData(-1);
+    }
+
+    public void updateData(int monthsToView) {
         setVisibility(VISIBLE);
 
-        int accentColor  = ContextCompat.getColor(getContext(), R.color.colorAccent);
-        int fillColor    = ContextCompat.getColor(getContext(), R.color.colorPrimary);
+        int accentColor  = ContextCompat.getColor(getContext(), Tools.getAccentColor());
 
         List<Entry> entries = new ArrayList<>();
         List<String> labels = new ArrayList<>();
-        List<Month> months = new ArrayList<>();
+        mMonths.clear();
 
         Month last = new Month().getLast();
-        Month current = new Month().getFirst();
+        Month first;
+        if (monthsToView > 0) {
+            first = new Month(last.getMonth(), last.getYear());
+            for (int i = 0; i < monthsToView - 1; i++) {
+                first.previous();
+            }
+        } else {
+            first = new Month().getFirst();
+        }
+
+        Month current = first;
         int index = 0;
-        boolean hasNegative = false;
 
         while (current != null) {
-            labels.add(current.toStringMMYY());
-            months.add(current);
+            labels.add(current.toStringMMMYY());
+            mMonths.add(current);
             double value = current.getValue();
-            if (value < 0) hasNegative = true;
             entries.add(new Entry(index++, (float) value));
+            
             if (current.getMonth() == last.getMonth() && current.getYear() == last.getYear()) break;
+            
             Month next = new Month(current.getMonth(), current.getYear());
             next.next();
             current = next;
         }
 
-        if (!hasNegative) {
-            getAxisLeft().setAxisMinimum(0.0f);
-        }
+        getAxisLeft().resetAxisMinimum();
 
-        // Reduce X label density if many months
-        int labelCount = Math.min(labels.size(), 8);
+        // Handle X label density to avoid overlap
+        int totalLabels = labels.size();
+        int labelCount = Math.min(totalLabels, 5); // Limit to 5 labels to prevent overlapping
+        
         getXAxis().setLabelCount(labelCount, false);
+        getXAxis().setGranularity(1.0f);
         getXAxis().setValueFormatter(new IndexAxisValueFormatter(labels));
 
         LineDataSet dataSet = new LineDataSet(entries, "");
@@ -154,11 +184,17 @@ public final class MonthChart extends LineChart {
         LineData lineData = new LineData(dataSet);
         lineData.setDrawValues(false);
 
-        MonthMarkerView marker = new MonthMarkerView(getContext(), months);
+        setData(lineData);
+
+        if (!entries.isEmpty()) {
+            Highlight lastHighlight = new Highlight(entries.get(entries.size() - 1).getX(), entries.get(entries.size() - 1).getY(), 0);
+            highlightValue(lastHighlight, true);
+        }
+
+        MonthMarkerView marker = new MonthMarkerView(getContext(), mMonths);
         marker.setChartView(this);
         setMarker(marker);
 
-        setData(lineData);
         notifyDataSetChanged();
         animateY(800);
     }
