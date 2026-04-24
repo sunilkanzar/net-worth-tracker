@@ -6,13 +6,15 @@ import android.text.TextWatcher;
 import androidx.appcompat.app.AppCompatActivity;
 import com.kanzar.networthtracker.databinding.ActivityCommentBinding;
 import com.kanzar.networthtracker.helpers.Month;
-import com.kanzar.networthtracker.helpers.Prefs;
 import com.kanzar.networthtracker.models.AssetFields;
+import com.kanzar.networthtracker.models.Note;
+import io.realm.Realm;
 
 public class CommentActivity extends AppCompatActivity {
 
     private ActivityCommentBinding binding;
-    private String noteKey;
+    private int month;
+    private int year;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,14 +22,22 @@ public class CommentActivity extends AppCompatActivity {
         binding = ActivityCommentBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        int month = getIntent().getIntExtra(AssetFields.MONTH, 0);
-        int year  = getIntent().getIntExtra(AssetFields.YEAR, 0);
-        noteKey = noteKey(month, year);
+        month = getIntent().getIntExtra(AssetFields.MONTH, 0);
+        year  = getIntent().getIntExtra(AssetFields.YEAR, 0);
 
         Month currentMonth = new Month(month, year);
         binding.headerTitle.setText("Note · " + currentMonth.toString());
 
-        String saved = Prefs.getString(noteKey, "");
+        String saved = "";
+        try (Realm realm = Realm.getDefaultInstance()) {
+            Note note = realm.where(Note.class)
+                    .equalTo("id", Note.generateId(month, year))
+                    .findFirst();
+            if (note != null) {
+                saved = note.getContent();
+            }
+        }
+
         binding.monthComment.setText(saved);
         binding.charCount.setText(saved.length() + " characters");
 
@@ -61,15 +71,21 @@ public class CommentActivity extends AppCompatActivity {
     private void saveNote() {
         Editable editable = binding.monthComment.getText();
         String text = editable != null ? editable.toString().trim() : "";
-        if (text.isEmpty()) {
-            Prefs.delete(noteKey);
-        } else {
-            Prefs.save(noteKey, text);
+        
+        try (Realm realm = Realm.getDefaultInstance()) {
+            realm.executeTransaction(r -> {
+                if (text.isEmpty()) {
+                    Note note = r.where(Note.class)
+                            .equalTo("id", Note.generateId(month, year))
+                            .findFirst();
+                    if (note != null) note.deleteFromRealm();
+                } else {
+                    Note note = new Note(month, year, text);
+                    r.copyToRealmOrUpdate(note);
+                }
+            });
         }
-        finish();
-    }
 
-    public static String noteKey(int month, int year) {
-        return "note_" + year + "_" + month;
+        finish();
     }
 }

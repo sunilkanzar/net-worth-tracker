@@ -62,17 +62,6 @@ import io.realm.Sort;
 
 public class AllocationActivity extends AppCompatActivity {
 
-    private static final int[] ASSET_COLORS = {
-        0xFF3B82F6, 0xFF22D3EE, 0xFF10B981, 0xFFA855F7,
-        0xFF6366F1, 0xFFEF4444, 0xFFEAB308, 0xFFF97316,
-        0xFF14B8A6, 0xFF84CC16, 0xFFE11D48, 0xFF0EA5E9
-    };
-
-    private static final int[] LIABILITY_COLORS = {
-        0xFFEF4444, 0xFFF97316, 0xFFEAB308, 0xFFF43F5E,
-        0xFFFB923C, 0xFFFACC15, 0xFFEC4899, 0xFFFF7043
-    };
-
     private Month month;
     private ActivityAllocationBinding binding;
 
@@ -237,11 +226,11 @@ public class AllocationActivity extends AppCompatActivity {
             binding.assetTotal.setText("—");
         } else {
             binding.assetTotal.setText(privacyMode ? "****" : Tools.formatAmount(assetTotal, true));
-            setupDonut(binding.assetChart, assetEntries, ASSET_COLORS, privacyMode ? "****" : Tools.formatCompact(assetTotal));
+            setupDonut(binding.assetChart, assetEntries, Tools.ASSET_PALETTE, privacyMode ? "****" : Tools.formatCompact(assetTotal));
             binding.assetTreemap.setItems(buildTreemapItems(filteredAssets, true));
             applyChartMode();
         }
-        populateLegend(binding.assetLegendContainer, allAssets, ASSET_COLORS, selectedAssetNames, assetTotal);
+        populateLegend(binding.assetLegendContainer, allAssets, Tools.ASSET_PALETTE, selectedAssetNames, assetTotal);
 
         // ── Liabilities ──
         double liabilityTotal = 0;
@@ -261,12 +250,12 @@ public class AllocationActivity extends AppCompatActivity {
             binding.liabilityTotal.setText("—");
         } else {
             binding.liabilityTotal.setText(privacyMode ? "****" : "-" + Tools.formatAmount(liabilityTotal, true));
-            setupDonut(binding.liabilityChart, liabilityEntries, LIABILITY_COLORS,
+            setupDonut(binding.liabilityChart, liabilityEntries, Tools.LIABILITY_PALETTE,
                     privacyMode ? "****" : "-" + Tools.formatCompact(liabilityTotal));
             binding.liabilityTreemap.setItems(buildTreemapItems(filteredLiabilities, false));
             applyChartMode();
         }
-        populateLegend(binding.liabilityLegendContainer, allLiabilities, LIABILITY_COLORS, selectedLiabilityNames, liabilityTotal);
+        populateLegend(binding.liabilityLegendContainer, allLiabilities, Tools.LIABILITY_PALETTE, selectedLiabilityNames, liabilityTotal);
     }
 
     private void populateLegend(LinearLayout container, List<Asset> items, int[] colors, Set<String> selectionSet, double totalSelectedValue) {

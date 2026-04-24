@@ -18,9 +18,9 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:title="Asset Name"
-            app:titleTextColor="@color/textPrimary"
+            app:titleTextColor="@color/text"
             app:navigationIcon="@drawable/ic_chevron_left"
-            app:navigationIconTint="@color/textPrimary"/>
+            app:navigationIconTint="@color/text"/>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -55,8 +55,8 @@
                         android:text="CURRENT VALUE"
                         android:textSize="11sp"
                         android:textStyle="bold"
-                        android:textColor="@color/textSecondary"
-                        android:letterSpacing="0.1"/>
+                        android:textColor="@color/text_3"
+                        android:letterSpacing="0.08"/>
 
                     <TextView
                         android:id="@+id/currentValueText"
@@ -65,7 +65,7 @@
                         android:text="₹125,000"
                         android:textSize="26sp"
                         android:textStyle="bold"
-                        android:textColor="@color/textPrimary"
+                        android:textColor="@color/text"
                         android:letterSpacing="-0.02"
                         android:layout_marginTop="2dp"/>
 

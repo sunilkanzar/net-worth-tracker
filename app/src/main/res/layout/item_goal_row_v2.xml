@@ -23,16 +23,35 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/goalLabel"
+            <LinearLayout
+                android:id="@+id/goalLabelContainer"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textColor="@color/text_2"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.05"
-                tools:text="1 YEAR GOAL (2025)" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground">
+
+                <TextView
+                    android:id="@+id/goalLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_2"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.05"
+                    tools:text="TARGET YEAR: 2025" />
+
+                <ImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginStart="4dp"
+                    android:src="@drawable/ic_chevron_down"
+                    app:tint="@color/text_3"
+                    android:contentDescription="Select Year" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/goalPercent"
@@ -42,6 +61,19 @@
                 android:textSize="14sp"
                 android:textStyle="bold"
                 tools:text="45%" />
+
+            <ImageView
+                android:id="@+id/btnDeleteGoal"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="12dp"
+                android:padding="4dp"
+                android:src="@drawable/ic_delete"
+                app:tint="@color/negative"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Delete Goal" />
         </LinearLayout>
 
         <RelativeLayout

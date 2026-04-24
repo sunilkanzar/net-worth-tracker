@@ -18,10 +18,23 @@ import androidx.core.content.ContextCompat;
 
 import com.kanzar.networthtracker.databinding.ActivityPreferencesBinding;
 import com.kanzar.networthtracker.databinding.ItemPreferenceRowBinding;
+import com.google.android.gms.auth.api.identity.AuthorizationRequest;
+import com.google.android.gms.auth.api.identity.Identity;
+import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.tasks.Tasks;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.DriveScopes;
+import com.kanzar.networthtracker.api.repositories.DriveServiceHelper;
 import com.kanzar.networthtracker.helpers.Prefs;
 import com.kanzar.networthtracker.helpers.Tools;
+import com.kanzar.networthtracker.models.Asset;
+import com.kanzar.networthtracker.models.Goal;
+import com.kanzar.networthtracker.models.Note;
 
 import io.realm.Realm;
+import java.util.Collections;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -381,10 +394,42 @@ public class PreferencesActivity extends AppCompatActivity {
 
     private void performClearAllData() {
         executorService.execute(() -> {
+            // 1. Clear local data
             try (Realm realm = Realm.getDefaultInstance()) {
                 realm.executeTransaction(r -> r.deleteAll());
             } catch (Exception e) {
                 Log.e("PrefsActivity", "Clear local data error", e);
+            }
+
+            // 2. Clear Drive data if signed in
+            if (Prefs.contains(Prefs.PREFS_TOKEN)) {
+                try {
+                    AuthorizationRequest authRequest = AuthorizationRequest.builder()
+                            .setRequestedScopes(Collections.singletonList(new Scope(DriveScopes.DRIVE_APPDATA)))
+                            .build();
+
+                    // Get access token (will be fast if already authorized)
+                    com.google.android.gms.auth.api.identity.AuthorizationResult authResult = 
+                            Tasks.await(Identity.getAuthorizationClient(this).authorize(authRequest));
+                    
+                    String accessToken = authResult.getAccessToken();
+                    if (accessToken != null) {
+                        Drive drive = new Drive.Builder(
+                                new NetHttpTransport(),
+                                new GsonFactory(),
+                                request -> request.getHeaders().setAuthorization("Bearer " + accessToken))
+                                .setApplicationName("Net Worth Tracker")
+                                .build();
+
+                        DriveServiceHelper driveHelper = new DriveServiceHelper(drive);
+                        String fileId = Tasks.await(driveHelper.searchFile("assets.json"));
+                        if (fileId != null) {
+                            Tasks.await(driveHelper.deleteFile(fileId));
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.e("PrefsActivity", "Clear Drive data error", e);
+                }
             }
 
             runOnUiThread(() -> {

@@ -4,6 +4,8 @@ import android.content.Context;
 import com.kanzar.networthtracker.CoreApplication;
 import com.kanzar.networthtracker.eventbus.BackupSavedEvent;
 import com.kanzar.networthtracker.models.Asset;
+import com.kanzar.networthtracker.models.Goal;
+import com.kanzar.networthtracker.models.Note;
 import com.kanzar.networthtracker.statistics.Events;
 import com.kanzar.networthtracker.statistics.events.ButtonClicked;
 import com.kanzar.networthtracker.helpers.Prefs;
@@ -115,6 +117,16 @@ public final class LocalBackup {
             RealmResults<Asset> assets = realm.where(Asset.class).findAll();
             for (Asset asset : assets) {
                 sb.append(asset.toString());
+            }
+            
+            RealmResults<Note> notes = realm.where(Note.class).findAll();
+            for (Note note : notes) {
+                sb.append(note.toString());
+            }
+
+            RealmResults<Goal> goals = realm.where(Goal.class).findAll();
+            for (Goal goal : goals) {
+                sb.append(goal.toString());
             }
         }
         return sb.toString();

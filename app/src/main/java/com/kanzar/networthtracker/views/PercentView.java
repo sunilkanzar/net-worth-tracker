@@ -64,7 +64,7 @@ public class PercentView extends LinearLayout {
     }
 
     private int getValueVisibility() {
-        return (this.valueChange == 0) ? View.GONE : View.VISIBLE;
+        return View.VISIBLE;
     }
 
     public void fillValueChange(TextView textView) {
@@ -74,9 +74,6 @@ public class PercentView extends LinearLayout {
     public void fillValueChange(TextView textView, boolean roundUp) {
         textView.setVisibility(getValueVisibility());
         String formatted = getValueChangeString(roundUp);
-        if (valueChange > 0 && !formatted.startsWith("+")) {
-            formatted = "+" + formatted;
-        }
         textView.setText(formatted);
         textView.setTextColor(ContextCompat.getColor(getContext(), Tools.getTextChangeColor(this.valueChange)));
     }

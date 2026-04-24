@@ -15,25 +15,39 @@ public final class Tools {
     private Tools() {}
 
     public static final int[] ASSET_PALETTE = {
-        0xFF3b82f6, // blue
-        0xFF22d3ee, // cyan
-        0xFF10b981, // emerald
-        0xFFa855f7, // purple
-        0xFF6366f1, // indigo
-        0xFFeab308, // yellow
-        0xFFf97316, // orange
-        0xFF14b8a6, // teal
-        0xFF64748b, // slate
-        0xFF84cc16, // lime
-        0xFF0ea5e9, // sky
-        0xFF94a3b8, // slate-light
+            0xFF3b82f6, // blue
+            0xFF22d3ee, // cyan
+            0xFF10b981, // emerald
+            0xFF6366f1, // indigo
+            0xFF14b8a6, // teal
+            0xFF84cc16, // lime
+            0xFF0ea5e9, // sky
+            0xFF34d399, // emerald-light
+            0xFF60a5fa, // blue-light
+            0xFF818cf8, // indigo-light
+    };
+
+    public static final int[] LIABILITY_PALETTE = {
+            0xFFef4444, // red
+            0xFFf97316, // orange
+            0xFFeab308, // yellow
+            0xFFf43f5e, // rose
+            0xFFfb923c, // orange-light
+            0xFFfacc15, // yellow-light
+            0xFFec4899, // pink
+            0xFFf87171, // red-light
     };
 
     public static int getAssetColor(String name) {
-        if (name == null || name.isEmpty()) return ASSET_PALETTE[0];
+        return getAssetColor(name, false);
+    }
+
+    public static int getAssetColor(String name, boolean isLiability) {
+        if (name == null || name.isEmpty()) return isLiability ? LIABILITY_PALETTE[0] : ASSET_PALETTE[0];
         int hash = 0;
         for (char c : name.toLowerCase().toCharArray()) hash = hash * 31 + c;
-        return ASSET_PALETTE[Math.abs(hash) % ASSET_PALETTE.length];
+        int[] palette = isLiability ? LIABILITY_PALETTE : ASSET_PALETTE;
+        return palette[Math.abs(hash) % palette.length];
     }
 
     public static int getTextChangeColor(double valueChange) {
@@ -126,7 +140,11 @@ public final class Tools {
     }
 
     public static String formatCompact(double n) {
-        String currency = Prefs.getString(Prefs.PREFS_CURRENCY, Prefs.DEFAULT_CURRENCY);
+        return formatCompact(n, true);
+    }
+
+    public static String formatCompact(double n, boolean includeCurrency) {
+        String currency = includeCurrency ? Prefs.getString(Prefs.PREFS_CURRENCY, Prefs.DEFAULT_CURRENCY) : "";
         double abs = Math.abs(n);
         String formatted;
         DecimalFormat df = new DecimalFormat("#.##");

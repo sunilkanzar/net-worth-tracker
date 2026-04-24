@@ -85,6 +85,8 @@ import com.kanzar.networthtracker.helpers.Prefs;
 import com.kanzar.networthtracker.helpers.Tools;
 import com.kanzar.networthtracker.models.Asset;
 import com.kanzar.networthtracker.models.AssetFields;
+import com.kanzar.networthtracker.models.Goal;
+import com.kanzar.networthtracker.models.Note;
 import com.kanzar.networthtracker.statistics.Events;
 import com.kanzar.networthtracker.statistics.events.AssetAdded;
 import com.kanzar.networthtracker.statistics.events.AssetDeleted;
@@ -107,6 +109,7 @@ import java.util.concurrent.Executors;
 
 import io.realm.Case;
 import io.realm.Realm;
+import io.realm.Sort;
 
 public class MainActivity extends AppCompatActivity implements MonthPageFragment.Listener {
 
@@ -407,6 +410,8 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (updatingForm) return;
+                String input = s.toString();
+                if (input.equals("-")) return;
                 double val = toDouble(binding.newAssetValue);
                 binding.newAssetValueFormatted.setText(formatString(val));
                 Asset asset = getNewAsset();
@@ -1273,35 +1278,34 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
     }
 
     private void updateGoalProgress() {
-        float g1 = Prefs.getFloat(Prefs.PREFS_GOAL_1Y, 0f);
-        float g3 = Prefs.getFloat(Prefs.PREFS_GOAL_3Y, 0f);
-        float g5 = Prefs.getFloat(Prefs.PREFS_GOAL_5Y, 0f);
-        boolean hasAny = g1 > 0 || g3 > 0 || g5 > 0;
-
-        binding.drawerGoalSection.setVisibility(hasAny ? View.VISIBLE : View.GONE);
-        binding.drawerSetGoalBtn.setVisibility(hasAny ? View.GONE : View.VISIBLE);
-
-        if (!hasAny) return;
-
         executorService.execute(() -> {
+            List<Goal> goals;
             double current;
             try (Realm realm = Realm.getDefaultInstance()) {
+                goals = realm.copyFromRealm(realm.where(Goal.class).sort("targetYear", Sort.ASCENDING).findAll());
                 current = month.getValue(realm);
             }
 
             final double nw = current;
-            runOnUiThread(() -> {
-                int setYear = Prefs.getInt(Prefs.PREFS_GOAL_SET_YEAR, Calendar.getInstance().get(Calendar.YEAR));
+            final List<Goal> finalGoals = goals;
+            final boolean hasAny = !goals.isEmpty();
 
-                bindGoalRow(binding.drawerGoal1yRow.getRoot(), binding.drawerGoal1yRow.goalLabel, 
+            runOnUiThread(() -> {
+                binding.drawerGoalSection.setVisibility(hasAny ? View.VISIBLE : View.GONE);
+                binding.drawerSetGoalBtn.setVisibility(hasAny ? View.GONE : View.VISIBLE);
+
+                if (!hasAny) return;
+
+                // Bind up to 3 goals (drawer layout has 3 rows)
+                bindGoalRow(binding.drawerGoal1yRow.getRoot(), binding.drawerGoal1yRow.goalLabel,
                         binding.drawerGoal1yRow.goalPercent, binding.drawerGoal1yRow.goalProgress,
-                        g1, nw, setYear + 1);
+                        finalGoals.size() > 0 ? finalGoals.get(0) : null, nw);
                 bindGoalRow(binding.drawerGoal3yRow.getRoot(), binding.drawerGoal3yRow.goalLabel,
                         binding.drawerGoal3yRow.goalPercent, binding.drawerGoal3yRow.goalProgress,
-                        g3, nw, setYear + 3);
+                        finalGoals.size() > 1 ? finalGoals.get(1) : null, nw);
                 bindGoalRow(binding.drawerGoal5yRow.getRoot(), binding.drawerGoal5yRow.goalLabel,
                         binding.drawerGoal5yRow.goalPercent, binding.drawerGoal5yRow.goalProgress,
-                        g5, nw, setYear + 5);
+                        finalGoals.size() > 2 ? finalGoals.get(2) : null, nw);
 
                 binding.drawerGoalSection.setOnClickListener(v -> {
                     Intent goalsIntent = new Intent(this, GoalActivity.class);
@@ -1314,15 +1318,15 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
     }
 
     private void bindGoalRow(View row, TextView label, TextView percent,
-                              android.widget.ProgressBar bar,
-                              float goal, double current, int targetYear) {
-        if (goal <= 0) {
+                             android.widget.ProgressBar bar,
+                             Goal goal, double current) {
+        if (goal == null || goal.getTargetValue() <= 0) {
             row.setVisibility(View.GONE);
             return;
         }
         row.setVisibility(View.VISIBLE);
-        label.setText(String.format(Locale.getDefault(), "%d GOAL", targetYear));
-        int progress = (int) Math.min(Math.max(current / goal * 100, 0), 100);
+        label.setText(String.format(Locale.getDefault(), "%d GOAL", goal.getTargetYear()));
+        int progress = (int) Math.min(Math.max(current / goal.getTargetValue() * 100, 0), 100);
         percent.setText(progress + "%");
         bar.setProgress(progress);
     }
@@ -1391,19 +1395,24 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onImportedEvent(ImportedEvent event) {
-        if (event.getAssets().isEmpty()) {
+        if (event.getAssets().isEmpty() && event.getNotes().isEmpty() && event.getGoals().isEmpty()) {
             Toast.makeText(this, R.string.import_empty, Toast.LENGTH_SHORT).show();
             return;
         }
-        String title = String.format(getString(R.string.import_confirmation), event.getAssets().size());
+        int total = event.getAssets().size() + event.getNotes().size() + event.getGoals().size();
+        String title = String.format(getString(R.string.import_confirmation), total);
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(title)
-                .setMessage(R.string.backup_share)
                 .setPositiveButton(R.string.backup_share_yes, (d, which) -> {
                     try (Realm realm = Realm.getDefaultInstance()) {
-                        realm.executeTransaction(r -> r.copyToRealmOrUpdate(event.getAssets()));
+                        realm.executeTransaction(r -> {
+                            r.copyToRealmOrUpdate(event.getAssets());
+                            r.copyToRealmOrUpdate(event.getNotes());
+                            r.copyToRealmOrUpdate(event.getGoals());
+                        });
                     }
                     refreshAllLoadedPages();
+                    updateGoalProgress();
                 })
                 .setNegativeButton(R.string.backup_share_no, null)
                 .create();

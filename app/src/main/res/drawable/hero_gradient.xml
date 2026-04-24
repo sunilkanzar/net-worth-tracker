@@ -5,5 +5,5 @@
         android:endColor="@color/hero_bg_end"
         android:startColor="@color/hero_bg_start"
         android:type="linear" />
-    <corners android:radius="16dp" />
+    <corners android:radius="20dp" />
 </shape>

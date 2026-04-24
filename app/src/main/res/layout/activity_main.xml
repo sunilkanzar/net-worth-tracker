@@ -31,9 +31,11 @@
         <!-- ── Month Navigation (Floating) ────────────────────── -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/bottomAppBarCard"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_gravity="bottom|center_horizontal"
+            android:layout_gravity="bottom"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
             android:layout_marginBottom="16dp"
             app:cardBackgroundColor="@color/bg_elev"
             app:cardCornerRadius="24dp"
@@ -42,38 +44,39 @@
             app:strokeWidth="1dp">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="6dp">
+                android:orientation="horizontal">
 
                 <ImageView
                     android:id="@+id/previousMonth"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="56dp"
+                    android:layout_height="match_parent"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="6dp"
+                    android:padding="14dp"
                     android:src="@drawable/ic_chevron_left"
                     app:tint="@color/accent" />
 
                 <TextView
                     android:id="@+id/monthName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:gravity="center"
-                    android:minWidth="100dp"
-                    android:paddingHorizontal="12dp"
                     android:textColor="@color/text"
                     android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true" />
 
                 <ImageView
                     android:id="@+id/nextMonth"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
+                    android:layout_width="56dp"
+                    android:layout_height="match_parent"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="6dp"
+                    android:padding="14dp"
                     android:src="@drawable/ic_chevron_right"
                     app:tint="@color/accent" />
             </LinearLayout>
@@ -355,7 +358,7 @@
                                     android:layout_marginStart="10dp"
                                     android:background="@null"
                                     android:hint="0"
-                                    android:inputType="numberDecimal"
+                                    android:inputType="numberDecimal|numberSigned"
                                     android:textColor="@color/sheet_text"
                                     android:textColorHint="@color/sheet_text_dim"
                                     android:textSize="22sp"
@@ -415,7 +418,7 @@
                                         android:layout_marginStart="10dp"
                                         android:background="@null"
                                         android:hint="0"
-                                        android:inputType="numberDecimal"
+                                        android:inputType="numberDecimal|numberSigned"
                                         android:textColor="@color/sheet_text"
                                         android:textColorHint="@color/sheet_text_dim"
                                         android:textSize="17sp"

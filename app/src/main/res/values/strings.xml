@@ -121,7 +121,8 @@
     <string name="sort_percent_desc">% Change (High to Low)</string>
     <string name="sort_percent_asc">% Change (Low to High)</string>
 
-    <string name="empty_month_copy_action">Copy from %1$s</string>
+    <string name="empty_month_copy_action">Copy values from %1$s</string>
+    <string name="empty_month_copy_subtitle">Fill missing %1$d entries from last month</string>
     <string name="empty_month_copy_success">Assets copied from %1$s</string>
 
     <string name="pref_section_number">Number</string>
@@ -146,4 +147,5 @@
     <string name="sheet_add_title">Add asset or liability</string>
     <string name="plus">+</string>
     <string name="minus">−</string>
+    <string name="not_yet_entered">Not yet entered this month</string>
 </resources>

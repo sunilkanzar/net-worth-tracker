@@ -30,7 +30,7 @@
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="100dp">
+                android:paddingBottom="160dp">
 
                 <!-- ── Hero Card ─────────────────────────────────────── -->
                 <com.google.android.material.card.MaterialCardView
@@ -40,21 +40,25 @@
                     android:layout_marginTop="10dp"
                     app:cardCornerRadius="20dp"
                     app:cardElevation="0dp"
+                    app:cardBackgroundColor="@color/hero_bg_start"
+                    app:cardPreventCornerOverlap="false"
                     app:strokeWidth="0dp">
 
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@drawable/hero_gradient"
-                        android:padding="18dp">
+                        android:padding="18dp"
+                        android:clipToPadding="false">
 
                         <View
+                            android:id="@+id/heroGradientView"
                             android:layout_width="200dp"
                             android:layout_height="200dp"
                             android:layout_alignParentEnd="true"
                             android:layout_alignParentTop="true"
-                            android:layout_marginTop="-40dp"
-                            android:layout_marginEnd="-40dp"
+                            android:layout_marginTop="-18dp"
+                            android:layout_marginEnd="-18dp"
                             android:background="@drawable/bg_hero_radial" />
 
                         <!-- Top row -->
@@ -356,91 +360,10 @@
                     android:layout_marginHorizontal="16dp"
                     android:visibility="gone" />
 
-                <!-- ── Insight Strip ────────────────────────────────── -->
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:scrollbars="none"
-                    android:paddingHorizontal="16dp"
-                    android:clipToPadding="false"
-                    android:layout_marginTop="4dp">
-
-                    <LinearLayout
-                        android:id="@+id/insightContainer"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingBottom="8dp">
-                        <!-- Insight cards will be added here or statically -->
-                        <include android:id="@+id/insight1" layout="@layout/item_insight_card" />
-                        <include android:id="@+id/insight2" layout="@layout/item_insight_card" />
-                        <include android:id="@+id/insight3" layout="@layout/item_insight_card" />
-
-                    </LinearLayout>
-                </HorizontalScrollView>
-
-                <!-- ── Copy Prompt ──────────────────────────────────── -->
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/copyPrompt"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:layout_marginTop="4dp"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp"
-                    app:strokeColor="@color/border"
-                    app:strokeWidth="1dp"
-                    android:visibility="gone">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/bg_elev"
-                        android:gravity="center_vertical"
-                        android:padding="14dp">
-
-                        <ImageView
-                            android:id="@+id/copyPromptIcon"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:background="@drawable/bg_nav_icon"
-                            android:padding="8dp"
-                            android:src="@drawable/ic_export"
-                            app:tint="@color/accent" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="12dp"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/copyPromptTitle"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Copy values from March 2026"
-                                android:textColor="@color/text"
-                                android:textSize="13sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/copyPromptSub"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="1dp"
-                                android:text="Fill missing entries from last month"
-                                android:textColor="@color/text_4"
-                                android:textSize="11sp" />
-                        </LinearLayout>
-
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:src="@drawable/ic_chevron_right"
-                            app:tint="@color/text_4" />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                <include
+                    android:id="@+id/copyCardLayout"
+                    layout="@layout/item_copy_all"
+                    android:visibility="gone" />
 
                 <!-- ── Assets Section ────────────────────────────────── -->
                 <LinearLayout
@@ -480,6 +403,34 @@
                     android:nestedScrollingEnabled="false"
                     android:paddingHorizontal="16dp" />
 
+                <!-- ── Not yet entered Section ───────────────────────────── -->
+                <LinearLayout
+                    android:id="@+id/placeholderHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginHorizontal="16dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/not_yet_entered"
+                        android:textSize="10sp"
+                        android:letterSpacing="0.1"
+                        android:textColor="@color/text_4"
+                        android:fontFamily="sans-serif-black"
+                        android:textAllCaps="true"
+                        android:paddingVertical="8dp" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/placeholderList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false" />
+                </LinearLayout>
+
                 <!-- ── Liabilities Section ───────────────────────────── -->
                 <LinearLayout
                     android:id="@+id/liabHeader"
@@ -499,24 +450,6 @@
                         android:text="LIABILITIES · 3"
                         style="@style/TextLabel" />
 
-                    <ImageView
-                        android:id="@+id/btnSortLiab"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:layout_marginEnd="8dp"
-                        android:padding="6dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:src="@drawable/ic_sort"
-                        app:tint="@color/text_3" />
-
-                    <ImageView
-                        android:id="@+id/liabToggle"
-                        android:layout_width="14dp"
-                        android:layout_height="14dp"
-                        android:src="@drawable/ic_chevron_down"
-                        app:tint="@color/text_4" />
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView

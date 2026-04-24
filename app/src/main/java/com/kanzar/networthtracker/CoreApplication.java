@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.multidex.MultiDexApplication;
 import com.amplitude.api.Amplitude;
 import com.kanzar.networthtracker.helpers.Prefs;
-import com.kanzar.networthtracker.realm.RealmMigrations;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
@@ -31,8 +30,8 @@ public class CoreApplication extends MultiDexApplication {
 
         Realm.init(this);
         RealmConfiguration config = new RealmConfiguration.Builder()
-                .schemaVersion(2L)
-                .migration(new RealmMigrations())
+                .schemaVersion(3L)
+                .deleteRealmIfMigrationNeeded()
                 .allowWritesOnUiThread(true)
                 .build();
         Realm.setDefaultConfiguration(config);

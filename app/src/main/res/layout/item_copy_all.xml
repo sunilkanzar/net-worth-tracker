@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/copyCard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="12dp"
-    android:layout_marginVertical="8dp"
-    app:cardBackgroundColor="@color/backgroundContent"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginTop="14dp"
+    app:cardBackgroundColor="@color/bg_elev"
     app:cardCornerRadius="12dp"
     app:cardElevation="0dp"
-    app:strokeColor="@color/divider"
+    app:strokeColor="@color/border"
     app:strokeWidth="1dp">
 
     <LinearLayout
@@ -16,26 +17,57 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackground"
-        android:gravity="center"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:baselineAligned="false"
+        android:padding="11dp">
+
+        <FrameLayout
+            android:id="@+id/copyIconContainer"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/bg_copy_icon">
+            <ImageView
+                android:id="@+id/copyIcon"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_copy"
+                android:contentDescription="@null"
+                app:tint="@color/colorAccent" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/copyAllText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/empty_month_copy_action"
+                android:textColor="@color/text"
+                android:textSize="13sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/copyAllSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/empty_month_copy_subtitle"
+                android:textColor="@color/text_4"
+                android:textSize="11sp"
+                android:layout_marginTop="1dp" />
+        </LinearLayout>
 
         <ImageView
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/ic_import"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/ic_chevron_right"
             android:contentDescription="@null"
-            app:tint="@color/colorAccent" />
-
-        <TextView
-            android:id="@+id/copyAllText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:text="@string/empty_month_copy_action"
-            android:textColor="@color/colorAccent"
-            android:textSize="14sp"
-            android:fontFamily="sans-serif-medium" />
+            app:tint="@color/text_4" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -31,33 +31,10 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_ITEM = 1;
-    private static final int TYPE_COPY_ALL = 2;
 
+    // Sparkline executor and handler
     private static final ExecutorService sparklineExecutor = Executors.newSingleThreadExecutor();
     private static final Handler mainHandler = new Handler(Looper.getMainLooper());
-
-    // Design palette (data.jsx) — 12 distinct hues
-    private static final int[] ASSET_PALETTE = {
-        0xFF3b82f6, // blue
-        0xFF22d3ee, // cyan
-        0xFF10b981, // emerald
-        0xFFa855f7, // purple
-        0xFF6366f1, // indigo
-        0xFFeab308, // yellow
-        0xFFf97316, // orange
-        0xFF14b8a6, // teal
-        0xFF64748b, // slate
-        0xFF84cc16, // lime
-        0xFF0ea5e9, // sky
-        0xFF94a3b8, // slate-light
-    };
-
-    private static int paletteColorFor(String name) {
-        if (name == null || name.isEmpty()) return ASSET_PALETTE[0];
-        int hash = 0;
-        for (char c : name.toLowerCase().toCharArray()) hash = hash * 31 + c;
-        return ASSET_PALETTE[Math.abs(hash) % ASSET_PALETTE.length];
-    }
 
     private final Context context;
     private List<Object> displayItems = new ArrayList<>();
@@ -65,9 +42,6 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private double cachedTotalAssets = 0.0;
     private double cachedTotalLiabilities = 0.0;
     private final OnItemClickListener listener;
-    private boolean showCopyAll = false;
-    private String copyAllText = "";
-    private Runnable onCopyAllClickListener;
     private boolean privacyMode = false;
     private String lastFormatKey = "";
 
@@ -109,10 +83,6 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         final List<Object> newDisplayItems = new ArrayList<>();
         double totalAssets = 0.0;
         double totalLiabilities = 0.0;
-
-        if (showCopyAll && (items == null || items.isEmpty() || items.get(0).isHelper())) {
-            newDisplayItems.add(new CopyAllItem(copyAllText));
-        }
 
         if (items != null && !items.isEmpty()) {
             List<Asset> assets = new ArrayList<>();
@@ -206,21 +176,10 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
-    public void setCopyAllAction(boolean show, String text, Runnable action) {
-        this.showCopyAll = show;
-        this.copyAllText = text;
-        this.onCopyAllClickListener = action;
-    }
-
     public void setPrivacyMode(boolean privacyMode) {
         if (this.privacyMode == privacyMode) return;
         this.privacyMode = privacyMode;
         notifyDataSetChanged();
-    }
-
-    private static class CopyAllItem {
-        final String text;
-        CopyAllItem(String text) { this.text = text; }
     }
 
     private static class AssetDiffCallback extends DiffUtil.Callback {
@@ -251,8 +210,6 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 return oldItem.equals(newItem);
             } else if (oldItem instanceof Asset && newItem instanceof Asset) {
                 return ((Asset) oldItem).getId().equals(((Asset) newItem).getId());
-            } else if (oldItem instanceof CopyAllItem && newItem instanceof CopyAllItem) {
-                return true;
             }
             return false;
         }
@@ -270,8 +227,6 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 return oldAsset.getValue() == newAsset.getValue() &&
                         oldAsset.getName().equals(newAsset.getName()) &&
                         oldAsset.getUpdatedAt() == newAsset.getUpdatedAt();
-            } else if (oldItem instanceof CopyAllItem && newItem instanceof CopyAllItem) {
-                return ((CopyAllItem) oldItem).text.equals(((CopyAllItem) newItem).text);
             }
             return false;
         }
@@ -281,7 +236,6 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public int getItemViewType(int position) {
         Object item = displayItems.get(position);
         if (item instanceof String) return TYPE_HEADER;
-        if (item instanceof CopyAllItem) return TYPE_COPY_ALL;
         return TYPE_ITEM;
     }
 
@@ -291,9 +245,6 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         if (viewType == TYPE_HEADER) {
             ItemHeaderBinding binding = ItemHeaderBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
             return new HeaderViewHolder(binding);
-        } else if (viewType == TYPE_COPY_ALL) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_copy_all, parent, false);
-            return new CopyAllViewHolder(view);
         } else {
             ItemAssetBinding binding = ItemAssetBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
             return new ViewHolder(binding);
@@ -305,12 +256,6 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         Object item = displayItems.get(position);
         if (holder instanceof HeaderViewHolder) {
             ((HeaderViewHolder) holder).binding.headerText.setText((String) item);
-        } else if (holder instanceof CopyAllViewHolder) {
-            CopyAllViewHolder h = (CopyAllViewHolder) holder;
-            h.textView.setText(((CopyAllItem) item).text);
-            h.itemView.setOnClickListener(v -> {
-                if (onCopyAllClickListener != null) onCopyAllClickListener.run();
-            });
         } else if (holder instanceof ViewHolder) {
             final Asset asset = (Asset) item;
             ((ViewHolder) holder).bind(asset, context, cachedTotalAssets, cachedTotalLiabilities, privacyMode);
@@ -341,14 +286,6 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         public HeaderViewHolder(ItemHeaderBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
-        }
-    }
-
-    public static class CopyAllViewHolder extends RecyclerView.ViewHolder {
-        TextView textView;
-        public CopyAllViewHolder(View itemView) {
-            super(itemView);
-            textView = itemView.findViewById(R.id.copyAllText);
         }
     }
 
@@ -389,10 +326,8 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             // Reset card stroke
             binding.assetCard.setStrokeColor(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(context, R.color.border)));
 
-            // Color: liability → always red; asset → deterministic from name hash over design palette
-            int itemColor = asset.getValue() < 0
-                    ? 0xFFef4444
-                    : paletteColorFor(asset.getName());
+            // Color: deterministic from name hash over design palette
+            int itemColor = Tools.getAssetColor(asset.getName(), asset.getValue() < 0);
             int itemBg = android.graphics.Color.argb(0x22,
                     android.graphics.Color.red(itemColor),
                     android.graphics.Color.green(itemColor),
@@ -416,20 +351,21 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 }
 
                 binding.assetName.setTextColor(ContextCompat.getColor(context, R.color.text_2));
-                binding.assetValue.setVisibility(View.GONE);
+                binding.assetValueContainer.setVisibility(View.GONE);
                 binding.assetWeight.setVisibility(View.GONE);
                 binding.assetDot.setVisibility(View.GONE);
-                binding.assetChangePercent.setVisibility(View.GONE);
                 binding.assetSparkline.setVisibility(View.GONE);
                 binding.assetChevron.setVisibility(View.VISIBLE);
 
                 binding.assetCompactValue.setText(R.string.tap_to_add);
                 binding.assetCompactValue.setTextColor(ContextCompat.getColor(context, R.color.text_4));
             } else {
-                int strokeWidth = (int) (1 * context.getResources().getDisplayMetrics().density);
-                binding.assetCard.setStrokeWidth(strokeWidth);
-                binding.assetCard.setBackgroundResource(0);
+                binding.assetValueContainer.setVisibility(View.VISIBLE);
+                binding.assetChevron.setVisibility(View.GONE);
                 binding.assetCard.setCardBackgroundColor(ContextCompat.getColor(context, R.color.bg_elev));
+                binding.assetCard.setCardElevation(0f);
+                binding.assetCard.setStrokeColor(android.content.res.ColorStateList.valueOf(ContextCompat.getColor(context, R.color.border)));
+                binding.assetCard.setStrokeWidth((int) (1 * context.getResources().getDisplayMetrics().density));
 
                 String amount = Tools.formatAmount(asset.getValue());
                 binding.assetValue.setText(privacyMode ? "****" : amount);
@@ -438,11 +374,11 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 double change = asset.getValue() - prevVal;
                 int color = ContextCompat.getColor(context, Tools.getTextChangeColor(change));
                 String arrow = change >= 0 ? "↑ " : "↓ ";
-                
-                binding.assetCompactValue.setText(privacyMode ? "****" : arrow + Tools.formatAmount(change));
+
+                binding.assetCompactValue.setText(privacyMode ? "****" : Tools.formatAmount(change));
                 binding.assetCompactValue.setTextColor(color);
                 
-                binding.assetChangePercent.setText(Tools.formatPercent(Math.abs(Tools.getPercent(prevVal, asset.getValue()))));
+                binding.assetChangePercent.setText(privacyMode ? "****" : arrow + Tools.formatPercent(Math.abs(Tools.getPercent(prevVal, asset.getValue()))));
                 binding.assetChangePercent.setTextColor(color);
 
                 // Weight Row

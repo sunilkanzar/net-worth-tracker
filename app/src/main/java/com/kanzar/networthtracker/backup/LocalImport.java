@@ -7,6 +7,8 @@ import com.kanzar.networthtracker.R;
 import com.kanzar.networthtracker.eventbus.ImportedEvent;
 import com.kanzar.networthtracker.eventbus.MessageEvent;
 import com.kanzar.networthtracker.models.Asset;
+import com.kanzar.networthtracker.models.Goal;
+import com.kanzar.networthtracker.models.Note;
 import com.kanzar.networthtracker.statistics.Events;
 import com.kanzar.networthtracker.statistics.events.ButtonClicked;
 import com.kanzar.networthtracker.helpers.Tools;
@@ -102,14 +104,22 @@ public final class LocalImport {
     public static void importFromFile(InputStream inputStream) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             List<Asset> assets = new ArrayList<>();
+            List<Note> notes = new ArrayList<>();
+            List<Goal> goals = new ArrayList<>();
             String line;
             while ((line = reader.readLine()) != null) {
-                Asset asset = Asset.fromString(line);
-                if (asset != null) {
-                    assets.add(asset);
+                if (line.startsWith("NOTE,")) {
+                    Note note = Note.fromString(line);
+                    if (note != null) notes.add(note);
+                } else if (line.startsWith("GOAL,")) {
+                    Goal goal = Goal.fromString(line);
+                    if (goal != null) goals.add(goal);
+                } else {
+                    Asset asset = Asset.fromString(line);
+                    if (asset != null) assets.add(asset);
                 }
             }
-            EventBus.getDefault().post(new ImportedEvent(new ArrayList<>(assets)));
+            EventBus.getDefault().post(new ImportedEvent(new ArrayList<>(assets), new ArrayList<>(notes), new ArrayList<>(goals)));
         } catch (IOException e) {
             Log.e("LocalImport", "Read failed", e);
         }

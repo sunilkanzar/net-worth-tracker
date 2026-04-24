@@ -2,6 +2,7 @@ package com.kanzar.networthtracker;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import com.kanzar.networthtracker.helpers.Month;
 import com.kanzar.networthtracker.helpers.Prefs;
 import com.kanzar.networthtracker.helpers.Tools;
 import com.kanzar.networthtracker.models.Asset;
+import com.kanzar.networthtracker.models.Note;
 import com.kanzar.networthtracker.views.MiniBarView;
 import com.kanzar.networthtracker.views.PercentView;
 
@@ -48,6 +50,7 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
     private Month month;
     private AssetAdapter assetAdapter;
     private AssetAdapter liabAdapter;
+    private AssetAdapter placeholderAdapter;
     private Listener listener;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -92,10 +95,6 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
             listener.onDataChanged();
         });
 
-        binding.copyPrompt.setOnClickListener(v -> {
-            Month prevMonth = month.getPreviousMonth();
-            copyFromPrevious(prevMonth);
-        });
 
         binding.refreshLayout.setOnRefreshListener(() -> {
             binding.refreshLayout.setRefreshing(false);
@@ -110,19 +109,23 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
         binding.liabList.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.liabList.setAdapter(liabAdapter);
 
+        placeholderAdapter = new AssetAdapter(requireContext(), this);
+        binding.placeholderList.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.placeholderList.setAdapter(placeholderAdapter);
+
         binding.btnSort.setOnClickListener(v -> showSortDialog());
-        binding.btnSortLiab.setOnClickListener(v -> showSortDialog());
 
         applySavedSortOrder();
         refresh();
     }
 
     private void applySavedSortOrder() {
-        if (assetAdapter == null || liabAdapter == null) return;
+        if (assetAdapter == null || liabAdapter == null || placeholderAdapter == null) return;
         String sortName = Prefs.getString(Prefs.PREFS_SORT_ORDER, AssetAdapter.SortOrder.VALUE_DESC.name());
         AssetAdapter.SortOrder order = AssetAdapter.SortOrder.valueOf(sortName);
         assetAdapter.setSortOrder(order);
         liabAdapter.setSortOrder(order);
+        placeholderAdapter.setSortOrder(order);
     }
 
     private void showSortDialog() {
@@ -226,9 +229,16 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
 
                 final int ac = assetCount, lc = liabilityCount;
                 final double ta = totalAssets, tl = totalLiabilities;
-                final String note = Prefs.getString(CommentActivity.noteKey(month.getMonth(), month.getYear()), "");
+                
+                String noteText = "";
+                Note realmNote = realm.where(Note.class)
+                        .equalTo("id", Note.generateId(month.getMonth(), month.getYear()))
+                        .findFirst();
+                if (realmNote != null) {
+                    noteText = realmNote.getContent();
+                }
+                final String note = noteText;
 
-                final boolean hasCurrentData = month.hasAssets(realm);
                 final boolean hasPreviousData = prevMonth.hasAssets(realm);
 
                 final List<Float> history = new ArrayList<>();
@@ -250,24 +260,32 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
 
                     binding.tutorial.getRoot().setVisibility(noData ? View.VISIBLE : View.GONE);
 
-                    // Month-specific empty state logic
-                    if (!noData && !hasCurrentData && hasPreviousData) {
-                        assetAdapter.setCopyAllAction(true, 
-                                getString(R.string.empty_month_copy_action, prevMonth.toString()), 
-                                () -> copyFromPrevious(prevMonth));
-                    } else {
-                        assetAdapter.setCopyAllAction(false, "", null);
-                    }
-
                     List<Asset> assetItems = new ArrayList<>();
                     List<Asset> liabItems = new ArrayList<>();
+                    List<Asset> placeholderItems = new ArrayList<>();
                     for (Asset a : assets) {
-                        if (a.getValue() >= 0) assetItems.add(a);
-                        else liabItems.add(a);
+                        if (a.isHelper()) {
+                            placeholderItems.add(a);
+                        } else if (a.getValue() >= 0) {
+                            assetItems.add(a);
+                        } else {
+                            liabItems.add(a);
+                        }
+                    }
+
+                    // Placeholder specific copy action
+                    if (!noData && hasPreviousData && !placeholderItems.isEmpty()) {
+                        binding.copyCardLayout.getRoot().setVisibility(View.VISIBLE);
+                        binding.copyCardLayout.copyAllText.setText(getString(R.string.empty_month_copy_action, prevMonth.toString()));
+                        binding.copyCardLayout.copyAllSubtitle.setText(getString(R.string.empty_month_copy_subtitle, placeholderItems.size()));
+                        binding.copyCardLayout.btnCopyAll.setOnClickListener(v -> copyFromPrevious(prevMonth));
+                    } else {
+                        binding.copyCardLayout.getRoot().setVisibility(View.GONE);
                     }
 
                     assetAdapter.setItems(assetItems);
                     liabAdapter.setItems(liabItems);
+                    placeholderAdapter.setItems(placeholderItems);
 
                     String currency = Prefs.getString(Prefs.PREFS_CURRENCY, Prefs.DEFAULT_CURRENCY);
                     binding.currencySymbol.setText(currency);
@@ -290,17 +308,21 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
                     binding.liabHeader.setVisibility(!liabItems.isEmpty() ? View.VISIBLE : View.GONE);
                     binding.assetList.setVisibility(!assetItems.isEmpty() ? View.VISIBLE : View.GONE);
                     binding.liabList.setVisibility(!liabItems.isEmpty() ? View.VISIBLE : View.GONE);
+                    binding.placeholderHeader.setVisibility(!placeholderItems.isEmpty() ? View.VISIBLE : View.GONE);
 
-                    // Update Insight Cards
-                    updateInsights(value, prevValue, ta, tl);
 
                     binding.percentText.setText(Tools.formatPercent(Math.abs(binding.percentView.getPercent())));
                     boolean positive = binding.percentView.getValueChange() >= 0;
+
                     binding.percentPill.setBackgroundResource(positive ? R.drawable.bg_hero_pill_positive : R.drawable.bg_hero_pill_negative);
                     binding.percentArrow.setRotation(positive ? 0 : 180);
                     binding.monthValueChangeArrow.setRotation(positive ? 0 : 180);
-                    
+
+                    binding.percentArrow.setVisibility(View.VISIBLE);
+                    binding.monthValueChangeArrow.setVisibility(View.GONE);
+
                     int color = ContextCompat.getColor(requireContext(), positive ? R.color.positive : R.color.negative);
+                    
                     binding.percentArrow.setColorFilter(color);
                     binding.monthValueChangeArrow.setColorFilter(color);
                     binding.percentText.setTextColor(color);
@@ -337,28 +359,32 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
     private void applyAccentColor() {
         if (!isAdded() || binding == null) return;
         int accentColor = ContextCompat.getColor(requireContext(), Tools.getAccentColor());
-        ColorStateList accentList = ColorStateList.valueOf(accentColor);
         
         binding.refreshLayout.setColorSchemeColors(accentColor);
-        
         binding.assetSectionTitle.setTextColor(accentColor);
         binding.liabSectionTitle.setTextColor(accentColor);
-        
-        binding.insight2.insightTint.setBackgroundColor(accentColor);
-        binding.insight2.insightProgress.setProgressTintList(accentList);
-        
-        binding.insight3.insightTint.setBackgroundColor(accentColor);
-        binding.insight3.insightProgress.setProgressTintList(accentList);
-        
-        binding.copyPromptIcon.setImageTintList(accentList);
-        
         binding.miniBarChart.setHighlightColor(accentColor);
+
+        // Apply to copy card
+        binding.copyCardLayout.copyIconContainer.setBackgroundTintList(ColorStateList.valueOf(Tools.adjustAlpha(accentColor, 0.1f)));
+        binding.copyCardLayout.copyIcon.setImageTintList(ColorStateList.valueOf(accentColor));
+
+        try {
+            GradientDrawable gd = (GradientDrawable) binding.heroGradientView.getBackground();
+            gd.mutate();
+            int startColor = Tools.adjustAlpha(accentColor, 0.13f);
+            int endColor = Tools.adjustAlpha(accentColor, 0f);
+            gd.setColors(new int[]{startColor, endColor});
+        } catch (Exception e) {
+            Log.e("MonthPageFragment", "Error applying accent to hero gradient", e);
+        }
     }
 
     private void updatePrivacyMode(boolean hidden) {
         binding.privacyIcon.setImageResource(hidden ? R.drawable.ic_eye_off_thin : R.drawable.ic_eye_thin);
         assetAdapter.setPrivacyMode(hidden);
         liabAdapter.setPrivacyMode(hidden);
+        placeholderAdapter.setPrivacyMode(hidden);
 
         if (hidden) {
             String stars = "••••••••";
@@ -370,61 +396,16 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
             binding.heroLiabCount.setText("••");
             binding.monthValueChange.setText("••••");
             binding.percentText.setText("••%");
-            binding.insight1.insightValue.setText("••••");
-            binding.insight2.insightValue.setText("••••");
-            binding.insight3.insightValue.setText("••••");
             binding.miniBarChart.setAlpha(0f);
         } else {
             binding.miniBarChart.setAlpha(1f);
         }
     }
 
-    private void updateInsights(double netWorth, double prevNetWorth, double assets, double liabs) {
-        // Insight 1: Monthly Change
-        if (prevNetWorth != 0) {
-            binding.insight1.getRoot().setVisibility(View.VISIBLE);
-            double change = netWorth - prevNetWorth;
-            binding.insight1.insightLabel.setText("MONTHLY CHANGE");
-            binding.insight1.insightValue.setText(Tools.formatAmount(change));
-            binding.insight1.insightSub.setText(change >= 0 ? "Growth" : "Decline");
-            binding.insight1.insightTint.setBackgroundColor(ContextCompat.getColor(requireContext(), change >= 0 ? R.color.positive : R.color.negative));
-        } else {
-            binding.insight1.getRoot().setVisibility(View.GONE);
-        }
-
-        // Insight 2: Debt Ratio
-        if (assets > 0 && liabs > 0) {
-            binding.insight2.getRoot().setVisibility(View.VISIBLE);
-            double debtRatio = (liabs / assets) * 100;
-            binding.insight2.insightLabel.setText("DEBT RATIO");
-            binding.insight2.insightValue.setText(String.format("%.1f%%", debtRatio));
-            binding.insight2.insightSub.setText("Liabilities/Assets");
-            binding.insight2.insightProgress.setVisibility(View.VISIBLE);
-            binding.insight2.insightProgress.setProgress((int) Math.min(debtRatio, 100));
-            binding.insight2.insightTint.setBackgroundColor(ContextCompat.getColor(requireContext(), Tools.getAccentColor()));
-        } else {
-            binding.insight2.getRoot().setVisibility(View.GONE);
-        }
-
-        // Insight 3: Goal progress (1Y)
-        float g1 = Prefs.getFloat(Prefs.PREFS_GOAL_1Y, 0f);
-        if (g1 > 0) {
-            binding.insight3.getRoot().setVisibility(View.VISIBLE);
-            binding.insight3.insightLabel.setText("1Y GOAL");
-            int progress = (int) Math.min(Math.max(netWorth / g1 * 100, 0), 100);
-            binding.insight3.insightValue.setText(String.format("%d%%", progress));
-            binding.insight3.insightSub.setText(Tools.formatAmount(g1));
-            binding.insight3.insightProgress.setVisibility(View.VISIBLE);
-            binding.insight3.insightProgress.setProgress(progress);
-            binding.insight3.insightTint.setBackgroundColor(0xFFF59E0B); // Amber
-        } else {
-            binding.insight3.getRoot().setVisibility(View.GONE);
-        }
-    }
-
     private void copyFromPrevious(Month prevMonth) {
         executor.execute(() -> {
             try (Realm realm = Realm.getDefaultInstance()) {
+                // Get all assets from the previous month
                 List<Asset> prevAssets = realm.where(Asset.class)
                         .equalTo("month", prevMonth.getMonth())
                         .equalTo("year", prevMonth.getYear())
@@ -432,21 +413,32 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
 
                 if (prevAssets.isEmpty()) return;
 
-                List<Asset> newAssets = new ArrayList<>();
-                for (Asset old : prevAssets) {
-                    newAssets.add(new Asset(old.getName(), old.getValue(), month.getMonth(), month.getYear()));
+                // Get all asset names already present in the current month
+                List<Asset> currentAssets = realm.where(Asset.class)
+                        .equalTo("month", month.getMonth())
+                        .equalTo("year", month.getYear())
+                        .findAll();
+                
+                java.util.Set<String> existingNames = new java.util.HashSet<>();
+                for (Asset a : currentAssets) {
+                    existingNames.add(a.getName());
                 }
 
-                realm.executeTransaction(r -> r.copyToRealmOrUpdate(newAssets));
+                List<Asset> newAssets = new ArrayList<>();
+                for (Asset old : prevAssets) {
+                    // Only copy if the asset doesn't exist in the current month
+                    if (!existingNames.contains(old.getName())) {
+                        newAssets.add(new Asset(old.getName(), old.getValue(), month.getMonth(), month.getYear()));
+                    }
+                }
+
+                if (!newAssets.isEmpty()) {
+                    realm.executeTransaction(r -> r.copyToRealmOrUpdate(newAssets));
+                }
             }
 
             if (isAdded()) {
-                requireActivity().runOnUiThread(() -> {
-                    listener.onDataChanged();
-                    android.widget.Toast.makeText(requireContext(),
-                            getString(R.string.empty_month_copy_success, prevMonth.toString()),
-                            android.widget.Toast.LENGTH_SHORT).show();
-                });
+                requireActivity().runOnUiThread(() -> listener.onDataChanged());
             }
         });
     }
