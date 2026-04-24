@@ -78,10 +78,12 @@ public class Month {
                     .findFirst();
 
             if (firstAsset != null) {
-                return new Month(firstAsset.getMonth(), firstAsset.getYear());
+                Month m = new Month(firstAsset.getMonth(), firstAsset.getYear());
+                m.calculateValues(realm);
+                return m;
             }
         }
-        return new Month();
+        return new Month(true);
     }
 
     public Month getLast() {
@@ -92,10 +94,12 @@ public class Month {
                     .findFirst();
 
             if (lastAsset != null) {
-                return new Month(lastAsset.getMonth(), lastAsset.getYear());
+                Month m = new Month(lastAsset.getMonth(), lastAsset.getYear());
+                m.calculateValues(realm);
+                return m;
             }
         }
-        return new Month();
+        return new Month(true);
     }
 
     public double getValue(Realm realm) {

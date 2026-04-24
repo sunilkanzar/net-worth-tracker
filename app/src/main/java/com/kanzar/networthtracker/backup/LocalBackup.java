@@ -23,26 +23,47 @@ import java.util.Date;
 import java.util.Locale;
 
 public final class LocalBackup {
-    public static final String BACKUP_DATE_FORMAT = "yyyyMMdd";
+    public static final String BACKUP_DATE_FORMAT = "yyyy-MM-dd";
+    public static final String BACKUP_TIME_FORMAT = "HH-mm-ss";
     public static final String BACKUP_DATE_FORMAT_VISUAL = "dd.MM.yyyy";
-    public static final String BACKUP_FILE = "NetWorthTracker.csv";
+    public static final String BACKUP_FILE = "Backup.csv";
     public static final String BACKUP_FOLDER = "NetWorthTracker";
+
+    public enum ExportType {
+        MANUAL, AUTO, SHARE
+    }
 
     private LocalBackup() {
     }
 
     public static void startExport() {
-        startExport(false);
+        startExport(ExportType.MANUAL);
     }
 
+    @Deprecated
     public static void startExport(boolean auto) {
+        startExport(auto ? ExportType.AUTO : ExportType.MANUAL);
+    }
+
+    public static void startExport(ExportType type) {
         try {
-            File folder = new File(getBackupFolder());
-            if (!folder.exists()) {
-                folder.mkdirs();
+            File folder;
+            String fileName;
+            boolean shareImmediately = false;
+
+            if (type == ExportType.SHARE) {
+                folder = CoreApplication.getContext().getCacheDir();
+                fileName = "Export.csv";
+                shareImmediately = true;
+            } else {
+                folder = new File(getBackupFolder());
+                if (!folder.exists()) {
+                    folder.mkdirs();
+                }
+                fileName = getBackupName(type == ExportType.AUTO);
             }
 
-            File file = new File(folder, getBackupName(auto));
+            File file = new File(folder, fileName);
             if (file.exists()) {
                 file.delete();
             }
@@ -52,11 +73,11 @@ public final class LocalBackup {
                 fileOutputStream.write(transactionsAsString.getBytes(StandardCharsets.UTF_8));
             }
 
-            if (!auto) {
-                new Events().send(new ButtonClicked("export"));
-                EventBus.getDefault().post(new BackupSavedEvent(file));
-            } else {
+            if (type == ExportType.AUTO) {
                 Prefs.save(Prefs.PREFS_LAST_AUTO_BACKUP_TIME, System.currentTimeMillis());
+            } else {
+                new Events().send(new ButtonClicked(type == ExportType.SHARE ? "export_share" : "export_backup"));
+                EventBus.getDefault().post(new BackupSavedEvent(file, shareImmediately));
             }
         } catch (Exception e) {
             Log.e("LocalBackup", "Export failed", e);
@@ -73,8 +94,10 @@ public final class LocalBackup {
     }
 
     private static String getBackupName(boolean auto) {
+        String dateStr = dateToString(new Date(), BACKUP_DATE_FORMAT);
         if (!auto) {
-            return dateToString(new Date(), BACKUP_DATE_FORMAT) + ".NetWorthTracker.csv";
+            String timeStr = dateToString(new Date(), BACKUP_TIME_FORMAT);
+            return "Backup_Manual_" + dateStr + "_" + timeStr + ".csv";
         }
 
         String frequency = Prefs.getString(Prefs.PREFS_AUTOSAVE_FREQUENCY, Prefs.DEFAULT_AUTOSAVE_FREQUENCY);
@@ -84,27 +107,27 @@ public final class LocalBackup {
 
         switch (frequency) {
             case "weekly":
-                period = year + "w" + now.get(Calendar.WEEK_OF_YEAR);
+                period = "Weekly_" + year + "-W" + now.get(Calendar.WEEK_OF_YEAR);
                 break;
             case "monthly":
-                period = year + "m" + (now.get(Calendar.MONTH) + 1);
+                period = "Monthly_" + year + "-" + String.format(Locale.ENGLISH, "%02d", (now.get(Calendar.MONTH) + 1));
                 break;
             case "quarterly":
-                period = year + "Q" + ((now.get(Calendar.MONTH) / 3) + 1);
+                period = "Quarterly_" + year + "-Q" + ((now.get(Calendar.MONTH) / 3) + 1);
                 break;
             case "half_yearly":
-                period = year + "H" + ((now.get(Calendar.MONTH) / 6) + 1);
+                period = "HalfYearly_" + year + "-H" + ((now.get(Calendar.MONTH) / 6) + 1);
                 break;
             case "yearly":
-                period = String.valueOf(year);
+                period = "Yearly_" + year;
                 break;
             case "daily":
             default:
-                period = dateToString(new Date(), BACKUP_DATE_FORMAT);
+                period = "Daily_" + dateStr;
                 break;
         }
 
-        return period + ".auto.NetWorthTracker.csv";
+        return "Backup_Auto_" + period + ".csv";
     }
 
     private static String dateToString(Date date, String format) {

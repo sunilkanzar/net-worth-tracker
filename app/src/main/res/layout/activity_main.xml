@@ -522,6 +522,84 @@
                                         android:textColor="@color/sheet_text_muted"
                                         android:textSize="12sp"
                                         android:fontFamily="sans-serif-black" />
+
+                                    <TextView
+                                        android:id="@+id/pillPurchase"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="10dp"
+                                        android:background="@drawable/bg_pill_v2"
+                                        android:paddingHorizontal="16dp"
+                                        android:paddingVertical="9dp"
+                                        android:text="Purchase"
+                                        android:textColor="@color/sheet_text_muted"
+                                        android:textSize="12sp"
+                                        android:fontFamily="sans-serif-black" />
+
+                                    <TextView
+                                        android:id="@+id/pillSell"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="10dp"
+                                        android:background="@drawable/bg_pill_v2"
+                                        android:paddingHorizontal="16dp"
+                                        android:paddingVertical="9dp"
+                                        android:text="Sell"
+                                        android:textColor="@color/sheet_text_muted"
+                                        android:textSize="12sp"
+                                        android:fontFamily="sans-serif-black" />
+
+                                    <TextView
+                                        android:id="@+id/pillProfit"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="10dp"
+                                        android:background="@drawable/bg_pill_v2"
+                                        android:paddingHorizontal="16dp"
+                                        android:paddingVertical="9dp"
+                                        android:text="Profit Booking"
+                                        android:textColor="@color/sheet_text_muted"
+                                        android:textSize="12sp"
+                                        android:fontFamily="sans-serif-black" />
+
+                                    <TextView
+                                        android:id="@+id/pillLoss"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="10dp"
+                                        android:background="@drawable/bg_pill_v2"
+                                        android:paddingHorizontal="16dp"
+                                        android:paddingVertical="9dp"
+                                        android:text="Loss Harvest"
+                                        android:textColor="@color/sheet_text_muted"
+                                        android:textSize="12sp"
+                                        android:fontFamily="sans-serif-black" />
+
+                                    <TextView
+                                        android:id="@+id/pillReinvest"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="10dp"
+                                        android:background="@drawable/bg_pill_v2"
+                                        android:paddingHorizontal="16dp"
+                                        android:paddingVertical="9dp"
+                                        android:text="Reinvest"
+                                        android:textColor="@color/sheet_text_muted"
+                                        android:textSize="12sp"
+                                        android:fontFamily="sans-serif-black" />
+
+                                    <TextView
+                                        android:id="@+id/pillChurning"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="10dp"
+                                        android:background="@drawable/bg_pill_v2"
+                                        android:paddingHorizontal="16dp"
+                                        android:paddingVertical="9dp"
+                                        android:text="Churning"
+                                        android:textColor="@color/sheet_text_muted"
+                                        android:textSize="12sp"
+                                        android:fontFamily="sans-serif-black" />
                                 </LinearLayout>
                             </HorizontalScrollView>
                         </LinearLayout>
@@ -830,7 +908,7 @@
                     android:paddingBottom="4dp"/>
 
                 <LinearLayout
-                    android:id="@+id/navExport"
+                    android:id="@+id/navBackup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -847,7 +925,7 @@
                             android:layout_width="18dp"
                             android:layout_height="18dp"
                             android:layout_gravity="center"
-                            android:src="@drawable/ic_export"
+                            android:src="@drawable/ic_nav_backup"
                             app:tint="@color/text_2"/>
                     </FrameLayout>
                     <TextView
@@ -855,44 +933,12 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="14dp"
-                        android:text="Export"
-                        android:textColor="@color/text"
-                        android:textSize="15sp"
-                        android:fontFamily="sans-serif-medium"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/navImport"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:padding="8dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:clickable="true"
-                    android:focusable="true">
-                    <FrameLayout
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:background="@drawable/bg_nav_icon">
-                        <ImageView
-                            android:layout_width="18dp"
-                            android:layout_height="18dp"
-                            android:layout_gravity="center"
-                            android:src="@drawable/ic_import"
-                            app:tint="@color/text_2"/>
-                    </FrameLayout>
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="14dp"
-                        android:text="Import"
+                        android:text="Backup"
                         android:textColor="@color/text"
                         android:textSize="15sp"
                         android:fontFamily="sans-serif-medium"/>
                     <ImageView
-                        android:id="@+id/navImportChevron"
+                        android:id="@+id/navBackupChevron"
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/ic_chevron_right"
@@ -900,7 +946,7 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/navImportSubmenu"
+                    android:id="@+id/navBackupSubmenu"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -908,12 +954,81 @@
                     android:visibility="gone">
 
                     <TextView
-                        android:id="@+id/navImportBackup"
+                        android:id="@+id/navCreateBackup"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="10dp"
+                        android:text="Create Backup"
+                        android:textColor="@color/text_2"
+                        android:textSize="14sp"
+                        android:fontFamily="sans-serif-medium"/>
+
+                    <TextView
+                        android:id="@+id/navRestoreBackup"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="?attr/selectableItemBackground"
                         android:padding="10dp"
                         android:text="Restore Backup"
+                        android:textColor="@color/text_2"
+                        android:textSize="14sp"
+                        android:fontFamily="sans-serif-medium"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/navImportExport"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:padding="8dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true">
+                    <FrameLayout
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:background="@drawable/bg_nav_icon">
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_nav_import_export"
+                            app:tint="@color/text_2"/>
+                    </FrameLayout>
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="14dp"
+                        android:text="Import/Export"
+                        android:textColor="@color/text"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium"/>
+                    <ImageView
+                        android:id="@+id/navImportExportChevron"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/text_4"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/navImportExportSubmenu"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="58dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/navShareExport"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="10dp"
+                        android:text="Export"
                         android:textColor="@color/text_2"
                         android:textSize="14sp"
                         android:fontFamily="sans-serif-medium"/>
@@ -924,7 +1039,7 @@
                         android:layout_height="wrap_content"
                         android:background="?attr/selectableItemBackground"
                         android:padding="10dp"
-                        android:text="Import from File"
+                        android:text="@string/drawer_import"
                         android:textColor="@color/text_2"
                         android:textSize="14sp"
                         android:fontFamily="sans-serif-medium"/>

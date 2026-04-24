@@ -54,6 +54,12 @@ public class CommentActivity extends AppCompatActivity {
         });
 
         binding.chipGoal.setOnClickListener(v -> appendTag("🎯 Goal"));
+        binding.chipPurchase.setOnClickListener(v -> appendTag("🟢 Purchase"));
+        binding.chipSell.setOnClickListener(v -> appendTag("🔴 Sell"));
+        binding.chipProfit.setOnClickListener(v -> appendTag("📈 Profit Booking"));
+        binding.chipLoss.setOnClickListener(v -> appendTag("📉 Loss Harvest"));
+        binding.chipReinvest.setOnClickListener(v -> appendTag("🔄 Reinvest"));
+        binding.chipChurning.setOnClickListener(v -> appendTag("🎢 Churning"));
         binding.chipIncome.setOnClickListener(v -> appendTag("💰 Income"));
         binding.chipDip.setOnClickListener(v -> appendTag("📉 Dip"));
         binding.chipMilestone.setOnClickListener(v -> appendTag("✨ Milestone"));
@@ -62,10 +68,15 @@ public class CommentActivity extends AppCompatActivity {
     private void appendTag(String tag) {
         Editable text = binding.monthComment.getText();
         if (text == null) return;
-        String current = text.toString();
-        String insert = current.isEmpty() ? tag + " " : (current.endsWith(" ") ? tag + " " : " " + tag + " ");
         int sel = binding.monthComment.getSelectionEnd();
-        text.insert(sel, insert);
+        
+        StringBuilder sb = new StringBuilder();
+        if (sel > 0 && text.charAt(sel - 1) != ' ' && text.charAt(sel - 1) != '\n') {
+            sb.append(" ");
+        }
+        sb.append(tag).append(" ");
+        
+        text.insert(sel, sb.toString());
     }
 
     private void saveNote() {

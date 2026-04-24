@@ -4,17 +4,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import com.kanzar.networthtracker.adapters.GroupedMonthAdapter;
 import com.kanzar.networthtracker.adapters.MonthAdapter;
 import com.kanzar.networthtracker.databinding.ActivityMonthBinding;
 import com.kanzar.networthtracker.helpers.Month;
-import com.kanzar.networthtracker.helpers.Tools;
+import com.kanzar.networthtracker.helpers.Prefs;
+import io.realm.Realm;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 public class MonthActivity extends AppCompatActivity implements MonthAdapter.OnItemClickListener {
 
-    private MonthAdapter adapter;
+    private GroupedMonthAdapter adapter;
     private ActivityMonthBinding binding;
 
     @Override
@@ -25,49 +28,49 @@ public class MonthActivity extends AppCompatActivity implements MonthAdapter.OnI
 
         binding.toolbar.setNavigationOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
-        List<Month> months = new ArrayList<>();
-        Month first = new Month().getFirst();
-        Month last = new Month().getLast();
-        months.add(first);
+        try (Realm realm = Realm.getDefaultInstance()) {
+            List<Month> months = new ArrayList<>();
+            Month first = new Month().getFirst();
+            Month last = new Month().getLast();
+            months.add(first);
 
-        while (!(first.getMonth() == last.getMonth() && first.getYear() == last.getYear())) {
-            Month nextMonth = new Month(first.getMonth(), first.getYear());
-            nextMonth.next();
-            months.add(nextMonth);
-            first = nextMonth;
+            while (!(first.getMonth() == last.getMonth() && first.getYear() == last.getYear())) {
+                Month nextMonth = new Month(first.getMonth(), first.getYear());
+                nextMonth.next(realm);
+                months.add(nextMonth);
+                first = nextMonth;
+            }
+
+            Collections.reverse(months);
+
+            setupGroupedRecyclerView(months);
         }
-
-        Collections.reverse(months);
-
-        setupHeroCard(months);
-
-        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new MonthAdapter(months, this);
-        binding.recyclerView.setAdapter(adapter);
     }
 
-    private void setupHeroCard(List<Month> months) {
-        if (months.isEmpty()) {
-            binding.heroCard.setVisibility(android.view.View.GONE);
-            return;
+    private void setupGroupedRecyclerView(List<Month> months) {
+        int fyStartMonth = Prefs.getInt(Prefs.PREFS_FY_START_MONTH, Prefs.DEFAULT_FY_START_MONTH) + 1;
+        List<GroupedMonthAdapter.YearGroup> groups = new ArrayList<>();
+        GroupedMonthAdapter.YearGroup currentGroup = null;
+
+        for (Month m : months) {
+            int fyYearStart = (m.getMonth() >= fyStartMonth) ? m.getYear() : m.getYear() - 1;
+            String label;
+            if (fyStartMonth == 1) {
+                label = String.valueOf(fyYearStart);
+            } else {
+                label = String.format(Locale.getDefault(), "FY %d-%02d", fyYearStart, (fyYearStart + 1) % 100);
+            }
+
+            if (currentGroup == null || !currentGroup.yearLabel.equals(label)) {
+                currentGroup = new GroupedMonthAdapter.YearGroup(label);
+                groups.add(currentGroup);
+            }
+            currentGroup.months.add(m);
         }
 
-        double latestTotal = months.get(0).getValue();
-        double minVal = Double.MAX_VALUE;
-        double maxVal = -Double.MAX_VALUE;
-
-        // Calculate for the last 12 months (or fewer if not available)
-        int range = Math.min(months.size(), 12);
-        for (int i = 0; i < range; i++) {
-            double val = months.get(i).getValue();
-            if (val < minVal) minVal = val;
-            if (val > maxVal) maxVal = val;
-        }
-
-        binding.heroTotal.setText(Tools.formatAmount(latestTotal, true));
-        binding.heroDate.setText(months.get(0).toStringMMMYY());
-        binding.heroMinMax.setText(String.format("Low %s · High %s",
-                Tools.formatAmount(minVal), Tools.formatAmount(maxVal)));
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new GroupedMonthAdapter(groups, this);
+        binding.recyclerView.setAdapter(adapter);
     }
 
     @Override

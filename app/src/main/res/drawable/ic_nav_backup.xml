@@ -1,0 +1,50 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Database Cylinder Body -->
+    <path
+        android:pathData="M12,3c4.42,0 8,1.34 8,3s-3.58,3 -8,3s-8,-1.34 -8,-3s3.58,-3 8,-3z"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"/>
+
+    <!-- Cylinder Walls and Bottom (Adjusted to avoid the check circle) -->
+    <path
+        android:pathData="M4,6v11c0,1.66 3.58,3 8,3c0.7,0 1.4,-0.03 2,-0.1 M20,6v7"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"/>
+
+    <!-- Middle Divider (Adjusted to avoid the check circle) -->
+    <path
+        android:pathData="M4,11.5c0,1.66 3.58,3 8,3c1.9,0 3.6,-0.2 4.9,-0.6"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"/>
+
+    <!-- Success Circle (positioned bottom-right) -->
+    <path
+        android:pathData="M22,17a4,4 0,1,1 -8,0 4,4 0,0,1 8,0z"
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"/>
+
+    <!-- Checkmark -->
+    <path
+        android:pathData="M16,17l1.5,1.5l2.5,-2.5"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"/>
+</vector>

@@ -22,6 +22,11 @@ public final class Prefs {
     public static final String PREFS_THEME = "app_theme";
     public static final String PREFS_ACCENT_COLOR = "accent_color";
     public static final String PREFS_SORT_ORDER = "sort_order";
+    public static final String PREFS_REMINDERS_ENABLED = "reminders_enabled";
+    public static final String PREFS_REMINDER_DAY = "reminder_day";
+    public static final String PREFS_REMINDER_HOUR = "reminder_hour";
+    public static final String PREFS_REMINDER_MINUTE = "reminder_minute";
+    public static final String PREFS_FY_START_MONTH = "fy_start_month";
     private static final String CORE_PREFS = "CORE_PREFS";
 
     public static final String DEFAULT_CURRENCY = "₹";
@@ -30,6 +35,11 @@ public final class Prefs {
     public static final int DEFAULT_THEME = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
     public static final String DEFAULT_ACCENT_COLOR = "emerald";
     public static final String DEFAULT_AUTOSAVE_FREQUENCY = "daily";
+    public static final boolean DEFAULT_REMINDERS_ENABLED = true;
+    public static final int DEFAULT_REMINDER_DAY = 0;
+    public static final int DEFAULT_REMINDER_HOUR = 20;
+    public static final int DEFAULT_REMINDER_MINUTE = 0;
+    public static final int DEFAULT_FY_START_MONTH = 0;
 
     private Prefs() {}
 

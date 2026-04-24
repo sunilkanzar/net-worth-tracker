@@ -1,12 +1,16 @@
 package com.kanzar.networthtracker;
 
+import android.app.TimePickerDialog;
+import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -14,29 +18,32 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.kanzar.networthtracker.databinding.ActivityPreferencesBinding;
-import com.kanzar.networthtracker.databinding.ItemPreferenceRowBinding;
 import com.google.android.gms.auth.api.identity.AuthorizationRequest;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.Tasks;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.kanzar.networthtracker.api.repositories.DriveServiceHelper;
+import com.kanzar.networthtracker.databinding.ActivityPreferencesBinding;
+import com.kanzar.networthtracker.databinding.DialogRemindersBinding;
+import com.kanzar.networthtracker.databinding.ItemPreferenceRowBinding;
 import com.kanzar.networthtracker.helpers.Prefs;
 import com.kanzar.networthtracker.helpers.Tools;
-import com.kanzar.networthtracker.models.Asset;
-import com.kanzar.networthtracker.models.Goal;
-import com.kanzar.networthtracker.models.Note;
+import com.kanzar.networthtracker.reminders.ReminderManager;
 
-import io.realm.Realm;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import io.realm.Realm;
 
 public class PreferencesActivity extends AppCompatActivity {
 
@@ -65,14 +72,12 @@ public class PreferencesActivity extends AppCompatActivity {
         binding.rowCurrency.getRoot().setOnClickListener(v -> showCurrencyDialog());
         binding.rowFormat.getRoot().setOnClickListener(v -> showFormatDialog());
         binding.rowSeparator.getRoot().setOnClickListener(v -> showSeparatorDialog());
+        binding.rowFinancialYear.getRoot().setOnClickListener(v -> showFinancialYearDialog());
         binding.rowTheme.getRoot().setOnClickListener(v -> showThemeDialog());
         binding.rowAccent.getRoot().setOnClickListener(v -> showAccentColorDialog());
 
         binding.rowBackup.getRoot().setOnClickListener(v -> showAutosaveDialog());
-        binding.rowReminders.getRoot().setOnClickListener(v -> {
-            boolean current = binding.rowReminders.prefActionSwitch.isChecked();
-            binding.rowReminders.prefActionSwitch.setChecked(!current);
-        });
+        binding.rowReminders.getRoot().setOnClickListener(v -> showRemindersDialog());
 
         binding.rowClearAll.getRoot().setOnClickListener(v -> confirmClearAllData());
     }
@@ -84,6 +89,7 @@ public class PreferencesActivity extends AppCompatActivity {
         setRowData(binding.rowCurrency, getString(R.string.pref_currency_label), getCurrencySummary());
         setRowData(binding.rowFormat, getString(R.string.pref_format_label), getFormatSummary());
         setRowData(binding.rowSeparator, getString(R.string.pref_separator_label), getSeparatorSummary());
+        setRowData(binding.rowFinancialYear, getString(R.string.pref_fy_label), getFinancialYearSummary());
 
         setRowData(binding.rowTheme, getString(R.string.pref_theme_label), getThemeSummary());
 
@@ -96,10 +102,9 @@ public class PreferencesActivity extends AppCompatActivity {
 
         // Data Rows
         setRowData(binding.rowBackup, getString(R.string.pref_data_autosave), getAutosaveSummary());
-        setRowData(binding.rowReminders, getString(R.string.pref_data_reminders), getString(R.string.pref_data_reminders_summary));
-        binding.rowReminders.prefActionIcon.setVisibility(View.GONE);
-        binding.rowReminders.prefActionSwitch.setVisibility(View.VISIBLE);
-        binding.rowReminders.prefActionSwitch.setChecked(true);
+        setRowData(binding.rowReminders, getString(R.string.pref_data_reminders), getReminderSummary());
+        binding.rowReminders.prefActionIcon.setVisibility(View.VISIBLE);
+        binding.rowReminders.prefActionSwitch.setVisibility(View.GONE);
 
         // Clear All Row
         setRowData(binding.rowClearAll, getString(R.string.pref_clear_all_data), getString(R.string.pref_clear_data_summary));
@@ -116,22 +121,34 @@ public class PreferencesActivity extends AppCompatActivity {
 
     private void applyAccentColor(int color) {
         ViewGroup root = (ViewGroup) binding.getRoot();
-        applyAccentToTextViews(root, color);
+        applyAccentToViews(root, color);
     }
 
-    private void applyAccentToTextViews(ViewGroup group, int color) {
+    private void applyAccentToViews(ViewGroup group, int color) {
         for (int i = 0; i < group.getChildCount(); i++) {
             View v = group.getChildAt(i);
-            if (v instanceof TextView) {
+            if (v instanceof SwitchMaterial) {
+                styleSwitch((SwitchMaterial) v, color);
+            } else if (v instanceof TextView) {
                 TextView tv = (TextView) v;
-                // PreferenceSectionHeader has letterSpacing 0.1, Drawer headers have 0.12
                 if (tv.getLetterSpacing() >= 0.09f) {
                     tv.setTextColor(color);
                 }
             } else if (v instanceof ViewGroup) {
-                applyAccentToTextViews((ViewGroup) v, color);
+                applyAccentToViews((ViewGroup) v, color);
             }
         }
+    }
+
+    private void styleSwitch(SwitchMaterial sw, int color) {
+        int[][] states = new int[][]{
+                new int[]{android.R.attr.state_checked},
+                new int[]{}
+        };
+        int[] thumbColors = new int[]{color, Color.WHITE};
+        int[] trackColors = new int[]{Tools.adjustAlpha(color, 0.3f), Color.LTGRAY};
+        sw.setThumbTintList(new ColorStateList(states, thumbColors));
+        sw.setTrackTintList(new ColorStateList(states, trackColors));
     }
 
     private String capitalize(String str) {
@@ -170,7 +187,6 @@ public class PreferencesActivity extends AppCompatActivity {
                 rowBinding = ItemPreferenceRowBinding.bind(view);
             }
             
-            // Critical: Disable clickability of the row itself so the ListView item click triggers
             view.setClickable(false);
             view.setFocusable(false);
 
@@ -238,6 +254,51 @@ public class PreferencesActivity extends AppCompatActivity {
             }).create();
         Tools.styleDialog(dialog);
         dialog.show();
+    }
+
+    private void showFinancialYearDialog() {
+        String[] options = {
+                getString(R.string.pref_fy_jan),
+                getString(R.string.pref_fy_feb),
+                getString(R.string.pref_fy_mar),
+                getString(R.string.pref_fy_apr),
+                getString(R.string.pref_fy_may),
+                getString(R.string.pref_fy_jun),
+                getString(R.string.pref_fy_jul),
+                getString(R.string.pref_fy_aug),
+                getString(R.string.pref_fy_sep),
+                getString(R.string.pref_fy_oct),
+                getString(R.string.pref_fy_nov),
+                getString(R.string.pref_fy_dec)
+        };
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.pref_fy_label)
+                .setItems(options, (d, which) -> {
+                    Prefs.save(Prefs.PREFS_FY_START_MONTH, which);
+                    updateUI();
+                }).create();
+        Tools.styleDialog(dialog);
+        dialog.show();
+    }
+
+    private String getFinancialYearSummary() {
+        int val = Prefs.getInt(Prefs.PREFS_FY_START_MONTH, Prefs.DEFAULT_FY_START_MONTH);
+        switch (val) {
+            case 0: return getString(R.string.pref_fy_jan);
+            case 1: return getString(R.string.pref_fy_feb);
+            case 2: return getString(R.string.pref_fy_mar);
+            case 3: return getString(R.string.pref_fy_apr);
+            case 4: return getString(R.string.pref_fy_may);
+            case 5: return getString(R.string.pref_fy_jun);
+            case 6: return getString(R.string.pref_fy_jul);
+            case 7: return getString(R.string.pref_fy_aug);
+            case 8: return getString(R.string.pref_fy_sep);
+            case 9: return getString(R.string.pref_fy_oct);
+            case 10: return getString(R.string.pref_fy_nov);
+            case 11: return getString(R.string.pref_fy_dec);
+            default: return getString(R.string.pref_fy_jan);
+        }
     }
 
     private void showThemeDialog() {
@@ -331,6 +392,87 @@ public class PreferencesActivity extends AppCompatActivity {
         return label + " (Local CSV)";
     }
 
+    private void showRemindersDialog() {
+        DialogRemindersBinding dialogBinding = DialogRemindersBinding.inflate(getLayoutInflater());
+        int accentColor = ContextCompat.getColor(this, Tools.getAccentColor());
+        applyAccentToViews(dialogBinding.getRoot(), accentColor);
+
+        boolean enabled = Prefs.getBoolean(Prefs.PREFS_REMINDERS_ENABLED, Prefs.DEFAULT_REMINDERS_ENABLED);
+        int day = Prefs.getInt(Prefs.PREFS_REMINDER_DAY, Prefs.DEFAULT_REMINDER_DAY);
+        int hour = Prefs.getInt(Prefs.PREFS_REMINDER_HOUR, Prefs.DEFAULT_REMINDER_HOUR);
+        int minute = Prefs.getInt(Prefs.PREFS_REMINDER_MINUTE, Prefs.DEFAULT_REMINDER_MINUTE);
+
+        dialogBinding.switchEnabled.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 101);
+                }
+            }
+        });
+
+        dialogBinding.switchEnabled.setChecked(enabled);
+
+        String[] dayOptions = {
+                getString(R.string.pref_reminders_day_start),
+                getString(R.string.pref_reminders_day_end)
+        };
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, dayOptions);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        dialogBinding.spinnerDay.setAdapter(adapter);
+        dialogBinding.spinnerDay.setSelection(day == 0 ? 1 : 0);
+
+        final int[] selectedTime = {hour, minute};
+        updateDialogTimeText(dialogBinding.tvTime, selectedTime[0], selectedTime[1]);
+
+        dialogBinding.tvTime.setOnClickListener(v -> {
+            TimePickerDialog timePickerDialog = new TimePickerDialog(this, (view, h, m) -> {
+                selectedTime[0] = h;
+                selectedTime[1] = m;
+                updateDialogTimeText(dialogBinding.tvTime, h, m);
+            }, selectedTime[0], selectedTime[1], false);
+            timePickerDialog.show();
+        });
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.pref_data_reminders)
+                .setView(dialogBinding.getRoot())
+                .setPositiveButton(android.R.string.ok, (d, which) -> {
+                    Prefs.save(Prefs.PREFS_REMINDERS_ENABLED, dialogBinding.switchEnabled.isChecked());
+                    Prefs.save(Prefs.PREFS_REMINDER_DAY, dialogBinding.spinnerDay.getSelectedItemPosition() == 0 ? 1 : 0);
+                    Prefs.save(Prefs.PREFS_REMINDER_HOUR, selectedTime[0]);
+                    Prefs.save(Prefs.PREFS_REMINDER_MINUTE, selectedTime[1]);
+                    ReminderManager.updateReminder(this);
+                    updateUI();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .create();
+        Tools.styleDialog(dialog);
+        dialog.show();
+    }
+
+    private void updateDialogTimeText(TextView tv, int hour, int minute) {
+        tv.setText(formatTime(hour, minute));
+    }
+
+    private String formatTime(int hour, int minute) {
+        String ampm = hour >= 12 ? "PM" : "AM";
+        int h = hour % 12;
+        if (h == 0) h = 12;
+        return String.format(Locale.getDefault(), "%02d:%02d %s", h, minute, ampm);
+    }
+
+    private String getReminderSummary() {
+        boolean enabled = Prefs.getBoolean(Prefs.PREFS_REMINDERS_ENABLED, Prefs.DEFAULT_REMINDERS_ENABLED);
+        if (!enabled) return getString(R.string.pref_reminders_disabled);
+
+        int day = Prefs.getInt(Prefs.PREFS_REMINDER_DAY, Prefs.DEFAULT_REMINDER_DAY);
+        int hour = Prefs.getInt(Prefs.PREFS_REMINDER_HOUR, Prefs.DEFAULT_REMINDER_HOUR);
+        int minute = Prefs.getInt(Prefs.PREFS_REMINDER_MINUTE, Prefs.DEFAULT_REMINDER_MINUTE);
+
+        String dayLabel = day == 1 ? getString(R.string.pref_reminders_day_start) : getString(R.string.pref_reminders_day_end);
+        return getString(R.string.pref_reminders_summary_fmt, dayLabel, formatTime(hour, minute));
+    }
+
     private void confirmClearAllData() {
         int a = (int) (Math.random() * 9) + 1;
         int b = (int) (Math.random() * 9) + 1;
@@ -394,21 +536,18 @@ public class PreferencesActivity extends AppCompatActivity {
 
     private void performClearAllData() {
         executorService.execute(() -> {
-            // 1. Clear local data
             try (Realm realm = Realm.getDefaultInstance()) {
                 realm.executeTransaction(r -> r.deleteAll());
             } catch (Exception e) {
                 Log.e("PrefsActivity", "Clear local data error", e);
             }
 
-            // 2. Clear Drive data if signed in
             if (Prefs.contains(Prefs.PREFS_TOKEN)) {
                 try {
                     AuthorizationRequest authRequest = AuthorizationRequest.builder()
                             .setRequestedScopes(Collections.singletonList(new Scope(DriveScopes.DRIVE_APPDATA)))
                             .build();
 
-                    // Get access token (will be fast if already authorized)
                     com.google.android.gms.auth.api.identity.AuthorizationResult authResult = 
                             Tasks.await(Identity.getAuthorizationClient(this).authorize(authRequest));
                     

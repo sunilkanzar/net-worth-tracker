@@ -26,6 +26,7 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import com.kanzar.networthtracker.databinding.ActivityMainBinding;
 import java.text.DateFormatSymbols;
 import java.util.Arrays;
@@ -176,10 +177,14 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
         binding.drawerLayout.addDrawerListener(new androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener() {
             @Override
             public void onDrawerClosed(View drawerView) {
-                // Collapse import submenu so it starts closed next time
-                if (binding.navImportSubmenu.getVisibility() == View.VISIBLE) {
-                    binding.navImportSubmenu.setVisibility(View.GONE);
-                    binding.navImportChevron.setRotation(0f);
+                // Collapse submenus so they start closed next time
+                if (binding.navBackupSubmenu.getVisibility() == View.VISIBLE) {
+                    binding.navBackupSubmenu.setVisibility(View.GONE);
+                    binding.navBackupChevron.setRotation(0f);
+                }
+                if (binding.navImportExportSubmenu.getVisibility() == View.VISIBLE) {
+                    binding.navImportExportSubmenu.setVisibility(View.GONE);
+                    binding.navImportExportChevron.setRotation(0f);
                 }
             }
         });
@@ -256,8 +261,7 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
 
     private void refreshAllLoadedPages() {
         int current = binding.viewPager.getCurrentItem();
-        int limit = binding.viewPager.getOffscreenPageLimit();
-        int range = limit == ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT ? 1 : limit;
+        int range = 2; // Refresh 5 months (current + 2 before + 2 after)
         for (int i = current - range; i <= current + range; i++) {
             if (i < 0 || i >= MonthPagerAdapter.PAGE_COUNT) continue;
             MonthPageFragment f = (MonthPageFragment) getSupportFragmentManager()
@@ -319,23 +323,34 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
             binding.drawerLayout.closeDrawers();
         });
 
-        binding.navExport.setOnClickListener(v -> {
+        binding.navBackup.setOnClickListener(v -> {
+            boolean open = binding.navBackupSubmenu.getVisibility() == View.VISIBLE;
+            binding.navBackupSubmenu.setVisibility(open ? View.GONE : View.VISIBLE);
+            binding.navBackupChevron.setRotation(open ? 0f : 90f);
+        });
+
+        binding.navCreateBackup.setOnClickListener(v -> {
             if (hasStoragePermission(PERMISSION_EXPORT)) {
-                LocalBackup.startExport(false);
+                LocalBackup.startExport(LocalBackup.ExportType.MANUAL);
             }
             binding.drawerLayout.closeDrawers();
         });
 
-        binding.navImport.setOnClickListener(v -> {
-            boolean open = binding.navImportSubmenu.getVisibility() == View.VISIBLE;
-            binding.navImportSubmenu.setVisibility(open ? View.GONE : View.VISIBLE);
-            binding.navImportChevron.setRotation(open ? 0f : 90f);
-        });
-
-        binding.navImportBackup.setOnClickListener(v -> {
+        binding.navRestoreBackup.setOnClickListener(v -> {
             if (hasStoragePermission(PERMISSION_IMPORT)) {
                 LocalImport.startImport(this);
             }
+            binding.drawerLayout.closeDrawers();
+        });
+
+        binding.navImportExport.setOnClickListener(v -> {
+            boolean open = binding.navImportExportSubmenu.getVisibility() == View.VISIBLE;
+            binding.navImportExportSubmenu.setVisibility(open ? View.GONE : View.VISIBLE);
+            binding.navImportExportChevron.setRotation(open ? 0f : 90f);
+        });
+
+        binding.navShareExport.setOnClickListener(v -> {
+            LocalBackup.startExport(LocalBackup.ExportType.SHARE);
             binding.drawerLayout.closeDrawers();
         });
 
@@ -484,6 +499,13 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
             binding.newAssetValueFormatted.setText(formatString(newValue));
             updatingForm = false;
         });
+
+        binding.pillPurchase.setOnClickListener(v -> showActionDialog("Purchase", true));
+        binding.pillSell.setOnClickListener(v -> showActionDialog("Sell", false));
+        binding.pillProfit.setOnClickListener(v -> showActionDialog("Profit Booking", true));
+        binding.pillLoss.setOnClickListener(v -> showActionDialog("Loss Harvest", false));
+        binding.pillReinvest.setOnClickListener(v -> showActionDialog("Reinvest", true));
+        binding.pillChurning.setOnClickListener(v -> showActionDialog("Portfolio Churning", true));
 
         // Main FAB: toggle speed-dial
         binding.mainFab.setOnClickListener(v -> {
@@ -903,8 +925,8 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
             return;
         }
         switch (requestCode) {
-            case PERMISSION_EXPORT:      LocalBackup.startExport(false); break;
-            case PERMISSION_EXPORT_AUTO: LocalBackup.startExport(true);  break;
+            case PERMISSION_EXPORT:      LocalBackup.startExport(LocalBackup.ExportType.MANUAL); break;
+            case PERMISSION_EXPORT_AUTO: LocalBackup.startExport(LocalBackup.ExportType.AUTO);   break;
             case PERMISSION_IMPORT:      LocalImport.startImport(this);  break;
             case PERMISSION_IMPORT_CSS:
                 if (getIntent().getData() != null) importFromFile(getIntent().getData());
@@ -1022,7 +1044,7 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
         closeAssetView();
         if (!Prefs.getBoolean(Prefs.PREFS_AUTO_IMPORT_PERMISSION, false)) {
             if (hasStoragePermission(PERMISSION_EXPORT_AUTO)) {
-                LocalBackup.startExport(true);
+                LocalBackup.startExport(LocalBackup.ExportType.AUTO);
             }
         }
     }
@@ -1066,6 +1088,12 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
             binding.pillSame.setVisibility(View.GONE);
             binding.pillPlus5.setVisibility(View.GONE);
             binding.pillMinus5.setVisibility(View.GONE);
+            binding.pillPurchase.setVisibility(View.GONE);
+            binding.pillSell.setVisibility(View.GONE);
+            binding.pillProfit.setVisibility(View.GONE);
+            binding.pillLoss.setVisibility(View.GONE);
+            binding.pillReinvest.setVisibility(View.GONE);
+            binding.pillChurning.setVisibility(View.GONE);
         } else {
             binding.sheetStepLabel.setText("Edit · " + monthName);
             binding.sheetTitle.setText(name);
@@ -1075,6 +1103,12 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
             binding.pillSame.setVisibility(View.VISIBLE);
             binding.pillPlus5.setVisibility(View.VISIBLE);
             binding.pillMinus5.setVisibility(View.VISIBLE);
+            binding.pillPurchase.setVisibility(View.VISIBLE);
+            binding.pillSell.setVisibility(View.VISIBLE);
+            binding.pillProfit.setVisibility(View.VISIBLE);
+            binding.pillLoss.setVisibility(View.VISIBLE);
+            binding.pillReinvest.setVisibility(View.VISIBLE);
+            binding.pillChurning.setVisibility(View.VISIBLE);
         }
         
         binding.newAssetName.setText(name != null ? name : "");
@@ -1110,6 +1144,52 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
         assetSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
         binding.mainFab.hide();
         if (name != null) binding.newAssetName.setSelection(name.length());
+    }
+
+    private void showActionDialog(String title, boolean isPositive) {
+        android.widget.EditText input = new android.widget.EditText(this);
+        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        input.setHint("Amount");
+        
+        int dp = (int) (16 * getResources().getDisplayMetrics().density);
+        android.widget.FrameLayout container = new android.widget.FrameLayout(this);
+        android.widget.FrameLayout.LayoutParams params = new android.widget.FrameLayout.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.leftMargin = dp;
+        params.rightMargin = dp;
+        params.topMargin = dp / 2;
+        input.setLayoutParams(params);
+        container.addView(input);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setView(container)
+                .setPositiveButton("Apply", (d, which) -> {
+                    double amount = 0;
+                    try {
+                        amount = Double.parseDouble(input.getText().toString());
+                    } catch (Exception ignored) {}
+                    
+                    if (amount == 0) return;
+                    
+                    if (!isPositive) amount = -amount;
+                    
+                    Asset asset = getNewAsset();
+                    Asset previous = asset.getPrevious();
+                    double prevValue = (previous != null) ? previous.getValue() : 0.0;
+                    
+                    double newValue = prevValue + amount;
+                    
+                    updatingForm = true;
+                    binding.newAssetChange.setText(formatStringValue(amount));
+                    updateSign(amount >= 0);
+                    binding.newAssetValue.setText(formatStringValue(newValue));
+                    binding.newAssetValueFormatted.setText(formatString(newValue));
+                    updatingForm = false;
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .create();
+        Tools.styleDialog(dialog);
+        dialog.show();
     }
 
     private String formatString(double value) {
@@ -1406,6 +1486,9 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
                 .setPositiveButton(R.string.backup_share_yes, (d, which) -> {
                     try (Realm realm = Realm.getDefaultInstance()) {
                         realm.executeTransaction(r -> {
+                            r.delete(Asset.class);
+                            r.delete(Note.class);
+                            r.delete(Goal.class);
                             r.copyToRealmOrUpdate(event.getAssets());
                             r.copyToRealmOrUpdate(event.getNotes());
                             r.copyToRealmOrUpdate(event.getGoals());
@@ -1413,6 +1496,7 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
                     }
                     refreshAllLoadedPages();
                     updateGoalProgress();
+                    Toast.makeText(this, R.string.import_success, Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton(R.string.backup_share_no, null)
                 .create();
@@ -1422,22 +1506,21 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onBackupSavedEvent(BackupSavedEvent event) {
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle(R.string.backup_saved)
-                .setMessage(R.string.backup_share)
-                .setPositiveButton(R.string.backup_share_yes, (d, which) -> {
-                    Intent intent = new Intent(Intent.ACTION_SEND);
-                    Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".provider", event.getFile());
-                    intent.setType("application/octet-stream");
-                    intent.putExtra(Intent.EXTRA_STREAM, uri);
-                    intent.putExtra(Intent.EXTRA_SUBJECT, event.getFile().getName());
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivity(Intent.createChooser(intent, getString(R.string.backup_share_title)));
-                })
-                .setNegativeButton(R.string.backup_share_no, null)
-                .create();
-        Tools.styleDialog(dialog);
-        dialog.show();
+        if (event.isShareImmediately()) {
+            shareFile(event.getFile());
+        } else {
+            Toast.makeText(this, R.string.backup_saved, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void shareFile(java.io.File file) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".provider", file);
+        intent.setType("application/octet-stream");
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        intent.putExtra(Intent.EXTRA_SUBJECT, file.getName());
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        startActivity(Intent.createChooser(intent, getString(R.string.backup_share_title)));
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

@@ -34,66 +34,6 @@
             android:layout_height="wrap_content"
             android:paddingBottom="16dp">
 
-            <!-- Hero Card -->
-            <LinearLayout
-                android:id="@+id/heroCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:padding="16dp"
-                android:orientation="vertical"
-                android:background="@drawable/hero_gradient">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="12-month range"
-                    android:textAllCaps="true"
-                    android:textColor="#80FFFFFF"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:letterSpacing="0.1" />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="bottom"
-                    android:layout_marginTop="4dp">
-
-                    <TextView
-                        android:id="@+id/heroTotal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/hero_text"
-                        android:textSize="22sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="-0.02"
-                        tools:text="₹1,24,500" />
-
-                    <TextView
-                        android:id="@+id/heroDate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="12dp"
-                        android:textColor="@color/positive"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        tools:text="Apr 24" />
-
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/heroMinMax"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:textColor="#80FFFFFF"
-                    android:textSize="12sp"
-                    tools:text="Low ₹80k · High ₹1.3M" />
-
-            </LinearLayout>
-
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerView"
                 android:layout_width="match_parent"

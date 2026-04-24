@@ -69,6 +69,12 @@
                         android:id="@+id/rowSeparator"
                         layout="@layout/item_preference_row" />
 
+                    <View style="@style/PreferenceDivider" />
+
+                    <include
+                        android:id="@+id/rowFinancialYear"
+                        layout="@layout/item_preference_row" />
+
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
