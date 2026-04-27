@@ -80,68 +80,32 @@
                         android:layout_marginTop="2dp"/>
                 </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/rangeSelector"
-                    android:layout_width="wrap_content"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/rangeDropdownLayout"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                    android:layout_width="110dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_segmented_control"
-                    android:orientation="horizontal"
-                    android:padding="3dp">
+                    app:hintEnabled="false"
+                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxStrokeWidth="1dp"
+                    app:boxStrokeColor="@color/border">
 
-                    <TextView
-                        android:id="@+id/btn3M"
-                        android:layout_width="wrap_content"
+                    <AutoCompleteTextView
+                        android:id="@+id/rangeDropdown"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="3M"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_3"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="6dp"
-                        android:fontFamily="sans-serif-black"
-                        android:clickable="true"
-                        android:focusable="true" />
-
-                    <TextView
-                        android:id="@+id/btn6M"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="6M"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_3"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="6dp"
-                        android:fontFamily="sans-serif-black"
-                        android:clickable="true"
-                        android:focusable="true" />
-
-                    <TextView
-                        android:id="@+id/btn1Y"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="1Y"
-                        android:textSize="11sp"
+                        android:inputType="none"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif-medium"
                         android:textColor="@color/text"
-                        android:background="@drawable/bg_range_selected"
-                        android:elevation="1dp"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="6dp"
-                        android:fontFamily="sans-serif-black"
-                        android:clickable="true"
-                        android:focusable="true" />
+                        tools:ignore="LabelFor" />
 
-                    <TextView
-                        android:id="@+id/btnAll"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="ALL"
-                        android:textSize="11sp"
-                        android:textColor="@color/text_3"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="6dp"
-                        android:fontFamily="sans-serif-black"
-                        android:clickable="true"
-                        android:focusable="true" />
-                </LinearLayout>
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
             <com.google.android.material.card.MaterialCardView

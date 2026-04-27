@@ -6,7 +6,6 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
@@ -63,21 +62,11 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
     }
 
-    public AssetAdapter(Context context) {
-        this.context = context;
-        this.listener = (OnItemClickListener) context;
-    }
-
     public AssetAdapter(Context context, OnItemClickListener listener) {
         this.context = context;
         this.listener = listener;
     }
 
-
-    @SuppressWarnings("unchecked")
-    public List<Asset> getItems() {
-        return (List<Asset>) originalItems;
-    }
 
     public void setItems(List<? extends Asset> items) {
         final List<Object> newDisplayItems = new ArrayList<>();
@@ -317,7 +306,6 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             binding.assetLetter.setText(asset.getName().substring(0, 1).toUpperCase());
             binding.assetName.setTextColor(ContextCompat.getColor(context, R.color.text));
             binding.assetChevron.setVisibility(View.GONE);
-            binding.assetDot.setVisibility(View.VISIBLE);
             binding.assetWeight.setVisibility(View.VISIBLE);
             binding.assetSparkline.setVisibility(View.VISIBLE);
             binding.assetValue.setVisibility(View.VISIBLE);
@@ -353,7 +341,6 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 binding.assetName.setTextColor(ContextCompat.getColor(context, R.color.text_2));
                 binding.assetValueContainer.setVisibility(View.GONE);
                 binding.assetWeight.setVisibility(View.GONE);
-                binding.assetDot.setVisibility(View.GONE);
                 binding.assetSparkline.setVisibility(View.GONE);
                 binding.assetChevron.setVisibility(View.VISIBLE);
 

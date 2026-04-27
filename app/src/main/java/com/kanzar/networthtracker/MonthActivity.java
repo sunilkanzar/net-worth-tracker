@@ -13,7 +13,6 @@ import io.realm.Realm;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
 public class MonthActivity extends AppCompatActivity implements MonthAdapter.OnItemClickListener {
 
@@ -58,7 +57,7 @@ public class MonthActivity extends AppCompatActivity implements MonthAdapter.OnI
             if (fyStartMonth == 1) {
                 label = String.valueOf(fyYearStart);
             } else {
-                label = String.format(Locale.getDefault(), "FY %d-%02d", fyYearStart, (fyYearStart + 1) % 100);
+                label = getString(R.string.financial_year_label, fyYearStart, (fyYearStart + 1) % 100);
             }
 
             if (currentGroup == null || !currentGroup.yearLabel.equals(label)) {

@@ -38,7 +38,6 @@ import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.PercentFormatter;
 import com.google.android.material.tabs.TabLayout;
 import com.kanzar.networthtracker.databinding.ActivityAllocationBinding;
-import com.kanzar.networthtracker.databinding.DialogAssetSelectBinding;
 import com.kanzar.networthtracker.helpers.Month;
 import com.kanzar.networthtracker.helpers.Prefs;
 import com.kanzar.networthtracker.helpers.Tools;
@@ -91,8 +90,13 @@ public class AllocationActivity extends AppCompatActivity {
         month = new Month(selectedMonth, selectedYear);
 
         binding.previousMonth.setOnClickListener(v -> { month.previous(); loadData(); });
+        binding.previousMonth.setOnLongClickListener(v -> goToCurrentMonth());
+
         binding.nextMonth.setOnClickListener(v -> { month.next(); loadData(); });
+        binding.nextMonth.setOnLongClickListener(v -> goToCurrentMonth());
+
         binding.monthName.setOnClickListener(v -> showMonthYearPicker());
+        binding.monthName.setOnLongClickListener(v -> goToCurrentMonth());
 
         applyAccentColor();
 
@@ -115,6 +119,12 @@ public class AllocationActivity extends AppCompatActivity {
         loadData();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        applyAccentColor();
+    }
+
     private void applyAccentColor() {
         int accentColor = ContextCompat.getColor(this, Tools.getAccentColor());
         ColorStateList accentList = ColorStateList.valueOf(accentColor);
@@ -125,6 +135,16 @@ public class AllocationActivity extends AppCompatActivity {
         binding.tabLayout.setTabTextColors(ContextCompat.getColor(this, R.color.text_3), accentColor);
         
         binding.assetTotal.setTextColor(accentColor);
+        updateMonthNameColor();
+    }
+
+    private void updateMonthNameColor() {
+        if (month == null) return;
+        Calendar today = Calendar.getInstance();
+        boolean isCurrent = (month.getMonth() == (today.get(Calendar.MONTH) + 1)) && (month.getYear() == today.get(Calendar.YEAR));
+        int accentColor = ContextCompat.getColor(this, Tools.getAccentColor());
+        int defaultColor = ContextCompat.getColor(this, R.color.text);
+        binding.monthName.setTextColor(isCurrent ? accentColor : defaultColor);
     }
 
     // ── Menu ─────────────────────────────────────────────────────────────────
@@ -164,6 +184,7 @@ public class AllocationActivity extends AppCompatActivity {
 
     private void loadData() {
         binding.monthName.setText(month.toString());
+        updateMonthNameColor();
 
         Month prevMonth = new Month(month.getMonth(), month.getYear());
         prevMonth.previous();
@@ -375,6 +396,13 @@ public class AllocationActivity extends AppCompatActivity {
     }
 
     // ── Donut setup ───────────────────────────────────────────────────────────
+
+    private boolean goToCurrentMonth() {
+        Calendar now = Calendar.getInstance();
+        month = new Month(now.get(Calendar.MONTH) + 1, now.get(Calendar.YEAR));
+        loadData();
+        return true;
+    }
 
     private void setupDonut(PieChart chart, List<PieEntry> entries, int[] colors, String centerText) {
         int labelColor          = ContextCompat.getColor(this, R.color.textPrimary);

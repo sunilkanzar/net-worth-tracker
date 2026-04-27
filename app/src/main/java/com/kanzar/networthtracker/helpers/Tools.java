@@ -104,6 +104,19 @@ public final class Tools {
         }
     }
 
+    public static int getTimePickerTheme() {
+        String key = Prefs.getString(Prefs.PREFS_ACCENT_COLOR, Prefs.DEFAULT_ACCENT_COLOR);
+        switch (key) {
+            case "blue": return R.style.AppTheme_TimePicker_Blue;
+            case "indigo": return R.style.AppTheme_TimePicker_Indigo;
+            case "violet": return R.style.AppTheme_TimePicker_Violet;
+            case "rose": return R.style.AppTheme_TimePicker_Rose;
+            case "amber": return R.style.AppTheme_TimePicker_Amber;
+            case "emerald": return R.style.AppTheme_TimePicker_Emerald;
+            default: return R.style.AppTheme_TimePicker_Indigo;
+        }
+    }
+
     public static void styleDialog(AlertDialog dialog) {
         int accentColor = ContextCompat.getColor(dialog.getContext(), getAccentColor());
         dialog.setOnShowListener(d -> {

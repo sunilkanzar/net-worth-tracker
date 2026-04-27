@@ -29,9 +29,9 @@ public final class Prefs {
     public static final String PREFS_FY_START_MONTH = "fy_start_month";
     private static final String CORE_PREFS = "CORE_PREFS";
 
-    public static final String DEFAULT_CURRENCY = "₹";
-    public static final String DEFAULT_NUMBER_FORMAT = "IN";
-    public static final String DEFAULT_NUMBER_SEPARATOR = ",";
+    public static final String DEFAULT_CURRENCY = "";
+    public static final String DEFAULT_NUMBER_FORMAT = "INT";
+    public static final String DEFAULT_NUMBER_SEPARATOR = " ";
     public static final int DEFAULT_THEME = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
     public static final String DEFAULT_ACCENT_COLOR = "emerald";
     public static final String DEFAULT_AUTOSAVE_FREQUENCY = "daily";

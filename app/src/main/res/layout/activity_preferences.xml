@@ -8,7 +8,7 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/bg_elev"
+        android:background="@color/bg"
         android:elevation="0dp"
         app:elevation="0dp">
 
@@ -20,11 +20,6 @@
             app:navigationIconTint="@color/text"
             app:title="@string/pref_activity_title"
             app:titleTextColor="@color/text" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/border" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

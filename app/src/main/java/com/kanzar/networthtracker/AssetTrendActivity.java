@@ -49,6 +49,11 @@ import java.util.TreeMap;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
+import android.widget.ArrayAdapter;
+import android.widget.NumberPicker;
+import androidx.appcompat.app.AlertDialog;
+import com.kanzar.networthtracker.databinding.DialogCustomRangeBinding;
+
 public class AssetTrendActivity extends AppCompatActivity {
 
     private static final int[] LINE_COLORS = {
@@ -63,7 +68,11 @@ public class AssetTrendActivity extends AppCompatActivity {
     private List<String> allAssetNames = new ArrayList<>();
     private Map<String, Map<Integer, Float>> rawAssetValues = new LinkedHashMap<>();
     private final Set<String> selectedAssets = new HashSet<>();
-    private int selectedRangeMonths = 24; // Default to 2Y as per layout
+    private int selectedRangeMonths = 12; // Default to 1Y
+    private Month customStartMonth = null;
+    private Month customEndMonth = null;
+
+    private static final String[] RANGE_OPTIONS = {"1Y", "2Y", "3Y", "5Y", "All", "Custom"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,36 +92,68 @@ public class AssetTrendActivity extends AppCompatActivity {
     }
 
     private void setupRangeSelector() {
-        View.OnClickListener listener = v -> {
-            int id = v.getId();
-            if (id == R.id.btn6M) selectedRangeMonths = 6;
-            else if (id == R.id.btn1Y) selectedRangeMonths = 12;
-            else if (id == R.id.btn2Y) selectedRangeMonths = 24;
-            else if (id == R.id.btnAll) selectedRangeMonths = 0;
-            
-            updateRangeSelectorUI();
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.item_dropdown, RANGE_OPTIONS);
+        binding.rangeDropdown.setAdapter(adapter);
+        binding.rangeDropdown.setText(RANGE_OPTIONS[0], false);
+        binding.rangeDropdown.setOnItemClickListener((parent, view, position, id) -> {
+            String selection = RANGE_OPTIONS[position];
+            customStartMonth = null;
+            customEndMonth = null;
+            switch (selection) {
+                case "1Y": selectedRangeMonths = 12; break;
+                case "2Y": selectedRangeMonths = 24; break;
+                case "3Y": selectedRangeMonths = 36; break;
+                case "5Y": selectedRangeMonths = 60; break;
+                case "All": selectedRangeMonths = 0; break;
+                case "Custom": 
+                    showCustomRangeDialog();
+                    return;
+            }
             rebuildChart();
-        };
+        });
+    }
 
-        binding.btn6M.setOnClickListener(listener);
-        binding.btn1Y.setOnClickListener(listener);
-        binding.btn2Y.setOnClickListener(listener);
-        binding.btnAll.setOnClickListener(listener);
+    private void showCustomRangeDialog() {
+        DialogCustomRangeBinding dialogBinding = DialogCustomRangeBinding.inflate(getLayoutInflater());
         
-        updateRangeSelectorUI();
+        Month first = new Month().getFirst();
+        Month last = new Month().getLast();
+        
+        String[] months = new java.text.DateFormatSymbols().getShortMonths();
+        
+        setupMonthPicker(dialogBinding.startMonth, months);
+        setupYearPicker(dialogBinding.startYear, first.getYear(), last.getYear());
+        setupMonthPicker(dialogBinding.endMonth, months);
+        setupYearPicker(dialogBinding.endYear, first.getYear(), last.getYear());
+
+        // Default values
+        dialogBinding.startMonth.setValue(first.getMonth());
+        dialogBinding.startYear.setValue(first.getYear());
+        dialogBinding.endMonth.setValue(last.getMonth());
+        dialogBinding.endYear.setValue(last.getYear());
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("Select Range")
+                .setView(dialogBinding.getRoot())
+                .setPositiveButton("Apply", (d, which) -> {
+                    customStartMonth = new Month(dialogBinding.startMonth.getValue(), dialogBinding.startYear.getValue());
+                    customEndMonth = new Month(dialogBinding.endMonth.getValue(), dialogBinding.endYear.getValue());
+                    rebuildChart();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+        Tools.styleDialog(dialog);
     }
 
-    private void updateRangeSelectorUI() {
-        updateRangeButton(binding.btn6M, selectedRangeMonths == 6);
-        updateRangeButton(binding.btn1Y, selectedRangeMonths == 12);
-        updateRangeButton(binding.btn2Y, selectedRangeMonths == 24);
-        updateRangeButton(binding.btnAll, selectedRangeMonths == 0);
+    private void setupMonthPicker(NumberPicker picker, String[] months) {
+        picker.setMinValue(1);
+        picker.setMaxValue(12);
+        picker.setDisplayedValues(months);
     }
 
-    private void updateRangeButton(TextView view, boolean selected) {
-        view.setTextColor(ContextCompat.getColor(this, selected ? R.color.text : R.color.text_3));
-        view.setBackgroundResource(selected ? R.drawable.bg_range_selected : 0);
-        view.setElevation(selected ? 1f : 0f);
+    private void setupYearPicker(NumberPicker picker, int minYear, int maxYear) {
+        picker.setMinValue(minYear);
+        picker.setMaxValue(maxYear);
     }
 
     private void setupChart(LineChart chart) {
@@ -302,7 +343,23 @@ public class AssetTrendActivity extends AppCompatActivity {
         if (allMonths.isEmpty() || selectedAssets.isEmpty()) return;
 
         int dataSize = allMonths.size();
-        int startIndex = selectedRangeMonths == 0 ? 0 : Math.max(0, dataSize - selectedRangeMonths);
+        int startIndex = 0;
+        int endIndex = dataSize - 1;
+
+        if (customStartMonth != null && customEndMonth != null) {
+            startIndex = getMonthIndex(customStartMonth);
+            endIndex = getMonthIndex(customEndMonth);
+            if (startIndex == -1) startIndex = 0;
+            if (endIndex == -1) endIndex = dataSize - 1;
+            if (startIndex > endIndex) {
+                int temp = startIndex;
+                startIndex = endIndex;
+                endIndex = temp;
+            }
+        } else {
+            startIndex = selectedRangeMonths == 0 ? 0 : Math.max(0, dataSize - selectedRangeMonths);
+            endIndex = dataSize - 1;
+        }
 
         List<ILineDataSet> datasets = new ArrayList<>();
         
@@ -314,7 +371,7 @@ public class AssetTrendActivity extends AppCompatActivity {
             if (indexedVals == null || indexedVals.isEmpty()) continue;
 
             List<Entry> entries = new ArrayList<>();
-            for (int j = startIndex; j < dataSize; j++) {
+            for (int j = startIndex; j <= endIndex; j++) {
                 Float val = indexedVals.get(j);
                 if (val != null) {
                     entries.add(new Entry(j - startIndex, val));
@@ -342,7 +399,7 @@ public class AssetTrendActivity extends AppCompatActivity {
         if (datasets.isEmpty()) return;
 
         List<String> xLabels = new ArrayList<>();
-        for (int i = startIndex; i < dataSize; i++) {
+        for (int i = startIndex; i <= endIndex; i++) {
             xLabels.add(allMonths.get(i).toStringMMMYY());
         }
 
@@ -353,20 +410,32 @@ public class AssetTrendActivity extends AppCompatActivity {
         binding.trendChart.animateY(900);
         binding.trendChart.invalidate();
 
-        updateLegend(startIndex);
+        updateLegend(startIndex, endIndex);
         updateSummary();
+    }
+
+    private int getMonthIndex(Month m) {
+        for (int i = 0; i < allMonths.size(); i++) {
+            Month am = allMonths.get(i);
+            if (am.getMonth() == m.getMonth() && am.getYear() == m.getYear()) return i;
+        }
+        return -1;
     }
 
     private void updateSummary() {
         binding.summarySubtitle.setText(String.format(java.util.Locale.US, "PLOTTING %d ASSET%s", 
                 selectedAssets.size(), selectedAssets.size() == 1 ? "" : "S"));
-        String rangeText = selectedRangeMonths == 0 ? "All-time" : selectedRangeMonths + "-month";
+        String rangeText;
+        if (customStartMonth != null && customEndMonth != null) {
+            rangeText = "Custom range";
+        } else {
+            rangeText = selectedRangeMonths == 0 ? "All-time" : selectedRangeMonths + "-month";
+        }
         binding.summaryTitle.setText(String.format(java.util.Locale.US, "%s trends", rangeText));
     }
 
-    private void updateLegend(int startIndex) {
+    private void updateLegend(int startIndex, int endIndex) {
         List<LegendItem> legendItems = new ArrayList<>();
-        int dataSize = allMonths.size();
 
         for (int i = 0; i < allAssetNames.size(); i++) {
             String name = allAssetNames.get(i);
@@ -377,22 +446,21 @@ public class AssetTrendActivity extends AppCompatActivity {
             double pctChange = 0;
 
             if (vals != null && !vals.isEmpty()) {
-                List<Integer> keys = new ArrayList<>(vals.keySet());
-                int lastKey = keys.get(keys.size() - 1);
-                lastVal = vals.get(lastKey);
+                Float fv = vals.get(endIndex);
+                lastVal = fv != null ? fv : 0;
 
                 // Calculate percentage change over the visible range
                 float firstValInRange = 0;
                 boolean foundFirst = false;
 
-                for (int j = startIndex; j < dataSize; j++) {
+                for (int j = startIndex; j <= endIndex; j++) {
                     Float v = vals.get(j);
                     if (v != null) {
                         firstValInRange = v;
                         foundFirst = true;
                         // If the first value in range is the ONLY value (latest month), 
                         // try to find the value immediately preceding the range
-                        if (j == lastKey && j > 0) {
+                        if (j == endIndex && j > 0) {
                             Float vPrev = vals.get(j - 1);
                             if (vPrev != null) {
                                 firstValInRange = vPrev;

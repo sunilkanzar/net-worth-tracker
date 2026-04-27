@@ -23,27 +23,17 @@
     <color name="hero_chip_bg">#0FFFFFFF</color> <!-- 6% white -->
 
     <color name="positive">#4ADE80</color>
-    <color name="positive_soft">#D1FAE5</color>
     <color name="negative">#F87171</color>
-    <color name="negative_soft">#FEE2E2</color>
 
     <color name="accent">#6366F1</color> <!-- Switching default accent to Indigo as per design -->
-    <color name="accent_soft">#D1FAE5</color>
 
     <color name="emerald">#10B981</color>
-    <color name="emerald_soft">#D1FAE5</color>
     <color name="blue">#3B82F6</color>
-    <color name="blue_soft">#DBEAFE</color>
     <color name="indigo">#6366F1</color>
-    <color name="indigo_soft">#E0E7FF</color>
     <color name="violet">#8B5CF6</color>
-    <color name="violet_soft">#EDE9FE</color>
     <color name="rose">#F43F5E</color>
-    <color name="rose_soft">#FFE4E6</color>
     <color name="amber">#F59E0B</color>
-    <color name="amber_soft">#FEF3C7</color>
 
-    <color name="surfaceElevated">@color/bg_elev</color>
     <color name="textOnPrimary">#FFFFFF</color>
     <color name="backgroundContent">@color/bg</color>
     <color name="textHeader">@color/text_3</color>
@@ -58,7 +48,6 @@
     <color name="sheet_text_dim">@color/text_4</color>
     <color name="sheet_chip_bg">@color/chip</color>
     <color name="sheet_handle">@color/text_4</color>
-    <color name="design_indigo">#6366F1</color>
 
     <!-- Legacy / System compatibility -->
     <color name="colorPrimary">#0F172A</color>

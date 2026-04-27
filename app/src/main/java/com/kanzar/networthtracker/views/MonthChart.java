@@ -121,17 +121,32 @@ public final class MonthChart extends LineChart {
     }
 
     public void updateData(int monthsToView) {
+        updateData(monthsToView, "Consolidated");
+    }
+
+    public void updateData(int monthsToView, String type) {
+        updateData(monthsToView, type, null, null);
+    }
+
+    public void updateData(int monthsToView, String type, Month customStart, Month customEnd) {
         setVisibility(VISIBLE);
 
         int accentColor  = ContextCompat.getColor(getContext(), Tools.getAccentColor());
+        if ("Liabilities".equals(type)) {
+            accentColor = ContextCompat.getColor(getContext(), R.color.negative);
+        } else if ("Assets".equals(type)) {
+            accentColor = ContextCompat.getColor(getContext(), R.color.positive);
+        }
 
         List<Entry> entries = new ArrayList<>();
         List<String> labels = new ArrayList<>();
         mMonths.clear();
 
-        Month last = new Month().getLast();
+        Month last = customEnd != null ? customEnd : new Month().getLast();
         Month first;
-        if (monthsToView > 0) {
+        if (customStart != null) {
+            first = customStart;
+        } else if (monthsToView > 0) {
             first = new Month(last.getMonth(), last.getYear());
             for (int i = 0; i < monthsToView - 1; i++) {
                 first.previous();
@@ -143,17 +158,19 @@ public final class MonthChart extends LineChart {
         Month current = first;
         int index = 0;
 
-        while (current != null) {
-            labels.add(current.toStringMMMYY());
-            mMonths.add(current);
-            double value = current.getValue();
-            entries.add(new Entry(index++, (float) value));
-            
-            if (current.getMonth() == last.getMonth() && current.getYear() == last.getYear()) break;
-            
-            Month next = new Month(current.getMonth(), current.getYear());
-            next.next();
-            current = next;
+        try (io.realm.Realm realm = io.realm.Realm.getDefaultInstance()) {
+            while (current != null) {
+                labels.add(current.toStringMMMYY());
+                mMonths.add(current);
+                double value = current.getValue(realm, type);
+                entries.add(new Entry(index++, (float) value));
+
+                if (current.getMonth() == last.getMonth() && current.getYear() == last.getYear()) break;
+
+                Month next = new Month(current.getMonth(), current.getYear());
+                next.next();
+                current = next;
+            }
         }
 
         getAxisLeft().resetAxisMinimum();

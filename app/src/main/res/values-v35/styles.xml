@@ -8,12 +8,14 @@
         <item name="colorSurface">@color/bg_elev</item>
         <item name="colorOnSurface">@color/text</item>
         <item name="android:statusBarColor">@color/bg</item>
-        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightStatusBar">@bool/is_light_status_bar</item>
         <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
         <item name="alertDialogTheme">@style/AppTheme.AlertDialog</item>
         <item name="android:alertDialogTheme">@style/AppTheme.AlertDialog</item>
         <item name="materialAlertDialogTheme">@style/AppTheme.MaterialAlertDialog</item>
         <item name="android:datePickerDialogTheme">@style/AppTheme.AlertDialog</item>
+        <item name="android:timePickerDialogTheme">@style/AppTheme.AlertDialog</item>
+        <item name="materialTimePickerTheme">@style/AppTheme.TimePicker</item>
     </style>
     <style name="AppThemeNoActionBar" parent="AppTheme">
         <item name="windowActionBar">false</item>

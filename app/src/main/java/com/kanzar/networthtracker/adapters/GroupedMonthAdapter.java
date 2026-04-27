@@ -1,6 +1,5 @@
 package com.kanzar.networthtracker.adapters;
 
-import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
@@ -12,9 +11,11 @@ import com.kanzar.networthtracker.databinding.ItemYearHeaderBinding;
 import com.kanzar.networthtracker.helpers.Month;
 import com.kanzar.networthtracker.helpers.Tools;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 public class GroupedMonthAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -26,19 +27,54 @@ public class GroupedMonthAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private final List<YearGroup> groups;
     private final Set<String> collapsedYears = new HashSet<>();
     private final MonthAdapter.OnItemClickListener listener;
+    private final Map<Month, Month> prevMonthMap = new HashMap<>();
 
     public static class YearGroup {
         public String yearLabel;
         public List<Month> months = new ArrayList<>();
+        
+        // Pre-calculated stats
+        public double latestValue;
+        public double openingValue;
+        public double min = Double.MAX_VALUE;
+        public double max = -Double.MAX_VALUE;
+        public double change;
+        public double percent;
 
         public YearGroup(String yearLabel) {
             this.yearLabel = yearLabel;
+        }
+
+        public void calculateStats(Month lastOfPrev) {
+            if (months.isEmpty()) {
+                latestValue = 0;
+                openingValue = 0;
+                min = 0;
+                max = 0;
+                change = 0;
+                percent = 0;
+                return;
+            }
+
+            latestValue = months.get(0).getValue();
+            openingValue = lastOfPrev != null ? lastOfPrev.getValue() : 0;
+            
+            change = latestValue - openingValue;
+            percent = Tools.getPercent(openingValue, latestValue);
+            
+            for (Month m : months) {
+                double val = m.getValue();
+                if (val < min) min = val;
+                if (val > max) max = val;
+            }
         }
     }
 
     public GroupedMonthAdapter(List<YearGroup> groups, MonthAdapter.OnItemClickListener listener) {
         this.groups = groups;
         this.listener = listener;
+        
+        preCalculate();
         
         // Collapse all except the first year by default
         if (groups != null && groups.size() > 1) {
@@ -48,6 +84,38 @@ public class GroupedMonthAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         }
         
         flatten();
+    }
+
+    private void preCalculate() {
+        if (groups == null) return;
+        
+        for (int i = 0; i < groups.size(); i++) {
+            YearGroup group = groups.get(i);
+            Month lastOfPrev = null;
+            
+            // The list is sorted descending (latest month first)
+            // So months in a group are [Mar, Feb, Jan]
+            // Next group's first month is the month before this group's last month
+            if (i + 1 < groups.size()) {
+                lastOfPrev = groups.get(i + 1).months.get(0);
+            }
+            
+            group.calculateStats(lastOfPrev);
+
+            // Populate prevMonthMap for $O(1)$ lookup during bind
+            for (int j = 0; j < group.months.size(); j++) {
+                Month current = group.months.get(j);
+                Month previous;
+                if (j + 1 < group.months.size()) {
+                    previous = group.months.get(j + 1);
+                } else if (i + 1 < groups.size()) {
+                    previous = groups.get(i + 1).months.get(0);
+                } else {
+                    previous = new Month(0, 0); // Sentinel for "no previous data"
+                }
+                prevMonthMap.put(current, previous);
+            }
+        }
     }
 
     private void flatten() {
@@ -84,28 +152,10 @@ public class GroupedMonthAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             ((HeaderViewHolder) holder).bind((YearGroup) item);
         } else if (holder instanceof MonthViewHolder) {
             Month currentMonth = (Month) item;
-            Month lastMonth = findLastMonth(currentMonth);
+            Month lastMonth = prevMonthMap.get(currentMonth);
+            if (lastMonth == null) lastMonth = new Month(0, 0);
             ((MonthViewHolder) holder).bind(currentMonth, lastMonth);
         }
-    }
-
-    private Month findLastMonth(Month current) {
-        if (current == null) return new Month(0, 0);
-        for (YearGroup group : groups) {
-            for (int i = 0; i < group.months.size(); i++) {
-                if (group.months.get(i) == current) {
-                    if (i + 1 < group.months.size()) {
-                        return group.months.get(i + 1);
-                    } else {
-                        int groupIdx = groups.indexOf(group);
-                        if (groupIdx + 1 < groups.size()) {
-                            return groups.get(groupIdx + 1).months.get(0);
-                        }
-                    }
-                }
-            }
-        }
-        return new Month(0, 0);
     }
 
     @Override
@@ -124,44 +174,26 @@ public class GroupedMonthAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         public void bind(YearGroup group) {
             binding.yearTitle.setText(group.yearLabel);
             
-            // Set FY title to accent color
             int accentColor = ContextCompat.getColor(itemView.getContext(), Tools.getAccentColor());
             binding.yearTitle.setTextColor(accentColor);
             
-            double latestValue = group.months.isEmpty() ? 0 : group.months.get(0).getValue();
-            Month lastOfPrev = findLastMonth(group.months.isEmpty() ? null : group.months.get(group.months.size()-1));
-            double openingValue = lastOfPrev.getValue();
-            
-            double change = latestValue - openingValue;
-            double percent = Tools.getPercent(openingValue, latestValue);
-            
-            double min = Double.MAX_VALUE;
-            double max = -Double.MAX_VALUE;
-            for (Month m : group.months) {
-                double val = m.getValue();
-                if (val < min) min = val;
-                if (val > max) max = val;
-            }
-            if (group.months.isEmpty()) {
-                min = 0; max = 0;
-            }
-
-            binding.tvClosing.setText(Tools.formatAmount(latestValue, true));
+            binding.tvClosing.setText(Tools.formatAmount(group.latestValue, true));
             
             String changeStr = String.format(Locale.getDefault(), "%s%s (%s%.1f%%)", 
-                    change >= 0 ? "+" : "-",
-                    Tools.formatCompact(Math.abs(change), false),
-                    change >= 0 ? "+" : "",
-                    percent);
+                    group.change >= 0 ? "+" : "-",
+                    Tools.formatCompact(Math.abs(group.change), false),
+                    group.change >= 0 ? "+" : "",
+                    group.percent);
             binding.tvChange.setText(changeStr);
             binding.tvChange.setTextColor(ContextCompat.getColor(itemView.getContext(), 
-                    change >= 0 ? R.color.positive : R.color.negative));
+                    group.change >= 0 ? R.color.positive : R.color.negative));
 
-            binding.tvOpening.setText("Open: " + Tools.formatCompact(openingValue, true));
+            binding.tvOpening.setText(itemView.getContext().getString(R.string.month_opening_value, 
+                    Tools.formatCompact(group.openingValue, true)));
 
-            binding.tvRange.setText(String.format("Low %s · High %s", 
-                    Tools.formatAmount(min), 
-                    Tools.formatAmount(max)));
+            binding.tvRange.setText(itemView.getContext().getString(R.string.month_range_label, 
+                    Tools.formatAmount(group.min), 
+                    Tools.formatAmount(group.max)));
 
             boolean isCollapsed = collapsedYears.contains(group.yearLabel);
             binding.expandIcon.animate().rotation(isCollapsed ? 0 : 180).setDuration(200).start();
@@ -179,7 +211,7 @@ public class GroupedMonthAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                     flatten();
                     notifyItemRangeRemoved(pos + 1, group.months.size());
                 }
-                notifyItemChanged(pos); // Update arrow and state
+                notifyItemChanged(pos);
             });
         }
     }

@@ -12,11 +12,11 @@ The application is structured into four main functional sections, typically acce
 
 | Section | Menu Item | Purpose |
 | :--- | :--- | :--- |
-| **Overview** | **Month Overview** | The primary dashboard showing monthly wealth snapshots. |
+| **Overview** | **Timeline** | The primary dashboard showing monthly wealth snapshots. |
 | | **Net Worth Goals** | View and manage long-term financial targets (1/3/5 years). |
-| **Analytics** | **Wealth Graph** | A visual timeline of cumulative net worth over time. |
+| **Analytics** | **Insight** | A visual timeline of cumulative net worth over time. |
 | | **Allocation** | A portfolio breakdown view (Treemap/Pie). |
-| | **Asset Trends** | Individualized historical tracking for specific assets. |
+| | **Trends** | Individualized historical tracking for specific assets. |
 | **Data Management** | **Export** | Generate a portable CSV backup to local device memory. |
 | | **Import** | Restore data from a local backup file or previously exported JSON. |
 | | **Clear All Data**| Permanent deletion of local and cloud-synced transactional records. |
@@ -65,9 +65,9 @@ A persistent view showing status against user-defined wealth milestones.
 
 ### 2.3 Analytics Hub
 Dedicated screens for deep-dive financial analysis.
-- **History Graph**: A full-screen line chart with time-range toggles (3M, 6M, 1Y, ALL). Shows "Growth" as an area-filled curve.
+- **Insight Graph**: A full-screen line chart with time-range toggles (3M, 6M, 1Y, ALL). Shows "Growth" as an area-filled curve.
 - **Portfolio Allocation**: A Treemap visualization. Box size correlates to the absolute value of the asset relative to the total portfolio.
-- **Individual Trends**: A multi-select UI where users can pick 1 or more specific assets (e.g., "HDFC Bank") to see their specific value progression over time.
+- **Trends**: A multi-select UI where users can pick 1 or more specific assets (e.g., "HDFC Bank") to see their specific value progression over time.
 
 ---
 

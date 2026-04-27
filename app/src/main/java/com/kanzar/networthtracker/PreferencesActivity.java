@@ -1,6 +1,5 @@
 package com.kanzar.networthtracker;
 
-import android.app.TimePickerDialog;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -25,6 +24,8 @@ import com.google.android.gms.auth.api.identity.AuthorizationRequest;
 import com.google.android.gms.auth.api.identity.Identity;
 import com.google.android.gms.common.api.Scope;
 import com.google.android.gms.tasks.Tasks;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
@@ -66,6 +67,12 @@ public class PreferencesActivity extends AppCompatActivity {
 
         setupClickListeners();
         updateUI();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executorService.shutdown();
     }
 
     private void setupClickListeners() {
@@ -425,12 +432,21 @@ public class PreferencesActivity extends AppCompatActivity {
         updateDialogTimeText(dialogBinding.tvTime, selectedTime[0], selectedTime[1]);
 
         dialogBinding.tvTime.setOnClickListener(v -> {
-            TimePickerDialog timePickerDialog = new TimePickerDialog(this, (view, h, m) -> {
-                selectedTime[0] = h;
-                selectedTime[1] = m;
-                updateDialogTimeText(dialogBinding.tvTime, h, m);
-            }, selectedTime[0], selectedTime[1], false);
-            timePickerDialog.show();
+            MaterialTimePicker picker = new MaterialTimePicker.Builder()
+                    .setTimeFormat(TimeFormat.CLOCK_12H)
+                    .setHour(selectedTime[0])
+                    .setMinute(selectedTime[1])
+                    .setTitleText(R.string.pref_reminders_time_label)
+                    .setTheme(Tools.getTimePickerTheme())
+                    .build();
+
+            picker.addOnPositiveButtonClickListener(v1 -> {
+                selectedTime[0] = picker.getHour();
+                selectedTime[1] = picker.getMinute();
+                updateDialogTimeText(dialogBinding.tvTime, selectedTime[0], selectedTime[1]);
+            });
+
+            picker.show(getSupportFragmentManager(), "reminder_time_picker");
         });
 
         AlertDialog dialog = new AlertDialog.Builder(this)
@@ -535,6 +551,7 @@ public class PreferencesActivity extends AppCompatActivity {
     }
 
     private void performClearAllData() {
+        if (executorService.isShutdown()) return;
         executorService.execute(() -> {
             try (Realm realm = Realm.getDefaultInstance()) {
                 realm.executeTransaction(r -> r.deleteAll());
@@ -572,6 +589,7 @@ public class PreferencesActivity extends AppCompatActivity {
             }
 
             runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
                 Toast.makeText(this, R.string.clear_all_data_success, Toast.LENGTH_SHORT).show();
             });
         });

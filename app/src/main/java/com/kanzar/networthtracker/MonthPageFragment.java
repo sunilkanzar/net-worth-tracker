@@ -259,6 +259,11 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
                     if (!isAdded() || binding == null) return;
 
                     binding.tutorial.getRoot().setVisibility(noData ? View.VISIBLE : View.GONE);
+                    binding.heroCard.setVisibility(noData ? View.GONE : View.VISIBLE);
+                    
+                    if (noData) {
+                        binding.tutorial.menuEmpty.setOnClickListener(v -> listener.onOpenDrawer());
+                    }
 
                     List<Asset> assetItems = new ArrayList<>();
                     List<Asset> liabItems = new ArrayList<>();

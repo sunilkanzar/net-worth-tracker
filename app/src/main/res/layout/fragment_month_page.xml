@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -34,6 +35,7 @@
 
                 <!-- ── Hero Card ─────────────────────────────────────── -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/heroCard"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="16dp"
@@ -54,7 +56,7 @@
                         <View
                             android:id="@+id/heroGradientView"
                             android:layout_width="200dp"
-                            android:layout_height="200dp"
+                            android:layout_height="140dp"
                             android:layout_alignParentEnd="true"
                             android:layout_alignParentTop="true"
                             android:layout_marginTop="-18dp"
@@ -68,7 +70,7 @@
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical"
                             android:orientation="horizontal"
-                            android:layout_marginBottom="14dp">
+                            android:layout_marginBottom="12dp">
 
                             <FrameLayout
                                 android:id="@+id/menu"
@@ -80,7 +82,8 @@
                                     android:layout_height="20dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_menu_thin"
-                                    app:tint="@color/hero_text" />
+                                    app:tint="@color/hero_text"
+                                    android:contentDescription="@string/menu" />
                             </FrameLayout>
 
                             <View
@@ -100,7 +103,8 @@
                                     android:layout_height="18dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_eye_thin"
-                                    app:tint="@color/hero_text" />
+                                    app:tint="@color/hero_text"
+                                    android:contentDescription="Toggle Privacy" />
                             </FrameLayout>
 
                             <LinearLayout
@@ -118,7 +122,8 @@
                                     android:layout_height="11dp"
                                     android:layout_marginEnd="4dp"
                                     android:src="@drawable/ic_arrow_up_thin"
-                                    app:tint="@color/positive" />
+                                    app:tint="@color/positive"
+                                    android:contentDescription="Trend" />
 
                                 <TextView
                                     android:id="@+id/percentText"
@@ -126,142 +131,32 @@
                                     android:layout_height="wrap_content"
                                     android:textColor="@color/positive"
                                     android:textSize="11sp"
-                                    android:textStyle="bold" />
+                                    android:textStyle="bold"
+                                    tools:text="+5.2%" />
                             </LinearLayout>
                         </LinearLayout>
 
-                        <!-- Label -->
-                        <TextView
-                            android:id="@+id/heroTitle"
+                        <!-- Right Stats Column (Graph + Assets/Liabs) -->
+                        <LinearLayout
+                            android:id="@+id/heroRightColumn"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
                             android:layout_below="@id/heroTopRow"
-                            android:letterSpacing="0.12"
-                            android:text="NET WORTH · APR 2026"
-                            android:textColor="@color/hero_text_muted"
-                            android:textSize="11sp"
-                            android:fontFamily="sans-serif-black"
-                            android:textAllCaps="true" />
-
-                        <!-- Main content row -->
-                        <LinearLayout
-                            android:id="@+id/heroMainRow"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/heroTitle"
-                            android:layout_marginTop="4dp"
-                            android:gravity="bottom"
-                            android:orientation="horizontal">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="bottom"
-                                    android:orientation="horizontal">
-
-                                    <TextView
-                                        android:id="@+id/currencySymbol"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginEnd="2dp"
-                                        android:layout_marginBottom="3dp"
-                                        android:text="₹"
-                                        android:textColor="@color/hero_text"
-                                        android:alpha="0.7"
-                                        android:textSize="22sp"
-                                        android:textStyle="normal" />
-
-                                    <androidx.appcompat.widget.AppCompatTextView
-                                        android:id="@+id/monthValue"
-                                        android:layout_width="0dp"
-                                        android:layout_height="wrap_content"
-                                        android:layout_weight="1"
-                                        android:fontFamily="sans-serif-black"
-                                        android:letterSpacing="-0.03"
-                                        android:textColor="@color/hero_text"
-                                        android:textSize="34sp"
-                                        android:textStyle="bold"
-                                        android:includeFontPadding="false"
-                                        android:maxLines="1"
-                                        app:autoSizeTextType="uniform"
-                                        app:autoSizeMinTextSize="12sp"
-                                        app:autoSizeMaxTextSize="34sp"
-                                        app:autoSizeStepGranularity="1sp" />
-                                </LinearLayout>
-
-                                <LinearLayout
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="8dp"
-                                    android:gravity="center_vertical">
-
-                                    <ImageView
-                                        android:id="@+id/monthValueChangeArrow"
-                                        android:layout_width="14dp"
-                                        android:layout_height="14dp"
-                                        android:layout_marginEnd="6dp"
-                                        android:src="@drawable/ic_arrow_up_thin"
-                                        app:tint="@color/positive" />
-
-                                    <TextView
-                                        android:id="@+id/monthValueChange"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:textColor="@color/positive"
-                                        android:textSize="14sp"
-                                        android:textStyle="bold"
-                                        android:fontFamily="sans-serif-medium" />
-
-                                    <TextView
-                                        android:id="@+id/vsLastMonthLabel"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginStart="10dp"
-                                        android:text="vs last month"
-                                        android:textColor="#66FFFFFF"
-                                        android:textSize="12sp" />
-                                </LinearLayout>
-                            </LinearLayout>
+                            android:gravity="end"
+                            android:orientation="vertical"
+                            android:layout_marginTop="-12dp">
 
                             <com.kanzar.networthtracker.views.MiniBarView
                                 android:id="@+id/miniBarChart"
                                 android:layout_width="92dp"
                                 android:layout_height="44dp"
-                                android:layout_marginBottom="2dp" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/monthCommentPreview"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/heroMainRow"
-                            android:layout_marginTop="12dp"
-                            android:ellipsize="end"
-                            android:fontFamily="sans-serif-light"
-                            android:maxLines="2"
-                            android:textColor="@color/hero_text_muted"
-                            android:textSize="13sp"
-                            android:visibility="gone" />
-
-                        <!-- Stats Strip -->
-                        <LinearLayout
-                            android:id="@+id/heroStatsStrip"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/monthCommentPreview"
-                            android:layout_marginTop="8dp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
+                                android:layout_marginBottom="8dp" />
 
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:gravity="end"
                                 android:orientation="vertical">
 
                                 <TextView
@@ -276,7 +171,7 @@
                                 <LinearLayout
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
+                                    android:layout_marginTop="1dp"
                                     android:gravity="center_vertical">
 
                                     <TextView
@@ -286,7 +181,8 @@
                                         android:textColor="@color/hero_text"
                                         android:textSize="14sp"
                                         android:textStyle="bold"
-                                        android:fontFamily="sans-serif-black" />
+                                        android:fontFamily="sans-serif-black"
+                                        tools:text="₹1,50,000" />
 
                                     <TextView
                                         android:id="@+id/heroAssetCount"
@@ -294,17 +190,16 @@
                                         android:layout_height="wrap_content"
                                         android:layout_marginStart="4dp"
                                         android:textColor="#80FFFFFF"
-                                        android:textSize="11sp" />
+                                        android:textSize="10sp"
+                                        tools:text="12" />
                                 </LinearLayout>
                             </LinearLayout>
-
-                            <View
-                                android:layout_width="16dp"
-                                android:layout_height="0dp" />
 
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="6dp"
+                                android:gravity="end"
                                 android:orientation="vertical">
 
                                 <TextView
@@ -319,7 +214,7 @@
                                 <LinearLayout
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="2dp"
+                                    android:layout_marginTop="1dp"
                                     android:gravity="center_vertical">
 
                                     <TextView
@@ -329,7 +224,8 @@
                                         android:textColor="#FCA5A5"
                                         android:textSize="14sp"
                                         android:textStyle="bold"
-                                        android:fontFamily="sans-serif-black" />
+                                        android:fontFamily="sans-serif-black"
+                                        tools:text="₹25,000" />
 
                                     <TextView
                                         android:id="@+id/heroLiabCount"
@@ -337,10 +233,127 @@
                                         android:layout_height="wrap_content"
                                         android:layout_marginStart="4dp"
                                         android:textColor="#80FFFFFF"
-                                        android:textSize="11sp" />
+                                        android:textSize="10sp"
+                                        tools:text="3" />
                                 </LinearLayout>
                             </LinearLayout>
                         </LinearLayout>
+
+                        <!-- Label -->
+                        <TextView
+                            android:id="@+id/heroTitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/heroTopRow"
+                            android:layout_alignParentStart="true"
+                            android:layout_toStartOf="@id/heroRightColumn"
+                            android:layout_marginEnd="12dp"
+                            android:letterSpacing="0.12"
+                            android:text="NET WORTH · APR 2026"
+                            android:textColor="@color/hero_text_muted"
+                            android:textSize="11sp"
+                            android:fontFamily="sans-serif-black"
+                            android:textAllCaps="true" />
+
+                        <!-- Main content row -->
+                        <LinearLayout
+                            android:id="@+id/heroMainRow"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/heroTitle"
+                            android:layout_toStartOf="@id/heroRightColumn"
+                            android:layout_marginEnd="12dp"
+                            android:layout_marginTop="4dp"
+                            android:gravity="bottom"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="bottom"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:id="@+id/currencySymbol"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="2dp"
+                                    android:layout_marginBottom="3dp"
+                                    android:text="₹"
+                                    android:textColor="@color/hero_text"
+                                    android:alpha="0.7"
+                                    android:textSize="22sp" />
+
+                                <androidx.appcompat.widget.AppCompatTextView
+                                    android:id="@+id/monthValue"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:fontFamily="sans-serif-black"
+                                    android:letterSpacing="-0.03"
+                                    android:textColor="@color/hero_text"
+                                    android:textSize="34sp"
+                                    android:textStyle="bold"
+                                    android:includeFontPadding="false"
+                                    android:maxLines="1"
+                                    app:autoSizeTextType="uniform"
+                                    app:autoSizeMinTextSize="12sp"
+                                    app:autoSizeMaxTextSize="34sp"
+                                    app:autoSizeStepGranularity="1sp"
+                                    tools:text="1,23,456" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="0dp"
+                                android:gravity="center_vertical">
+
+                                <ImageView
+                                    android:id="@+id/monthValueChangeArrow"
+                                    android:layout_width="14dp"
+                                    android:layout_height="14dp"
+                                    android:layout_marginEnd="6dp"
+                                    android:src="@drawable/ic_arrow_up_thin"
+                                    app:tint="@color/positive"
+                                    android:contentDescription="Change arrow" />
+
+                                <TextView
+                                    android:id="@+id/monthValueChange"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/positive"
+                                    android:textSize="14sp"
+                                    android:textStyle="bold"
+                                    android:fontFamily="sans-serif-medium"
+                                    tools:text="+ ₹5,000" />
+
+                                <TextView
+                                    android:id="@+id/vsLastMonthLabel"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="10dp"
+                                    android:text="vs last month"
+                                    android:textColor="#66FFFFFF"
+                                    android:textSize="12sp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/monthCommentPreview"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@id/heroMainRow"
+                            android:layout_toStartOf="@id/heroRightColumn"
+                            android:layout_marginEnd="12dp"
+                            android:layout_marginTop="2dp"
+                            android:ellipsize="end"
+                            android:fontFamily="sans-serif-light"
+                            android:maxLines="2"
+                            android:textColor="@color/hero_text_muted"
+                            android:textSize="13sp"
+                            android:visibility="gone"
+                            tools:text="Some monthly comment here..." />
 
                         <!-- Added PercentView for logic support -->
                         <com.kanzar.networthtracker.views.PercentView
@@ -393,7 +406,8 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:src="@drawable/ic_sort"
-                        app:tint="@color/text_3" />
+                        app:tint="@color/text_3"
+                        android:contentDescription="@string/sort" />
                 </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
