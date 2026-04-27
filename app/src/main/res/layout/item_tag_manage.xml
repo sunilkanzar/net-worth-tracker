@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
+
+    <ImageView
+        android:id="@+id/ivHandle"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/icon_menu"
+        app:tint="@color/text_4"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="Drag Handle"
+        xmlns:app="http://schemas.android.com/apk/res-auto"/>
+
+    <TextView
+        android:id="@+id/tagName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textColor="@color/text"
+        android:textSize="14sp"
+        android:text="Tag Name"/>
+
+    <ImageButton
+        android:id="@+id/btnEdit"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:src="@drawable/ic_edit"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:tint="@color/text_4"
+        android:contentDescription="Edit Tag"
+        android:layout_marginEnd="4dp"
+        xmlns:app="http://schemas.android.com/apk/res-auto"/>
+
+    <ImageButton
+        android:id="@+id/btnDelete"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:src="@drawable/ic_delete"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:tint="@color/text_4"
+        android:contentDescription="Delete Tag"
+        xmlns:app="http://schemas.android.com/apk/res-auto"/>
+
+</LinearLayout>

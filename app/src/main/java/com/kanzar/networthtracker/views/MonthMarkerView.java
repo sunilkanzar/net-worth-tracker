@@ -51,9 +51,13 @@ public class MonthMarkerView extends MarkerView {
         double value  = month.getValue();
         double change;
         double percent;
+        double assets;
+        double liabilities;
         try (Realm realm = Realm.getDefaultInstance()) {
             change = month.getValueChange(realm);
             percent = month.getPercent(realm);
+            assets = month.getAssetsValue(realm);
+            liabilities = month.getLiabilitiesValue(realm);
         }
 
         boolean privacyMode = Prefs.getBoolean("privacy_mode", false);
@@ -61,10 +65,17 @@ public class MonthMarkerView extends MarkerView {
         binding.markerMonth.setText(month.toStringMMMYY());
         binding.markerValue.setText(privacyMode ? "****" : Tools.formatAmount(value, true));
 
-        String changeStr = privacyMode ? "****" : Tools.formatAmount(change, true);
+        String arrow = change >= 0 ? "▲ " : "▼ ";
+        String changeStr = privacyMode ? "****" : arrow + Tools.formatAmount(Math.abs(change), true);
         String pct = privacyMode ? "**%" : String.format(Locale.getDefault(), "%.1f%%", Math.abs(percent));
         binding.markerChange.setText(changeStr + "  (" + pct + ")");
         binding.markerChange.setTextColor(ContextCompat.getColor(getContext(), Tools.getTextChangeColor(change)));
+
+        String assetsLabel = getContext().getString(R.string.allocation_assets);
+        String liabilitiesLabel = getContext().getString(R.string.allocation_liabilities);
+
+        binding.markerAssets.setText(assetsLabel + ": " + (privacyMode ? "****" : Tools.formatAmount(assets, true)));
+        binding.markerLiabilities.setText(liabilitiesLabel + ": " + (privacyMode ? "****" : Tools.formatAmount(liabilities, true)));
 
         super.refreshContent(e, highlight);
     }

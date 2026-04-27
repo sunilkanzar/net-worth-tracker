@@ -12,10 +12,6 @@ public final class Prefs {
     public static final String PREFS_LAST_SYNC = "last_sync";
     public static final String PREFS_TOKEN = "token";
     public static final String PREFS_USER_EMAIL = "email";
-    public static final String PREFS_GOAL_1Y = "goal_1y";
-    public static final String PREFS_GOAL_3Y = "goal_3y";
-    public static final String PREFS_GOAL_5Y = "goal_5y";
-    public static final String PREFS_GOAL_SET_YEAR = "goal_set_year";
     public static final String PREFS_CURRENCY = "currency_symbol";
     public static final String PREFS_NUMBER_FORMAT = "number_format";
     public static final String PREFS_NUMBER_SEPARATOR = "number_separator";

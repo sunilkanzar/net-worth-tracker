@@ -12,13 +12,15 @@
 
     <!-- ── Header ─────────────────────────────────────────── -->
     <LinearLayout
+        android:id="@+id/drawerHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:paddingTop="22dp"
-        android:paddingBottom="18dp">
+        android:paddingBottom="18dp"
+        android:visibility="gone">
 
         <!-- Goal section (when goal is set) -->
         <LinearLayout
@@ -45,9 +47,11 @@
 
     <!-- Header border -->
     <View
+        android:id="@+id/drawerHeaderBottomDivider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/divider"/>
+        android:background="@color/divider"
+        android:visibility="gone"/>
 
     <!-- ── Scrollable nav items ──────────────────────────── -->
     <ScrollView

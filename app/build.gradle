@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace 'com.kanzar.networthtracker'
+    namespace = 'com.kanzar.networthtracker'
     compileSdkVersion 36
     defaultConfig {
         applicationId "com.kanzar.networthtracker"
@@ -12,7 +12,7 @@ android {
         targetSdkVersion 35
         versionCode 4
         versionName "0.93"
-        multiDexEnabled true
+        multiDexEnabled = true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -23,7 +23,7 @@ android {
         }
     }
     buildFeatures {
-        viewBinding true
+        viewBinding = true
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11

@@ -46,6 +46,7 @@ public class SingleAssetTrendActivity extends AppCompatActivity {
     private final List<Month> allMonths = new ArrayList<>();
     private final List<Double> assetValues = new ArrayList<>();
     private int selectedRangeMonths = 12; // Default to 1Y
+    private String lastSelectedRangeLabel = "1Y";
     private Month customStartMonth = null;
     private Month customEndMonth = null;
 
@@ -78,6 +79,12 @@ public class SingleAssetTrendActivity extends AppCompatActivity {
         binding.rangeDropdown.setText(RANGE_OPTIONS[0], false);
         binding.rangeDropdown.setOnItemClickListener((parent, view, position, id) -> {
             String selection = RANGE_OPTIONS[position];
+            if (selection.equals("Custom")) {
+                showCustomRangeDialog();
+                return;
+            }
+
+            lastSelectedRangeLabel = selection;
             customStartMonth = null;
             customEndMonth = null;
             switch (selection) {
@@ -86,9 +93,6 @@ public class SingleAssetTrendActivity extends AppCompatActivity {
                 case "3Y": selectedRangeMonths = 36; break;
                 case "5Y": selectedRangeMonths = 60; break;
                 case "All": selectedRangeMonths = -1; break;
-                case "Custom": 
-                    showCustomRangeDialog();
-                    return;
             }
             updateUI();
         });
@@ -116,11 +120,17 @@ public class SingleAssetTrendActivity extends AppCompatActivity {
                 .setTitle("Select Range")
                 .setView(dialogBinding.getRoot())
                 .setPositiveButton("Apply", (d, which) -> {
+                    lastSelectedRangeLabel = "Custom";
                     customStartMonth = new Month(dialogBinding.startMonth.getValue(), dialogBinding.startYear.getValue());
                     customEndMonth = new Month(dialogBinding.endMonth.getValue(), dialogBinding.endYear.getValue());
                     updateUI();
                 })
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton("Cancel", (d, which) -> {
+                    binding.rangeDropdown.setText(lastSelectedRangeLabel, false);
+                })
+                .setOnCancelListener(d -> {
+                    binding.rangeDropdown.setText(lastSelectedRangeLabel, false);
+                })
                 .show();
         Tools.styleDialog(dialog);
     }

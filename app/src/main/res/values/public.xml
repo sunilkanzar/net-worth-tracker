@@ -1803,7 +1803,6 @@
     <public type="layout" name="activity_file_picker" id="0x7f0b001e" />
     <public type="layout" name="activity_main" id="0x7f0b001f" />
     <public type="layout" name="activity_month" id="0x7f0b0020" />
-    <public type="layout" name="activity_tutorial" id="0x7f0b0021" />
     <public type="layout" name="custom_dialog" id="0x7f0b0022" />
     <public type="layout" name="design_bottom_navigation_item" id="0x7f0b0023" />
     <public type="layout" name="design_bottom_sheet_dialog" id="0x7f0b0024" />

@@ -104,7 +104,7 @@
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_eye_thin"
                                     app:tint="@color/hero_text"
-                                    android:contentDescription="Toggle Privacy" />
+                                    android:contentDescription="@string/privacy_toggle_desc" />
                             </FrameLayout>
 
                             <LinearLayout
@@ -123,7 +123,7 @@
                                     android:layout_marginEnd="4dp"
                                     android:src="@drawable/ic_arrow_up_thin"
                                     app:tint="@color/positive"
-                                    android:contentDescription="Trend" />
+                                    android:contentDescription="@string/trend_desc" />
 
                                 <TextView
                                     android:id="@+id/percentText"
@@ -162,11 +162,12 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="ASSETS"
+                                    android:text="@string/allocation_assets"
                                     android:textColor="@color/hero_text_muted"
-                                    android:textSize="10sp"
+                                    android:textSize="11sp"
                                     android:fontFamily="sans-serif-black"
-                                    android:letterSpacing="0.08" />
+                                    android:letterSpacing="0.08"
+                                    android:textAllCaps="true" />
 
                                 <LinearLayout
                                     android:layout_width="wrap_content"
@@ -205,11 +206,12 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="LIABILITIES"
+                                    android:text="@string/allocation_liabilities"
                                     android:textColor="@color/hero_text_muted"
-                                    android:textSize="10sp"
+                                    android:textSize="11sp"
                                     android:fontFamily="sans-serif-black"
-                                    android:letterSpacing="0.08" />
+                                    android:letterSpacing="0.08"
+                                    android:textAllCaps="true" />
 
                                 <LinearLayout
                                     android:layout_width="wrap_content"
@@ -316,7 +318,7 @@
                                     android:layout_marginEnd="6dp"
                                     android:src="@drawable/ic_arrow_up_thin"
                                     app:tint="@color/positive"
-                                    android:contentDescription="Change arrow" />
+                                    android:contentDescription="@string/change_arrow_desc" />
 
                                 <TextView
                                     android:id="@+id/monthValueChange"
@@ -333,7 +335,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="10dp"
-                                    android:text="vs last month"
+                                    android:text="@string/vs_last_month"
                                     android:textColor="#66FFFFFF"
                                     android:textSize="12sp" />
                             </LinearLayout>

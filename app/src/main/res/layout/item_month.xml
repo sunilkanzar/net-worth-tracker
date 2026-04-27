@@ -28,7 +28,8 @@
         android:paddingEnd="16dp"
         android:paddingTop="14dp"
         android:paddingBottom="14dp"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:baselineAligned="false">
 
         <LinearLayout
             android:orientation="vertical"

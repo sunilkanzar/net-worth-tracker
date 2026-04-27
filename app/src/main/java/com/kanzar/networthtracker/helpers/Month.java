@@ -213,18 +213,19 @@ public class Month {
         return new DateFormatSymbols().getMonths()[month - 1] + " " + year;
     }
 
+    private String formatYearShort() {
+        String yearShort = String.valueOf(year % 100);
+        return yearShort.length() == 1 ? "0" + yearShort : yearShort;
+    }
+
     public String toStringMMMYY() {
         String fullMonth = new DateFormatSymbols().getMonths()[month - 1];
         String shortMonth = fullMonth.length() > 3 ? fullMonth.substring(0, 3) : fullMonth;
-        String yearShort = String.valueOf(year % 100);
-        if (yearShort.length() == 1) yearShort = "0" + yearShort;
-        return shortMonth + " " + yearShort;
+        return shortMonth + " " + formatYearShort();
     }
 
     public String toStringMMYY() {
-        String yearShort = String.valueOf(year % 100);
-        if (yearShort.length() == 1) yearShort = "0" + yearShort;
-        return month + "." + yearShort;
+        return month + "." + formatYearShort();
     }
 
     public List<Asset> getAssets(Realm realm) {

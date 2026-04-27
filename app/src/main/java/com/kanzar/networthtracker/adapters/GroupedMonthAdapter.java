@@ -136,12 +136,14 @@ public class GroupedMonthAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType == TYPE_HEADER) {
-            ItemYearHeaderBinding binding = ItemYearHeaderBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-            return new HeaderViewHolder(binding);
-        } else {
-            ItemMonthBinding binding = ItemMonthBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-            return new MonthViewHolder(binding);
+        switch (viewType) {
+            case TYPE_HEADER:
+                ItemYearHeaderBinding headerBinding = ItemYearHeaderBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+                return new HeaderViewHolder(headerBinding);
+            case TYPE_MONTH:
+            default:
+                ItemMonthBinding monthBinding = ItemMonthBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+                return new MonthViewHolder(monthBinding);
         }
     }
 
@@ -199,7 +201,7 @@ public class GroupedMonthAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             binding.expandIcon.animate().rotation(isCollapsed ? 0 : 180).setDuration(200).start();
 
             binding.yearHeader.setOnClickListener(v -> {
-                int pos = getAdapterPosition();
+                int pos = getBindingAdapterPosition();
                 if (pos == RecyclerView.NO_POSITION) return;
 
                 if (isCollapsed) {

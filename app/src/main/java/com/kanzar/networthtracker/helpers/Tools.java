@@ -91,30 +91,29 @@ public final class Tools {
         return Color.rgb(221, 221, 221);
     }
 
+    public static final String[] ACCENT_KEYS = {"emerald", "blue", "indigo", "violet", "rose", "amber"};
+    public static final int[] ACCENT_COLORS = {
+            R.color.emerald, R.color.blue, R.color.indigo, R.color.violet, R.color.rose, R.color.amber
+    };
+    public static final int[] ACCENT_THEMES = {
+            R.style.AppTheme_TimePicker_Emerald, R.style.AppTheme_TimePicker_Blue, R.style.AppTheme_TimePicker_Indigo,
+            R.style.AppTheme_TimePicker_Violet, R.style.AppTheme_TimePicker_Rose, R.style.AppTheme_TimePicker_Amber
+    };
+
     public static int getAccentColor() {
         String key = Prefs.getString(Prefs.PREFS_ACCENT_COLOR, Prefs.DEFAULT_ACCENT_COLOR);
-        switch (key) {
-            case "blue": return R.color.blue;
-            case "indigo": return R.color.indigo;
-            case "violet": return R.color.violet;
-            case "rose": return R.color.rose;
-            case "amber": return R.color.amber;
-            case "emerald": return R.color.emerald;
-            default: return R.color.indigo;
+        for (int i = 0; i < ACCENT_KEYS.length; i++) {
+            if (ACCENT_KEYS[i].equals(key)) return ACCENT_COLORS[i];
         }
+        return R.color.indigo;
     }
 
     public static int getTimePickerTheme() {
         String key = Prefs.getString(Prefs.PREFS_ACCENT_COLOR, Prefs.DEFAULT_ACCENT_COLOR);
-        switch (key) {
-            case "blue": return R.style.AppTheme_TimePicker_Blue;
-            case "indigo": return R.style.AppTheme_TimePicker_Indigo;
-            case "violet": return R.style.AppTheme_TimePicker_Violet;
-            case "rose": return R.style.AppTheme_TimePicker_Rose;
-            case "amber": return R.style.AppTheme_TimePicker_Amber;
-            case "emerald": return R.style.AppTheme_TimePicker_Emerald;
-            default: return R.style.AppTheme_TimePicker_Indigo;
+        for (int i = 0; i < ACCENT_KEYS.length; i++) {
+            if (ACCENT_KEYS[i].equals(key)) return ACCENT_THEMES[i];
         }
+        return R.style.AppTheme_TimePicker_Indigo;
     }
 
     public static void styleDialog(AlertDialog dialog) {
@@ -148,8 +147,7 @@ public final class Tools {
 
     public static String formatAmount(double amount, boolean roundUp) {
         String currency = Prefs.getString(Prefs.PREFS_CURRENCY, Prefs.DEFAULT_CURRENCY);
-        String formatted = formatNumber(amount, roundUp);
-        return currency.isEmpty() ? formatted : currency + (formatted.startsWith("-") ? " -" : " ") + formatted.replace("-", "");
+        return prependCurrency(formatNumber(amount, roundUp), currency);
     }
 
     public static String formatCompact(double n) {
@@ -166,7 +164,14 @@ public final class Tools {
         else if (abs >= 1000) formatted = df.format(n / 1000.0) + "K";
         else formatted = String.valueOf((int)n);
         
-        return currency.isEmpty() ? formatted : currency + " " + formatted;
+        return prependCurrency(formatted, currency);
+    }
+
+    private static String prependCurrency(String formatted, String currency) {
+        if (currency == null || currency.isEmpty()) return formatted;
+        boolean isNegative = formatted.startsWith("-");
+        String clean = isNegative ? formatted.substring(1) : formatted;
+        return currency + (isNegative ? " -" : " ") + clean;
     }
 
     public static String formatNumber(double amount, boolean roundUp) {

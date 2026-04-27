@@ -8,7 +8,8 @@
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
     app:behavior_hideable="true"
     app:behavior_peekHeight="0dp"
-    app:behavior_skipCollapsed="true"
+    app:behavior_skipCollapsed="false"
+    app:behavior_fitToContents="true"
     app:behavior_expandedOffset="80dp"
     app:cardBackgroundColor="@color/sheet_bg"
     app:cardCornerRadius="28dp"
@@ -30,18 +31,25 @@
             android:layout_marginBottom="16dp"
             android:background="@drawable/bg_sheet_handle" />
 
-        <androidx.core.widget.NestedScrollView
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clipToPadding="false">
+            android:layout_height="wrap_content">
 
-            <LinearLayout
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/sheetScrollView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:clipToPadding="false"
+                android:paddingBottom="100dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
                 <!-- Header Area -->
                 <LinearLayout
+                    android:id="@+id/sheetHeader"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -78,6 +86,25 @@
                             tools:text="Mutual fund" />
                     </LinearLayout>
 
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSaveAssetHeader"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:layout_marginEnd="4dp"
+                        android:insetLeft="0dp"
+                        android:insetTop="0dp"
+                        android:insetRight="0dp"
+                        android:insetBottom="0dp"
+                        android:padding="0dp"
+                        app:icon="@drawable/icon_save"
+                        app:iconGravity="textStart"
+                        app:iconPadding="0dp"
+                        app:iconSize="22dp"
+                        app:iconTint="@color/accent"
+                        app:rippleColor="@color/sheet_chip_bg"
+                        android:visibility="visible" />
+
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/assetInitialCard"
                         android:layout_width="44dp"
@@ -99,8 +126,9 @@
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
 
-                <!-- Form Area -->
+                <!-- Edit Area (Visible in Peek) -->
                 <LinearLayout
+                    android:id="@+id/layoutEditForm"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -317,160 +345,303 @@
                             android:textColor="@color/sheet_text_muted"
                             android:textSize="12sp"
                             android:fontFamily="sans-serif-black" />
-
-                        <TextView
-                            android:id="@+id/pillPlus5"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
-                            android:background="@drawable/bg_pill_v2"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="9dp"
-                            android:text="+5%"
-                            android:textColor="@color/sheet_text_muted"
-                            android:textSize="12sp"
-                            android:fontFamily="sans-serif-black" />
-
-                        <TextView
-                            android:id="@+id/pillMinus5"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
-                            android:background="@drawable/bg_pill_v2"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="9dp"
-                            android:text="-5%"
-                            android:textColor="@color/sheet_text_muted"
-                            android:textSize="12sp"
-                            android:fontFamily="sans-serif-black" />
-
-                        <TextView
-                            android:id="@+id/pillPurchase"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
-                            android:background="@drawable/bg_pill_v2"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="9dp"
-                            android:text="Purchase"
-                            android:textColor="@color/sheet_text_muted"
-                            android:textSize="12sp"
-                            android:fontFamily="sans-serif-black" />
-
-                        <TextView
-                            android:id="@+id/pillSell"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
-                            android:background="@drawable/bg_pill_v2"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="9dp"
-                            android:text="Sell"
-                            android:textColor="@color/sheet_text_muted"
-                            android:textSize="12sp"
-                            android:fontFamily="sans-serif-black" />
-
-                        <TextView
-                            android:id="@+id/pillProfit"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
-                            android:background="@drawable/bg_pill_v2"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="9dp"
-                            android:text="Profit Booking"
-                            android:textColor="@color/sheet_text_muted"
-                            android:textSize="12sp"
-                            android:fontFamily="sans-serif-black" />
-
-                        <TextView
-                            android:id="@+id/pillLoss"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
-                            android:background="@drawable/bg_pill_v2"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="9dp"
-                            android:text="Loss Harvest"
-                            android:textColor="@color/sheet_text_muted"
-                            android:textSize="12sp"
-                            android:fontFamily="sans-serif-black" />
-
-                        <TextView
-                            android:id="@+id/pillReinvest"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
-                            android:background="@drawable/bg_pill_v2"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="9dp"
-                            android:text="Reinvest"
-                            android:textColor="@color/sheet_text_muted"
-                            android:textSize="12sp"
-                            android:fontFamily="sans-serif-black" />
-
-                        <TextView
-                            android:id="@+id/pillChurning"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
-                            android:background="@drawable/bg_pill_v2"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="9dp"
-                            android:text="Churning"
-                            android:textColor="@color/sheet_text_muted"
-                            android:textSize="12sp"
-                            android:fontFamily="sans-serif-black" />
                     </LinearLayout>
                 </HorizontalScrollView>
             </LinearLayout>
+
+                <!-- Trend Area (Visible on Expand) -->
+                <LinearLayout
+                    android:id="@+id/layoutTrend"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="0dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1.5dp"
+                        android:background="@color/sheet_border"
+                        android:layout_marginBottom="20dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:layout_marginBottom="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="PERFORMANCE TREND"
+                            android:textColor="@color/sheet_text_muted"
+                            android:textSize="11sp"
+                            android:fontFamily="sans-serif-black"
+                            android:letterSpacing="0.08"/>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                            android:layout_width="125dp"
+                            android:layout_height="wrap_content"
+                            app:hintEnabled="false"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeColor="@color/sheet_border"
+                            app:endIconTint="@color/sheet_text_muted">
+                            <AutoCompleteTextView
+                                android:id="@+id/sheetRangeDropdown"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="none"
+                                android:paddingHorizontal="10dp"
+                                android:paddingTop="12dp"
+                                android:paddingBottom="12dp"
+                                android:textSize="11sp"
+                                android:fontFamily="sans-serif-black"
+                                android:textColor="@color/sheet_text"
+                                android:maxLines="1"
+                                android:singleLine="true"
+                                tools:text="Custom"/>
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="240dp">
+
+                        <com.github.mikephil.charting.charts.LineChart
+                            android:id="@+id/sheetChart"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/sheetCursorCard"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="top|center_horizontal"
+                            app:cardCornerRadius="8dp"
+                            app:cardElevation="4dp"
+                            app:strokeWidth="0dp"
+                            app:cardBackgroundColor="@color/sheet_input_bg"
+                            android:visibility="gone"
+                            tools:visibility="visible">
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:paddingHorizontal="12dp"
+                                android:paddingVertical="6dp"
+                                android:gravity="center_vertical">
+                                <TextView
+                                    android:id="@+id/sheetCursorDate"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/sheet_text_muted"
+                                    android:textSize="10sp"
+                                    android:fontFamily="sans-serif-black"
+                                    android:textAllCaps="true"
+                                    tools:text="MAY 24"/>
+                                <View
+                                    android:layout_width="1dp"
+                                    android:layout_height="12dp"
+                                    android:background="@color/sheet_border"
+                                    android:layout_marginHorizontal="8dp"/>
+                                <TextView
+                                    android:id="@+id/sheetCursorValue"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/sheet_text"
+                                    android:textSize="11sp"
+                                    android:fontFamily="sans-serif-black"
+                                    tools:text="₹1.2L"/>
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
+                    </FrameLayout>
+
+                    <!-- Advanced Stats -->
+                    <GridLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:columnCount="2"
+                        android:rowCount="2"
+                        android:layout_marginTop="16dp">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:padding="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="AVERAGE"
+                                android:textColor="@color/sheet_text_muted"
+                                android:textSize="9sp"
+                                android:fontFamily="sans-serif-black"
+                                android:letterSpacing="0.1"/>
+                            <TextView
+                                android:id="@+id/sheetStatAvg"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/sheet_text"
+                                android:textSize="16sp"
+                                android:fontFamily="sans-serif-black"
+                                tools:text="₹0"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:padding="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="BEST MONTH"
+                                android:textColor="@color/sheet_text_muted"
+                                android:textSize="9sp"
+                                android:fontFamily="sans-serif-black"
+                                android:letterSpacing="0.1"/>
+                            <TextView
+                                android:id="@+id/sheetStatBest"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/positive"
+                                android:textSize="16sp"
+                                android:fontFamily="sans-serif-black"
+                                tools:text="+0%"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:padding="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="VOLATILITY"
+                                android:textColor="@color/sheet_text_muted"
+                                android:textSize="9sp"
+                                android:fontFamily="sans-serif-black"
+                                android:letterSpacing="0.1"/>
+                            <TextView
+                                android:id="@+id/sheetStatVol"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/positive"
+                                android:textSize="16sp"
+                                android:fontFamily="sans-serif-black"
+                                tools:text="Low"/>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_columnWeight="1"
+                            android:orientation="vertical"
+                            android:padding="8dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="CAGR (EST)"
+                                android:textColor="@color/sheet_text_muted"
+                                android:textSize="9sp"
+                                android:fontFamily="sans-serif-black"
+                                android:letterSpacing="0.1"/>
+                            <TextView
+                                android:id="@+id/sheetStatCAGR"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/sheet_text"
+                                android:textSize="16sp"
+                                android:fontFamily="sans-serif-black"
+                                tools:text="0%"/>
+                        </LinearLayout>
+                    </GridLayout>
+
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+
+            <!-- Footer Buttons -->
+            <LinearLayout
+                android:id="@+id/sheetButtonsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:orientation="horizontal"
+                android:paddingHorizontal="24dp"
+                android:paddingBottom="28dp"
+                android:paddingTop="12dp"
+                android:background="@color/sheet_bg">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCloseSheet"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:text="@string/action_close"
+                android:textAllCaps="false"
+                android:textColor="@color/sheet_text"
+                android:textSize="15sp"
+                android:fontFamily="sans-serif-black"
+                app:backgroundTint="@color/sheet_chip_bg"
+                app:cornerRadius="16dp"
+                app:strokeColor="@color/sheet_border"
+                app:strokeWidth="1.5dp"
+                app:rippleColor="?attr/colorControlHighlight" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDeleteAsset"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1.5"
+                android:layout_marginStart="14dp"
+                android:text="@string/menu_delete"
+                android:textAllCaps="false"
+                android:textColor="@color/textOnPrimary"
+                android:textSize="15sp"
+                android:fontFamily="sans-serif-black"
+                app:backgroundTint="@color/negative"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_delete"
+                app:iconGravity="textStart"
+                app:iconPadding="10dp"
+                app:iconTint="@color/textOnPrimary"
+                app:rippleColor="?attr/colorControlHighlight"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveAsset"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1.8"
+                android:layout_marginStart="14dp"
+                android:text="Save"
+                android:textAllCaps="false"
+                android:textSize="15sp"
+                android:fontFamily="sans-serif-black"
+                app:backgroundTint="@color/accent"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/icon_save"
+                app:iconGravity="textStart"
+                app:iconPadding="10dp"
+                app:iconTint="@color/textOnPrimary"
+                app:rippleColor="?attr/colorControlHighlight" />
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
-
-    <!-- Footer Buttons -->
-    <LinearLayout
-        android:id="@+id/sheetButtonsContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingHorizontal="24dp"
-        android:paddingBottom="28dp"
-        android:paddingTop="12dp"
-        android:background="@color/sheet_bg">
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCloseSheet"
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_weight="1"
-            android:text="Cancel"
-            android:textAllCaps="false"
-            android:textColor="@color/sheet_text"
-            android:textSize="15sp"
-            android:fontFamily="sans-serif-black"
-            app:backgroundTint="@color/sheet_chip_bg"
-            app:cornerRadius="16dp"
-            app:strokeColor="@color/sheet_border"
-            app:strokeWidth="1.5dp"
-            app:rippleColor="?attr/colorControlHighlight" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSaveAsset"
-            android:layout_width="0dp"
-            android:layout_height="56dp"
-            android:layout_weight="1.8"
-            android:layout_marginStart="14dp"
-            android:text="Save entry"
-            android:textAllCaps="false"
-            android:textSize="15sp"
-            android:fontFamily="sans-serif-black"
-            app:backgroundTint="@color/accent"
-            app:cornerRadius="16dp"
-            app:icon="@drawable/icon_save"
-            app:iconGravity="textStart"
-            app:iconPadding="10dp"
-            app:iconTint="@color/textOnPrimary"
-            app:rippleColor="?attr/colorControlHighlight" />
-    </LinearLayout>
+    </FrameLayout>
 </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

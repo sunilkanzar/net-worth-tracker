@@ -18,11 +18,11 @@ import com.kanzar.networthtracker.models.Asset;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import io.realm.Realm;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -150,7 +150,7 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         String formatKey = com.kanzar.networthtracker.helpers.Prefs.getString(com.kanzar.networthtracker.helpers.Prefs.PREFS_NUMBER_FORMAT, "")
                 + com.kanzar.networthtracker.helpers.Prefs.getString(com.kanzar.networthtracker.helpers.Prefs.PREFS_NUMBER_SEPARATOR, "")
                 + com.kanzar.networthtracker.helpers.Prefs.getString(com.kanzar.networthtracker.helpers.Prefs.PREFS_CURRENCY, "");
-        boolean formatChanged = !formatKey.equals(this.lastFormatKey);
+        boolean formatChanged = !Objects.equals(formatKey, this.lastFormatKey);
         DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new AssetDiffCallback(this.displayItems, newDisplayItems), false);
         boolean totalChanged = totalAssets != this.cachedTotalAssets || Math.abs(totalLiabilities) != this.cachedTotalLiabilities;
         this.originalItems = items;
@@ -196,9 +196,9 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             Object newItem = newList.get(newItemPosition);
 
             if (oldItem instanceof String && newItem instanceof String) {
-                return oldItem.equals(newItem);
+                return Objects.equals(oldItem, newItem);
             } else if (oldItem instanceof Asset && newItem instanceof Asset) {
-                return ((Asset) oldItem).getId().equals(((Asset) newItem).getId());
+                return Objects.equals(((Asset) oldItem).getId(), ((Asset) newItem).getId());
             }
             return false;
         }
@@ -209,12 +209,12 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             Object newItem = newList.get(newItemPosition);
 
             if (oldItem instanceof String && newItem instanceof String) {
-                return oldItem.equals(newItem);
+                return Objects.equals(oldItem, newItem);
             } else if (oldItem instanceof Asset && newItem instanceof Asset) {
                 Asset oldAsset = (Asset) oldItem;
                 Asset newAsset = (Asset) newItem;
                 return oldAsset.getValue() == newAsset.getValue() &&
-                        oldAsset.getName().equals(newAsset.getName()) &&
+                        Objects.equals(oldAsset.getName(), newAsset.getName()) &&
                         oldAsset.getUpdatedAt() == newAsset.getUpdatedAt();
             }
             return false;
@@ -231,12 +231,14 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        if (viewType == TYPE_HEADER) {
-            ItemHeaderBinding binding = ItemHeaderBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-            return new HeaderViewHolder(binding);
-        } else {
-            ItemAssetBinding binding = ItemAssetBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
-            return new ViewHolder(binding);
+        switch (viewType) {
+            case TYPE_HEADER:
+                ItemHeaderBinding headerBinding = ItemHeaderBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+                return new HeaderViewHolder(headerBinding);
+            case TYPE_ITEM:
+            default:
+                ItemAssetBinding assetBinding = ItemAssetBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+                return new ViewHolder(assetBinding);
         }
     }
 
@@ -375,7 +377,6 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 binding.assetWeight.setText(Tools.formatPercent(weight));
 
                 // Sparkline Data — use same palette color as the letter icon
-                int chartColor = itemColor;
                 if (privacyMode) {
                     binding.assetSparkline.setVisibility(View.INVISIBLE);
                     binding.assetSparkline.clear();
@@ -391,11 +392,11 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                     
                     if (cachedEntries != null) {
                         // If cached, apply immediately and DON'T clear
-                        applySparklineData(cachedEntries, chartColor, key);
+                        applySparklineData(cachedEntries, itemColor, key);
                     } else {
                         // Only clear and load if we don't have it
                         binding.assetSparkline.clear();
-                        loadSparklineDataAsync(asset, chartColor);
+                        loadSparklineDataAsync(asset, itemColor);
                     }
                 }
             }
@@ -428,7 +429,7 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 List<Entry> entries = com.kanzar.networthtracker.helpers.SparklineHelper.getSparklineData(name, month, year);
 
                 mainHandler.post(() -> {
-                    if (!key.equals(boundAssetKey)) return;
+                    if (!Objects.equals(key, boundAssetKey)) return;
                     applySparklineData(entries, color, key);
                 });
             });

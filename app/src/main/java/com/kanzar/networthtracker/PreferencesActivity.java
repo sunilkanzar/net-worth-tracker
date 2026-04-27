@@ -52,10 +52,6 @@ public class PreferencesActivity extends AppCompatActivity {
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private static final String[] ACCENT_NAMES = {"Emerald", "Blue", "Indigo", "Violet", "Rose", "Amber"};
-    private static final String[] ACCENT_KEYS = {"emerald", "blue", "indigo", "violet", "rose", "amber"};
-    private static final int[] ACCENT_COLORS = {
-            R.color.emerald, R.color.blue, R.color.indigo, R.color.violet, R.color.rose, R.color.amber
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,7 +163,7 @@ public class PreferencesActivity extends AppCompatActivity {
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(R.string.pref_accent_label)
                 .setAdapter(new AccentAdapter(), (d, which) -> {
-                    Prefs.save(Prefs.PREFS_ACCENT_COLOR, ACCENT_KEYS[which]);
+                    Prefs.save(Prefs.PREFS_ACCENT_COLOR, Tools.ACCENT_KEYS[which]);
                     updateUI();
                     recreate();
                 })
@@ -201,7 +197,7 @@ public class PreferencesActivity extends AppCompatActivity {
             rowBinding.prefSummary.setVisibility(View.GONE);
             rowBinding.prefActionIcon.setVisibility(View.GONE);
             rowBinding.prefActionColor.setVisibility(View.VISIBLE);
-            rowBinding.prefActionColor.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(PreferencesActivity.this, ACCENT_COLORS[position])));
+            rowBinding.prefActionColor.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(PreferencesActivity.this, Tools.ACCENT_COLORS[position])));
             
             return view;
         }

@@ -27,6 +27,8 @@ import com.kanzar.networthtracker.views.PercentView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -154,7 +156,7 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
         String currentSortName = Prefs.getString(Prefs.PREFS_SORT_ORDER, AssetAdapter.SortOrder.VALUE_DESC.name());
         int checkedItem = 0;
         for (int i = 0; i < orders.length; i++) {
-            if (orders[i].name().equals(currentSortName)) {
+            if (Objects.equals(orders[i].name(), currentSortName)) {
                 checkedItem = i;
                 break;
             }
@@ -295,19 +297,19 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
                     String currency = Prefs.getString(Prefs.PREFS_CURRENCY, Prefs.DEFAULT_CURRENCY);
                     binding.currencySymbol.setText(currency);
                     binding.monthValue.setText(Tools.formatNumber(value, false));
-                    binding.heroAssetValue.setText(currency + Tools.formatNumber(ta, true));
-                    binding.heroLiabValue.setText(currency + Tools.formatNumber(tl, true));
+                    binding.heroAssetValue.setText(getString(R.string.format_currency_value, currency, Tools.formatNumber(ta, true)));
+                    binding.heroLiabValue.setText(getString(R.string.format_currency_value, currency, Tools.formatNumber(tl, true)));
                     binding.heroAssetCount.setText(String.valueOf(ac));
                     binding.heroLiabCount.setText(String.valueOf(lc));
                     binding.percentView.init(prevValue, value);
                     binding.percentView.fillValueChange(binding.monthValueChange);
 
                     // Update Hero Title
-                    binding.heroTitle.setText(String.format("NET WORTH · %s", month.toString().toUpperCase()));
+                    binding.heroTitle.setText(getString(R.string.format_net_worth_month, month.toString().toUpperCase(Locale.getDefault())));
 
                     // Update counts
-                    binding.assetSectionTitle.setText(String.format("ASSETS · %d", ac));
-                    binding.liabSectionTitle.setText(String.format("LIABILITIES · %d", lc));
+                    binding.assetSectionTitle.setText(getString(R.string.format_section_assets, ac));
+                    binding.liabSectionTitle.setText(getString(R.string.format_section_liabilities, lc));
                     
                     binding.assetHeader.setVisibility(!assetItems.isEmpty() ? View.VISIBLE : View.GONE);
                     binding.liabHeader.setVisibility(!liabItems.isEmpty() ? View.VISIBLE : View.GONE);
@@ -443,7 +445,7 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
             }
 
             if (isAdded()) {
-                requireActivity().runOnUiThread(() -> listener.onDataChanged());
+                requireActivity().runOnUiThread(listener::onDataChanged);
             }
         });
     }

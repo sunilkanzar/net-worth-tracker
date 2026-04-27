@@ -33,6 +33,7 @@ public class ChartTabFragment extends Fragment {
     private FragmentChartTabBinding binding;
     private String type;
     private int currentMonthsToView = 12;
+    private String lastRangeLabel = "1Y";
     private Month customStartMonth = null;
     private Month customEndMonth = null;
 
@@ -256,6 +257,12 @@ public class ChartTabFragment extends Fragment {
         binding.rangeDropdown.setText(RANGE_OPTIONS[0], false);
         binding.rangeDropdown.setOnItemClickListener((parent, view, position, id) -> {
             String selection = RANGE_OPTIONS[position];
+            if (selection.equals("Custom")) {
+                showCustomRangeDialog();
+                return;
+            }
+
+            lastRangeLabel = selection;
             customStartMonth = null;
             customEndMonth = null;
             switch (selection) {
@@ -264,9 +271,6 @@ public class ChartTabFragment extends Fragment {
                 case "3Y": currentMonthsToView = 36; break;
                 case "5Y": currentMonthsToView = 60; break;
                 case "All": currentMonthsToView = -1; break;
-                case "Custom": 
-                    showCustomRangeDialog();
-                    return;
             }
             updateUI();
         });
@@ -295,11 +299,17 @@ public class ChartTabFragment extends Fragment {
                 .setTitle("Select Range")
                 .setView(dialogBinding.getRoot())
                 .setPositiveButton("Apply", (d, which) -> {
+                    lastRangeLabel = "Custom";
                     customStartMonth = new Month(dialogBinding.startMonth.getValue(), dialogBinding.startYear.getValue());
                     customEndMonth = new Month(dialogBinding.endMonth.getValue(), dialogBinding.endYear.getValue());
                     updateUI();
                 })
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton("Cancel", (d, which) -> {
+                    binding.rangeDropdown.setText(lastRangeLabel, false);
+                })
+                .setOnCancelListener(d -> {
+                    binding.rangeDropdown.setText(lastRangeLabel, false);
+                })
                 .show();
         Tools.styleDialog(dialog);
     }
