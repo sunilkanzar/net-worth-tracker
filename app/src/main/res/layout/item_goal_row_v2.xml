@@ -107,10 +107,11 @@
             android:id="@+id/goalProgress"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             android:layout_width="match_parent"
-            android:layout_height="4dp"
+            android:layout_height="6dp"
             android:layout_marginTop="12dp"
             android:progress="45"
-            android:progressBackgroundTint="@color/divider"
+            android:progressBackgroundTint="@color/text_3"
+            android:progressBackgroundTintMode="src_over"
             android:progressTint="@color/accent" />
 
         <LinearLayout

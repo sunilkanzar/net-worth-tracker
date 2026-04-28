@@ -86,30 +86,10 @@
                             tools:text="Mutual fund" />
                     </LinearLayout>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnSaveAssetHeader"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"
-                        android:layout_width="44dp"
-                        android:layout_height="44dp"
-                        android:layout_marginEnd="4dp"
-                        android:insetLeft="0dp"
-                        android:insetTop="0dp"
-                        android:insetRight="0dp"
-                        android:insetBottom="0dp"
-                        android:padding="0dp"
-                        app:icon="@drawable/icon_save"
-                        app:iconGravity="textStart"
-                        app:iconPadding="0dp"
-                        app:iconSize="22dp"
-                        app:iconTint="@color/accent"
-                        app:rippleColor="@color/sheet_chip_bg"
-                        android:visibility="visible" />
-
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/assetInitialCard"
                         android:layout_width="44dp"
                         android:layout_height="44dp"
-                        android:layout_marginStart="16dp"
                         app:cardBackgroundColor="@color/sheet_input_bg"
                         app:cardCornerRadius="12dp"
                         app:cardElevation="0dp"
@@ -158,14 +138,14 @@
                         <AutoCompleteTextView
                             android:id="@+id/newAssetName"
                             android:layout_width="match_parent"
-                            android:layout_height="54dp"
+                            android:layout_height="48dp"
                             android:background="@drawable/bg_input_v2"
                             android:hint="@string/new_asset_name_hint"
                             android:inputType="textCapSentences"
                             android:paddingHorizontal="16dp"
                             android:textColor="@color/sheet_text"
                             android:textColorHint="@color/sheet_text_dim"
-                            android:textSize="15sp"
+                            android:textSize="14sp"
                             android:fontFamily="sans-serif-medium"
                             android:completionThreshold="1" />
                     </LinearLayout>
@@ -185,7 +165,7 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="64dp"
+                        android:layout_height="56dp"
                         android:background="@drawable/bg_input_v2"
                         android:paddingHorizontal="16dp"
                         android:orientation="horizontal"
@@ -196,7 +176,7 @@
                         android:layout_height="wrap_content"
                         android:text="₹"
                         android:textColor="@color/sheet_text_dim"
-                        android:textSize="18sp"
+                        android:textSize="16sp"
                         android:fontFamily="sans-serif-medium" />
 
                     <EditText
@@ -210,18 +190,23 @@
                         android:inputType="numberDecimal|numberSigned"
                         android:textColor="@color/sheet_text"
                         android:textColorHint="@color/sheet_text_dim"
-                        android:textSize="22sp"
+                        android:textSize="18sp"
                         android:fontFamily="sans-serif-black"
                         android:letterSpacing="-0.02" />
 
                     <TextView
-                        android:id="@+id/newAssetValueFormatted"
+                        android:id="@+id/btnValueReset"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textColor="@color/sheet_text_dim"
-                        android:textSize="12sp"
-                        android:fontFamily="sans-serif-medium" />
+                        android:text="Reset"
+                        android:textColor="@color/accent"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-black"
+                        android:textAllCaps="true"
+                        android:paddingVertical="8dp"
+                        android:paddingStart="12dp"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
                 </LinearLayout>
 
                 <TextView
@@ -245,7 +230,7 @@
 
                     <LinearLayout
                         android:layout_width="0dp"
-                        android:layout_height="54dp"
+                        android:layout_height="48dp"
                         android:layout_weight="1"
                         android:background="@drawable/bg_input_v2"
                         android:paddingHorizontal="16dp"
@@ -257,7 +242,7 @@
                             android:layout_height="wrap_content"
                             android:text="₹"
                             android:textColor="@color/sheet_text_dim"
-                            android:textSize="15sp"
+                            android:textSize="14sp"
                             android:fontFamily="sans-serif-medium" />
 
                         <EditText
@@ -270,13 +255,13 @@
                             android:inputType="numberDecimal|numberSigned"
                             android:textColor="@color/sheet_text"
                             android:textColorHint="@color/sheet_text_dim"
-                            android:textSize="17sp"
+                            android:textSize="16sp"
                             android:fontFamily="sans-serif-black" />
                     </LinearLayout>
 
                     <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="54dp"
+                        android:layout_height="48dp"
                         android:layout_marginStart="12dp"
                         android:background="@drawable/bg_segmented_control"
                         android:padding="3dp"
@@ -284,7 +269,7 @@
 
                         <com.google.android.material.card.MaterialCardView
                             android:id="@+id/btnPlus"
-                            android:layout_width="46dp"
+                            android:layout_width="42dp"
                             android:layout_height="match_parent"
                             app:cardBackgroundColor="@color/sheet_input_bg"
                             app:cardCornerRadius="8dp"
@@ -297,13 +282,13 @@
                                 android:gravity="center"
                                 android:text="@string/plus"
                                 android:textColor="@color/accent"
-                                android:textSize="20sp"
+                                android:textSize="18sp"
                                 android:fontFamily="sans-serif-black" />
                         </com.google.android.material.card.MaterialCardView>
 
                         <com.google.android.material.card.MaterialCardView
                             android:id="@+id/btnMinus"
-                            android:layout_width="46dp"
+                            android:layout_width="42dp"
                             android:layout_height="match_parent"
                             app:cardBackgroundColor="@android:color/transparent"
                             app:cardCornerRadius="8dp"
@@ -316,37 +301,15 @@
                                 android:gravity="center"
                                 android:text="@string/minus"
                                 android:textColor="@color/sheet_text_dim"
-                                android:textSize="20sp"
+                                android:textSize="18sp"
                                 android:fontFamily="sans-serif-black" />
                         </com.google.android.material.card.MaterialCardView>
                     </LinearLayout>
                 </LinearLayout>
 
-                <!-- Chips -->
-                <HorizontalScrollView
+                <View
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:scrollbars="none">
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:paddingBottom="16dp">
-
-                        <TextView
-                            android:id="@+id/pillSame"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_pill_v2"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="9dp"
-                            android:text="Same as last month"
-                            android:textColor="@color/sheet_text_muted"
-                            android:textSize="12sp"
-                            android:fontFamily="sans-serif-black" />
-                    </LinearLayout>
-                </HorizontalScrollView>
+                    android:layout_height="16dp"/>
             </LinearLayout>
 
                 <!-- Trend Area (Visible on Expand) -->
@@ -421,156 +384,291 @@
                             android:id="@+id/sheetChart"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent" />
+                    </FrameLayout>
 
-                        <com.google.android.material.card.MaterialCardView
-                            android:id="@+id/sheetCursorCard"
-                            android:layout_width="wrap_content"
+                    <!-- Cursor Info Card -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/sheetCursorCard"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="@color/sheet_input_bg"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="@color/sheet_border"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="top|center_horizontal"
-                            app:cardCornerRadius="8dp"
-                            app:cardElevation="4dp"
-                            app:strokeWidth="0dp"
-                            app:cardBackgroundColor="@color/sheet_input_bg"
-                            android:visibility="gone"
-                            tools:visibility="visible">
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:padding="14dp">
+
+                            <View
+                                android:id="@+id/sheetCursorColor"
+                                android:layout_width="8dp"
+                                android:layout_height="8dp"
+                                android:background="@drawable/bg_legend_color"
+                                android:layout_marginEnd="12dp"/>
+
                             <LinearLayout
-                                android:layout_width="wrap_content"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:paddingHorizontal="12dp"
-                                android:paddingVertical="6dp"
-                                android:gravity="center_vertical">
+                                android:layout_weight="1"
+                                android:orientation="vertical">
+
                                 <TextView
                                     android:id="@+id/sheetCursorDate"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textColor="@color/sheet_text_muted"
+                                    android:text="MAY 24"
                                     android:textSize="10sp"
                                     android:fontFamily="sans-serif-black"
-                                    android:textAllCaps="true"
-                                    tools:text="MAY 24"/>
-                                <View
-                                    android:layout_width="1dp"
-                                    android:layout_height="12dp"
-                                    android:background="@color/sheet_border"
-                                    android:layout_marginHorizontal="8dp"/>
+                                    android:textColor="@color/sheet_text_muted"
+                                    android:letterSpacing="0.1"
+                                    android:textAllCaps="true"/>
+
                                 <TextView
                                     android:id="@+id/sheetCursorValue"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textColor="@color/sheet_text"
-                                    android:textSize="11sp"
+                                    android:text="₹125,000"
+                                    android:textSize="16sp"
                                     android:fontFamily="sans-serif-black"
-                                    tools:text="₹1.2L"/>
+                                    android:textColor="@color/sheet_text"
+                                    android:letterSpacing="-0.02"/>
+
+                                <TextView
+                                    android:id="@+id/sheetCursorNote"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:textColor="@color/sheet_text_muted"
+                                    android:textSize="12sp"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:visibility="gone"
+                                    tools:text="Some note for the month"
+                                    tools:visibility="visible" />
                             </LinearLayout>
-                        </com.google.android.material.card.MaterialCardView>
-                    </FrameLayout>
+
+                            <TextView
+                                android:id="@+id/sheetCursorChange"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="+₹0 (0%)"
+                                android:textColor="@color/positive"
+                                android:textSize="13sp"
+                                android:fontFamily="sans-serif-black" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
 
                     <!-- Advanced Stats -->
-                    <GridLayout
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:columnCount="2"
-                        android:rowCount="2"
                         android:layout_marginTop="16dp">
 
-                        <LinearLayout
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardAvg"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:orientation="vertical"
-                            android:padding="8dp">
-                            <TextView
-                                android:layout_width="wrap_content"
+                            android:layout_marginEnd="6dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="1dp"
+                            app:strokeColor="@color/sheet_border"
+                            app:cardBackgroundColor="@color/sheet_input_bg"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/cardBest">
+                            <LinearLayout
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="AVERAGE"
-                                android:textColor="@color/sheet_text_muted"
-                                android:textSize="9sp"
-                                android:fontFamily="sans-serif-black"
-                                android:letterSpacing="0.1"/>
-                            <TextView
-                                android:id="@+id/sheetStatAvg"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/sheet_text"
-                                android:textSize="16sp"
-                                android:fontFamily="sans-serif-black"
-                                tools:text="₹0"/>
-                        </LinearLayout>
+                                android:orientation="vertical"
+                                android:padding="12dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="AVERAGE"
+                                    android:textColor="@color/sheet_text_muted"
+                                    android:textSize="9sp"
+                                    android:fontFamily="sans-serif-black"
+                                    android:letterSpacing="0.1"/>
+                                <TextView
+                                    android:id="@+id/sheetStatAvg"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/sheet_text"
+                                    android:textSize="17sp"
+                                    android:fontFamily="sans-serif-black"
+                                    android:layout_marginTop="2dp"
+                                    tools:text="₹0"/>
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
 
-                        <LinearLayout
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardBest"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:orientation="vertical"
-                            android:padding="8dp">
-                            <TextView
-                                android:layout_width="wrap_content"
+                            android:layout_marginStart="6dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="1dp"
+                            app:strokeColor="@color/sheet_border"
+                            app:cardBackgroundColor="@color/sheet_input_bg"
+                            app:layout_constraintTop_toTopOf="@id/cardAvg"
+                            app:layout_constraintStart_toEndOf="@id/cardAvg"
+                            app:layout_constraintEnd_toEndOf="parent">
+                            <LinearLayout
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="BEST MONTH"
-                                android:textColor="@color/sheet_text_muted"
-                                android:textSize="9sp"
-                                android:fontFamily="sans-serif-black"
-                                android:letterSpacing="0.1"/>
-                            <TextView
-                                android:id="@+id/sheetStatBest"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/positive"
-                                android:textSize="16sp"
-                                android:fontFamily="sans-serif-black"
-                                tools:text="+0%"/>
-                        </LinearLayout>
+                                android:orientation="vertical"
+                                android:padding="12dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="BEST MONTH"
+                                    android:textColor="@color/sheet_text_muted"
+                                    android:textSize="9sp"
+                                    android:fontFamily="sans-serif-black"
+                                    android:letterSpacing="0.1"/>
+                                <TextView
+                                    android:id="@+id/sheetStatBest"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/positive"
+                                    android:textSize="17sp"
+                                    android:fontFamily="sans-serif-black"
+                                    android:layout_marginTop="2dp"
+                                    tools:text="+0%"/>
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
 
-                        <LinearLayout
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardVol"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:orientation="vertical"
-                            android:padding="8dp">
-                            <TextView
-                                android:layout_width="wrap_content"
+                            android:layout_marginTop="12dp"
+                            android:layout_marginEnd="6dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="1dp"
+                            app:strokeColor="@color/sheet_border"
+                            app:cardBackgroundColor="@color/sheet_input_bg"
+                            app:layout_constraintTop_toBottomOf="@id/cardAvg"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintEnd_toStartOf="@+id/cardCAGR">
+                            <LinearLayout
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="VOLATILITY"
-                                android:textColor="@color/sheet_text_muted"
-                                android:textSize="9sp"
-                                android:fontFamily="sans-serif-black"
-                                android:letterSpacing="0.1"/>
-                            <TextView
-                                android:id="@+id/sheetStatVol"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/positive"
-                                android:textSize="16sp"
-                                android:fontFamily="sans-serif-black"
-                                tools:text="Low"/>
-                        </LinearLayout>
+                                android:orientation="vertical"
+                                android:padding="12dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="VOLATILITY"
+                                    android:textColor="@color/sheet_text_muted"
+                                    android:textSize="9sp"
+                                    android:fontFamily="sans-serif-black"
+                                    android:letterSpacing="0.1"/>
+                                <TextView
+                                    android:id="@+id/sheetStatVol"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/positive"
+                                    android:textSize="17sp"
+                                    android:fontFamily="sans-serif-black"
+                                    android:layout_marginTop="2dp"
+                                    tools:text="Low"/>
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
 
-                        <LinearLayout
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/cardCAGR"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_columnWeight="1"
-                            android:orientation="vertical"
-                            android:padding="8dp">
-                            <TextView
-                                android:layout_width="wrap_content"
+                            android:layout_marginStart="6dp"
+                            app:cardCornerRadius="12dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="1dp"
+                            app:strokeColor="@color/sheet_border"
+                            app:cardBackgroundColor="@color/sheet_input_bg"
+                            app:layout_constraintTop_toTopOf="@id/cardVol"
+                            app:layout_constraintStart_toEndOf="@id/cardVol"
+                            app:layout_constraintEnd_toEndOf="parent">
+                            <LinearLayout
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="CAGR (EST)"
-                                android:textColor="@color/sheet_text_muted"
-                                android:textSize="9sp"
-                                android:fontFamily="sans-serif-black"
-                                android:letterSpacing="0.1"/>
-                            <TextView
-                                android:id="@+id/sheetStatCAGR"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textColor="@color/sheet_text"
-                                android:textSize="16sp"
-                                android:fontFamily="sans-serif-black"
-                                tools:text="0%"/>
-                        </LinearLayout>
-                    </GridLayout>
+                                android:orientation="vertical"
+                                android:padding="12dp">
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="CAGR (EST)"
+                                    android:textColor="@color/sheet_text_muted"
+                                    android:textSize="9sp"
+                                    android:fontFamily="sans-serif-black"
+                                    android:letterSpacing="0.1"/>
+                                <TextView
+                                    android:id="@+id/sheetStatCAGR"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/sheet_text"
+                                    android:textSize="17sp"
+                                    android:fontFamily="sans-serif-black"
+                                    android:layout_marginTop="2dp"
+                                    tools:text="0%"/>
+                            </LinearLayout>
+                        </com.google.android.material.card.MaterialCardView>
 
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutNoteArea"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="24dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="20dp">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1.5dp"
+                        android:background="@color/sheet_border"
+                        android:layout_marginBottom="20dp"/>
+
+                    <TextView
+                        android:id="@+id/labelNote"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="8dp"
+                        android:text="NOTES"
+                        android:textColor="@color/sheet_text_muted"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif-black"
+                        android:textAllCaps="true"
+                        android:letterSpacing="0.08" />
+
+                    <EditText
+                        android:id="@+id/newAssetNote"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="80dp"
+                        android:background="@drawable/bg_input_v2"
+                        android:hint="@string/asset_note"
+                        android:inputType="textCapSentences|textMultiLine"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="12dp"
+                        android:textColor="@color/sheet_text"
+                        android:textColorHint="@color/sheet_text_dim"
+                        android:textSize="14sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:gravity="top" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
@@ -588,37 +686,15 @@
                 android:background="@color/sheet_bg">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCloseSheet"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_weight="1"
-                android:text="@string/action_close"
-                android:textAllCaps="false"
-                android:textColor="@color/sheet_text"
-                android:textSize="15sp"
-                android:fontFamily="sans-serif-black"
-                app:backgroundTint="@color/sheet_chip_bg"
-                app:cornerRadius="16dp"
-                app:strokeColor="@color/sheet_border"
-                app:strokeWidth="1.5dp"
-                app:rippleColor="?attr/colorControlHighlight" />
-
-            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDeleteAsset"
-                android:layout_width="0dp"
+                android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:layout_weight="1.5"
-                android:layout_marginStart="14dp"
-                android:text="@string/menu_delete"
                 android:textAllCaps="false"
-                android:textColor="@color/textOnPrimary"
-                android:textSize="15sp"
-                android:fontFamily="sans-serif-black"
                 app:backgroundTint="@color/negative"
                 app:cornerRadius="16dp"
                 app:icon="@drawable/ic_delete"
-                app:iconGravity="textStart"
-                app:iconPadding="10dp"
+                app:iconPadding="0dp"
+                app:iconSize="24dp"
                 app:iconTint="@color/textOnPrimary"
                 app:rippleColor="?attr/colorControlHighlight"
                 android:visibility="gone"
@@ -628,13 +704,13 @@
                 android:id="@+id/btnSaveAsset"
                 android:layout_width="0dp"
                 android:layout_height="56dp"
-                android:layout_weight="1.8"
+                android:layout_weight="1"
                 android:layout_marginStart="14dp"
                 android:text="Save"
                 android:textAllCaps="false"
                 android:textSize="15sp"
                 android:fontFamily="sans-serif-black"
-                app:backgroundTint="@color/accent"
+                app:backgroundTint="@color/blue"
                 app:cornerRadius="16dp"
                 app:icon="@drawable/icon_save"
                 app:iconGravity="textStart"

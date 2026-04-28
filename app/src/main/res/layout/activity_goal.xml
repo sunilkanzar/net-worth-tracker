@@ -16,7 +16,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Wealth Goals"
+            app:title="Net Worth Goals"
             app:titleTextColor="@color/text"
             app:navigationIcon="@drawable/ic_chevron_left"
             app:navigationIconTint="@color/text"/>

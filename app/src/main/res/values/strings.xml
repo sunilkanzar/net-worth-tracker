@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="action_close">Close</string>
-    <string name="app_name">Net Worth Tracker</string>
+    <string name="app_name">NetWorth</string>
     <string name="backup_autosave">autosave</string>
     <string name="backup_permission">We need that permission :/</string>
     <string name="backup_saved">Backup saved to device</string>
@@ -128,10 +128,10 @@
     <string name="pref_reminders_summary_fmt">%1$s, %2$s</string>
     <string name="reminder_title">Net Worth Update</string>
     <string name="reminder_message">Time to log your assets! Check your progress for this month.</string>
-    <string name="reminder_channel_name">Wealth Tracker Reminders</string>
+    <string name="reminder_channel_name">Net Worth Reminders</string>
     <string name="reminder_channel_desc">Monthly reminders to update your net worth data</string>
     <string name="pref_section_other">Other</string>
-    <string name="pref_app_version">Net Worth Tracker · v2.0</string>
+    <string name="pref_app_version">NetWorth · v2.0</string>
     <string name="vs_month">vs %1$s</string>
     <string name="format_currency_value">%1$s%2$s</string>
     <string name="format_section_assets">ASSETS · %1$d</string>
@@ -147,7 +147,7 @@
     <string name="sheet_add_title">Add asset or liability</string>
     <string name="plus">+</string>
     <string name="minus">−</string>
-    <string name="tutorial_title">Net Worth Tracker</string>
+    <string name="tutorial_title">NetWorth</string>
     <string name="tutorial_section_assets">Track Everything</string>
     <string name="tutorial_section_liabilities">Liabilities</string>
     <string name="tutorial_section_analytics">Visual Analytics</string>
@@ -159,4 +159,5 @@
     <string name="tab_assets">Assets</string>
     <string name="tab_liabilities">Liabilities</string>
     <string name="financial_year_label">FY %1$d-%2$02d</string>
+    <string name="asset_note">Note</string>
 </resources>

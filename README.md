@@ -1,4 +1,4 @@
-# Net Worth Tracker - Functional Specification 📊
+# NetWorth - Functional Specification 📊
 
 This document provides a highly granular map of the application's functionality, screen contents, and navigation menus. It is designed to allow a developer on any platform to recreate the user experience with exact precision.
 

@@ -370,9 +370,9 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
                     binding.navigationView.drawerHeaderBottomDivider.setVisibility(noGoals ? View.GONE : View.VISIBLE);
                     binding.navigationView.drawerGoalSection.setVisibility(noGoals ? View.GONE : View.VISIBLE);
                     binding.navigationView.navSetGoal.setVisibility(noGoals ? View.VISIBLE : View.GONE);
-                    if (goals.size() > 0) bindGoalRow(binding.navigationView.drawerGoal1yRow.getRoot(), binding.navigationView.drawerGoal1yRow.goalLabel, binding.navigationView.drawerGoal1yRow.goalPercent, binding.navigationView.drawerGoal1yRow.goalProgress, goals.get(0), nw);
-                    if (goals.size() > 1) bindGoalRow(binding.navigationView.drawerGoal3yRow.getRoot(), binding.navigationView.drawerGoal3yRow.goalLabel, binding.navigationView.drawerGoal3yRow.goalPercent, binding.navigationView.drawerGoal3yRow.goalProgress, goals.get(1), nw);
-                    if (goals.size() > 2) bindGoalRow(binding.navigationView.drawerGoal5yRow.getRoot(), binding.navigationView.drawerGoal5yRow.goalLabel, binding.navigationView.drawerGoal5yRow.goalPercent, binding.navigationView.drawerGoal5yRow.goalProgress, goals.get(2), nw);
+                    bindGoalRow(binding.navigationView.drawerGoal1yRow.getRoot(), binding.navigationView.drawerGoal1yRow.goalLabel, binding.navigationView.drawerGoal1yRow.goalPercent, binding.navigationView.drawerGoal1yRow.goalProgress, goals.size() > 0 ? goals.get(0) : null, nw);
+                    bindGoalRow(binding.navigationView.drawerGoal3yRow.getRoot(), binding.navigationView.drawerGoal3yRow.goalLabel, binding.navigationView.drawerGoal3yRow.goalPercent, binding.navigationView.drawerGoal3yRow.goalProgress, goals.size() > 1 ? goals.get(1) : null, nw);
+                    bindGoalRow(binding.navigationView.drawerGoal5yRow.getRoot(), binding.navigationView.drawerGoal5yRow.goalLabel, binding.navigationView.drawerGoal5yRow.goalPercent, binding.navigationView.drawerGoal5yRow.goalProgress, goals.size() > 2 ? goals.get(2) : null, nw);
                 });
             }
         });

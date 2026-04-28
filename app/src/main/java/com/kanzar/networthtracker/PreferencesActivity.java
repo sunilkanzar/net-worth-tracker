@@ -570,7 +570,7 @@ public class PreferencesActivity extends AppCompatActivity {
                                 new NetHttpTransport(),
                                 new GsonFactory(),
                                 request -> request.getHeaders().setAuthorization("Bearer " + accessToken))
-                                .setApplicationName("Net Worth Tracker")
+                                .setApplicationName("NetWorth")
                                 .build();
 
                         DriveServiceHelper driveHelper = new DriveServiceHelper(drive);

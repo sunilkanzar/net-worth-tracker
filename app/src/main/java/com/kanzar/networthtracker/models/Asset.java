@@ -20,6 +20,7 @@ public class Asset extends RealmObject {
     private int month;
     @Index
     private int year;
+    private String note;
     private long updatedAt;
 
     @Ignore
@@ -34,10 +35,15 @@ public class Asset extends RealmObject {
     }
 
     public Asset(String name, double value, int month, int year) {
+        this(name, value, month, year, "");
+    }
+
+    public Asset(String name, double value, int month, int year, String note) {
         this.name = name;
         this.value = value;
         this.month = month;
         this.year = year;
+        this.note = note;
         this.updatedAt = Tools.getUnixTime();
         updateId();
     }
@@ -62,6 +68,9 @@ public class Asset extends RealmObject {
 
     public int getYear() { return year; }
     public void setYear(int year) { this.year = year; }
+
+    public String getNote() { return note; }
+    public void setNote(String note) { this.note = note; }
 
     public long getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
@@ -117,14 +126,17 @@ public class Asset extends RealmObject {
 
     public static Asset fromString(String row) {
         try {
-            String[] parts = row.split(",");
-            if (parts.length != 4) return null;
+            String[] parts = row.split(",", 5);
+            if (parts.length < 4) return null;
 
             Asset asset = new Asset();
             asset.year = Integer.parseInt(parts[0].trim());
             asset.month = Integer.parseInt(parts[1].trim());
             asset.name = parts[2].trim();
             asset.value = Double.parseDouble(parts[3].trim());
+            if (parts.length >= 5) {
+                asset.note = parts[4].trim().replace("\\n", "\n");
+            }
             asset.updateId();
             return asset;
         } catch (Exception e) {
@@ -139,7 +151,8 @@ public class Asset extends RealmObject {
                 String.valueOf(year),
                 String.valueOf(month),
                 name,
-                String.valueOf(value)
+                String.valueOf(value),
+                (note != null ? note : "").replace("\n", "\\n")
         }) + "\n";
     }
 }

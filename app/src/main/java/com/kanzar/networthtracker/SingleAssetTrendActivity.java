@@ -240,6 +240,7 @@ public class SingleAssetTrendActivity extends AppCompatActivity {
 
             double change = 0;
             double percent = 0;
+            String note = null;
             try (Realm realm = Realm.getDefaultInstance()) {
                 Asset asset = realm.where(Asset.class)
                         .equalTo(AssetFields.MONTH, m.getMonth())
@@ -248,6 +249,7 @@ public class SingleAssetTrendActivity extends AppCompatActivity {
                         .findFirst();
                 
                 if (asset != null) {
+                    note = asset.getNote();
                     Month prev = m.getPreviousMonth(realm);
                     Asset prevAsset = realm.where(Asset.class)
                             .equalTo(AssetFields.MONTH, prev.getMonth())
@@ -260,6 +262,13 @@ public class SingleAssetTrendActivity extends AppCompatActivity {
                         percent = Tools.getPercent(prevAsset.getValue(), asset.getValue());
                     }
                 }
+            }
+
+            if (note != null && !note.isEmpty()) {
+                binding.cursorNote.setVisibility(View.VISIBLE);
+                binding.cursorNote.setText(note);
+            } else {
+                binding.cursorNote.setVisibility(View.GONE);
             }
 
             boolean privacyMode = Prefs.getBoolean("privacy_mode", false);

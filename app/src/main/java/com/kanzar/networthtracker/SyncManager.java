@@ -152,7 +152,7 @@ public class SyncManager {
                     new NetHttpTransport(),
                     new GsonFactory(),
                     request -> request.getHeaders().setAuthorization("Bearer " + accessToken))
-                    .setApplicationName("Net Worth Tracker")
+                    .setApplicationName("NetWorth")
                     .build();
 
             driveServiceHelper = new DriveServiceHelper(drive);

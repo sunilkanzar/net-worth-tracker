@@ -8,4 +8,5 @@ public final class AssetFields {
     public static final String UPDATED_AT = "updatedAt";
     public static final String VALUE = "value";
     public static final String YEAR = "year";
+    public static final String NOTE = "note";
 }

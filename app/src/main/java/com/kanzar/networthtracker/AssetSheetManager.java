@@ -4,11 +4,14 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 
@@ -58,6 +61,7 @@ public class AssetSheetManager {
     private final Listener listener;
     
     private boolean updatingForm = false;
+    private float currentSlideOffset = 0f;
     private int sheetRangeMonths = 12;
     private String lastSheetRangeLabel = "1Y";
     private Month sheetCustomStartMonth = null;
@@ -75,11 +79,9 @@ public class AssetSheetManager {
 
     private void applyAccentColors() {
         int accentColor = ContextCompat.getColor(activity, Tools.getAccentColor());
-        ColorStateList accentList = ColorStateList.valueOf(accentColor);
         
         sheetBinding.sheetStepLabel.setTextColor(accentColor);
-        sheetBinding.btnSaveAssetHeader.setIconTint(accentList);
-        sheetBinding.btnSaveAsset.setBackgroundTintList(accentList);
+        sheetBinding.btnValueReset.setTextColor(accentColor);
         
         // Also update segmented control if already initialized
         String signText = sheetBinding.newAssetChange.getText().toString();
@@ -95,17 +97,33 @@ public class AssetSheetManager {
                     activity.onAssetViewClosed();
                 } else if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     activity.showScrim(1f);
+                    currentSlideOffset = 1f;
                     sheetBinding.sheetButtonsContainer.setTranslationY(0);
                 } else if (newState == BottomSheetBehavior.STATE_COLLAPSED) {
+                    currentSlideOffset = 0f;
                     updateFooterSticky(0f);
                 }
             }
 
             @Override
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+                currentSlideOffset = slideOffset;
                 float alpha = (slideOffset + 1f);
                 activity.showScrim(Math.min(1f, Math.max(0, alpha)));
                 updateFooterSticky(slideOffset);
+            }
+        });
+
+        sheetBinding.newAssetLayout.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+            if (bottom < oldBottom && sheetBinding.newAssetNote.hasFocus()) {
+                sheetBinding.sheetScrollView.postDelayed(() -> {
+                    sheetBinding.sheetScrollView.fullScroll(View.FOCUS_DOWN);
+                }, 100);
+            }
+            if (bottom != oldBottom || top != oldTop) {
+                if (behavior.getState() != BottomSheetBehavior.STATE_HIDDEN) {
+                    updateFooterSticky(currentSlideOffset);
+                }
             }
         });
     }
@@ -115,20 +133,22 @@ public class AssetSheetManager {
         View sheet = sheetBinding.newAssetLayout;
         View footer = sheetBinding.sheetButtonsContainer;
         int peek = behavior.getPeekHeight();
-        
+
         View frameLayout = (View) sheetBinding.sheetScrollView.getParent();
         int contentHeight = frameLayout.getHeight();
-        
+
         if (contentHeight <= 0 || sheet.getHeight() <= 0) return;
 
-        // visibleContentAreaHeight is how much of the FrameLayout is actually visible on screen
+        // visibleSheetHeight is how much of the sheet is actually visible on screen
         int visibleSheetHeight = (int) (peek + slideOffset * (sheet.getHeight() - peek));
+        visibleSheetHeight = Math.min(visibleSheetHeight, sheet.getHeight());
+
         int visibleContentAreaHeight = visibleSheetHeight - frameLayout.getTop();
 
-        if (contentHeight <= visibleContentAreaHeight) {
+        if (contentHeight <= visibleContentAreaHeight || slideOffset >= 1f) {
             footer.setTranslationY(0);
         } else {
-            footer.setTranslationY(-(contentHeight - visibleContentAreaHeight));
+            footer.setTranslationY(Math.min(0, -(contentHeight - visibleContentAreaHeight)));
         }
     }
 
@@ -162,7 +182,6 @@ public class AssetSheetManager {
                 if (toDouble(sheetBinding.newAssetValue) != newValue.doubleValue()) {
                     updatingForm = true;
                     sheetBinding.newAssetValue.setText(formatStringValue(newValue.doubleValue()));
-                    sheetBinding.newAssetValueFormatted.setText(formatString(newValue.doubleValue()));
                     updatingForm = false;
                 }
             }
@@ -175,7 +194,6 @@ public class AssetSheetManager {
                 if (updatingForm) return;
                 if (s.toString().equals("-")) return;
                 double val = toDouble(sheetBinding.newAssetValue);
-                sheetBinding.newAssetValueFormatted.setText(formatString(val));
                 Asset previous = getNewAsset().getPrevious();
                 double prevValue = (previous != null) ? previous.getValue() : 0.0;
                 BigDecimal change = BigDecimal.valueOf(val).subtract(BigDecimal.valueOf(prevValue));
@@ -190,6 +208,12 @@ public class AssetSheetManager {
             @Override public void afterTextChanged(Editable s) {}
         });
 
+        sheetBinding.newAssetNote.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                sheetBinding.sheetScrollView.postDelayed(() -> sheetBinding.sheetScrollView.fullScroll(View.FOCUS_DOWN), 200);
+            }
+        });
+
         sheetBinding.btnPlus.setOnClickListener(v -> {
             updateSign(true);
             String s = sheetBinding.newAssetChange.getText().toString();
@@ -202,20 +226,17 @@ public class AssetSheetManager {
             if (!s.startsWith("-")) sheetBinding.newAssetChange.setText("-" + s);
         });
 
-        sheetBinding.pillSame.setOnClickListener(v -> {
+        sheetBinding.btnValueReset.setOnClickListener(v -> {
             updatingForm = true;
             sheetBinding.newAssetChange.setText("0");
             updateSign(true);
             Asset previous = getNewAsset().getPrevious();
             double prevValue = (previous != null) ? previous.getValue() : 0.0;
             sheetBinding.newAssetValue.setText(formatStringValue(prevValue));
-            sheetBinding.newAssetValueFormatted.setText(formatString(prevValue));
             updatingForm = false;
         });
 
-        sheetBinding.btnSaveAssetHeader.setOnClickListener(v -> saveAsset());
         sheetBinding.btnSaveAsset.setOnClickListener(v -> saveAsset());
-        sheetBinding.btnCloseSheet.setOnClickListener(v -> close());
 
         sheetBinding.btnDeleteAsset.setOnClickListener(v -> {
             String name = sheetBinding.newAssetName.getText().toString();
@@ -253,38 +274,49 @@ public class AssetSheetManager {
         sheetBinding.sheetTitle.setText(isNew ? activity.getString(R.string.sheet_add_title) : name);
         sheetBinding.layoutAssetName.setVisibility(isNew ? View.VISIBLE : View.GONE);
         sheetBinding.btnDeleteAsset.setVisibility(isNew ? View.GONE : View.VISIBLE);
-        sheetBinding.btnSaveAsset.setVisibility(isNew ? View.VISIBLE : View.GONE);
         sheetBinding.layoutTrend.setVisibility(isNew ? View.GONE : View.VISIBLE);
         sheetBinding.assetInitialCard.setVisibility(isNew ? View.GONE : View.VISIBLE);
-        sheetBinding.pillSame.setVisibility(isNew ? View.GONE : View.VISIBLE);
+        sheetBinding.btnValueReset.setVisibility(isNew ? View.GONE : View.VISIBLE);
+
+        // Adjust Save button margin based on Delete button visibility
+        LinearLayout.LayoutParams saveParams = (LinearLayout.LayoutParams) sheetBinding.btnSaveAsset.getLayoutParams();
+        saveParams.setMarginStart(isNew ? 0 : (int)(14 * activity.getResources().getDisplayMetrics().density));
+        sheetBinding.btnSaveAsset.setLayoutParams(saveParams);
 
         if (!isNew) initSheetChart(name);
 
         sheetBinding.newAssetName.setText(name != null ? name : "");
         sheetBinding.newAssetValue.setText(value != null ? formatStringValue(value) : "");
         
+        String note = "";
         if (name != null && !name.isEmpty()) {
+            try (Realm realm = Realm.getDefaultInstance()) {
+                Asset a = realm.where(Asset.class)
+                        .equalTo(AssetFields.MONTH, m.getMonth())
+                        .equalTo(AssetFields.YEAR, m.getYear())
+                        .equalTo(AssetFields.NAME, name).findFirst();
+                if (a != null) note = a.getNote();
+            }
             sheetBinding.assetInitial.setText(name.substring(0, 1).toUpperCase());
             sheetBinding.assetInitial.setTextColor(Tools.getAssetColor(name));
             Asset temp = new Asset(name, value, m.getMonth(), m.getYear());
             Asset prev = temp.getPrevious();
             double change = value - (prev != null ? prev.getValue() : 0.0);
             sheetBinding.newAssetChange.setText(formatStringValue(change));
-            sheetBinding.newAssetValueFormatted.setText(formatString(value));
             updateSign(change >= 0);
         } else {
             sheetBinding.assetInitial.setText("+");
             sheetBinding.newAssetChange.setText("");
-            sheetBinding.newAssetValueFormatted.setText("0");
             updateSign(true);
         }
+        sheetBinding.newAssetNote.setText(note != null ? note : "");
         updatingForm = false;
         
         sheetBinding.newAssetLayout.post(() -> {
-            int peek = sheetBinding.sheetHandle.getHeight() + sheetBinding.sheetHeader.getHeight() + 
-                       sheetBinding.layoutEditForm.getHeight() + sheetBinding.sheetButtonsContainer.getHeight() + 
+            int peek = sheetBinding.sheetHandle.getHeight() + sheetBinding.sheetHeader.getHeight() +
+                       sheetBinding.layoutEditForm.getHeight() + sheetBinding.sheetButtonsContainer.getHeight() +
                        (int)(28 * activity.getResources().getDisplayMetrics().density);
-            
+
             behavior.setSkipCollapsed(false);
             behavior.setPeekHeight(peek);
             behavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -327,7 +359,8 @@ public class AssetSheetManager {
 
     private Asset getNewAsset() {
         return new Asset(sheetBinding.newAssetName.getText().toString(), toDouble(sheetBinding.newAssetValue),
-                listener.getCurrentMonth().getMonth(), listener.getCurrentMonth().getYear());
+                listener.getCurrentMonth().getMonth(), listener.getCurrentMonth().getYear(),
+                sheetBinding.newAssetNote.getText().toString());
     }
 
     private void initSheetChart(String name) {
@@ -374,14 +407,45 @@ public class AssetSheetManager {
     }
 
     private void setupChartStyle(LineChart chart) {
-        chart.setTouchEnabled(true); chart.setDragEnabled(true); chart.setScaleEnabled(false);
-        chart.setPinchZoom(false); chart.getDescription().setEnabled(false); chart.getLegend().setEnabled(false);
+        chart.setTouchEnabled(true);
+        chart.setDragEnabled(false);
+        chart.setScaleEnabled(false);
+        chart.setPinchZoom(false);
+        chart.getDescription().setEnabled(false);
+        chart.getLegend().setEnabled(false);
         chart.getAxisRight().setEnabled(false);
+        chart.setHighlightPerDragEnabled(false);
         chart.setRenderer(new com.kanzar.networthtracker.views.SelectionHighlightRenderer(chart, chart.getAnimator(), chart.getViewPortHandler(), ContextCompat.getColor(activity, R.color.sheet_bg)));
+
+        final boolean[] isLongPressed = {false};
+        final GestureDetector gd = new GestureDetector(activity, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public void onLongPress(@NonNull MotionEvent e) {
+                isLongPressed[0] = true;
+                chart.getParent().requestDisallowInterceptTouchEvent(true);
+                Highlight h = chart.getHighlightByTouchPoint(e.getX(), e.getY());
+                if (h != null) chart.highlightValue(h, true);
+            }
+
+            @Override
+            public boolean onSingleTapUp(@NonNull MotionEvent e) {
+                Highlight h = chart.getHighlightByTouchPoint(e.getX(), e.getY());
+                if (h != null) chart.highlightValue(h, true);
+                return true;
+            }
+        });
+
         chart.setOnTouchListener((v, event) -> {
-            if (event.getAction() == android.view.MotionEvent.ACTION_DOWN) v.getParent().requestDisallowInterceptTouchEvent(true);
-            else if (event.getAction() == android.view.MotionEvent.ACTION_UP || event.getAction() == android.view.MotionEvent.ACTION_CANCEL) {
-                v.getParent().requestDisallowInterceptTouchEvent(false); v.performClick();
+            gd.onTouchEvent(event);
+            if (isLongPressed[0] && event.getAction() == MotionEvent.ACTION_MOVE) {
+                Highlight h = chart.getHighlightByTouchPoint(event.getX(), event.getY());
+                if (h != null) chart.highlightValue(h, true);
+                return true;
+            }
+            if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                isLongPressed[0] = false;
+                v.getParent().requestDisallowInterceptTouchEvent(false);
+                v.performClick();
             }
             return false;
         });
@@ -433,15 +497,55 @@ public class AssetSheetManager {
 
         sheetBinding.sheetChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
             @Override public void onValueSelected(Entry e, Highlight h) {
-                int idx = (int) e.getX() + startIdx;
-                if (idx >= 0 && idx < allMonths.size()) {
-                    sheetBinding.sheetCursorCard.setVisibility(View.VISIBLE);
-                    sheetBinding.sheetCursorDate.setText(allMonths.get(idx).toStringMMMYY());
-                    sheetBinding.sheetCursorValue.setText(Tools.formatAmount(e.getY()));
+                updateCursorCard(e, startIdx, allMonths, name);
+            }
+            @Override public void onNothingSelected() {
+                sheetBinding.sheetCursorCard.setVisibility(View.GONE);
+            }
+        });
+
+        if (!entries.isEmpty()) {
+            Highlight last = new Highlight(entries.get(entries.size() - 1).getX(), entries.get(entries.size() - 1).getY(), 0);
+            sheetBinding.sheetChart.highlightValue(last, true);
+        }
+    }
+
+    private void updateCursorCard(Entry e, int startIdx, List<Month> allMonths, String name) {
+        int idx = (int) e.getX() + startIdx;
+        if (idx >= 0 && idx < allMonths.size()) {
+            Month m = allMonths.get(idx);
+            sheetBinding.sheetCursorCard.setVisibility(View.VISIBLE);
+            sheetBinding.sheetCursorDate.setText(m.toStringMMMYY());
+            sheetBinding.sheetCursorValue.setText(Tools.formatAmount(e.getY()));
+
+            double change = 0, percent = 0;
+            String note = null;
+            try (Realm realm = Realm.getDefaultInstance()) {
+                Asset asset = realm.where(Asset.class).equalTo(AssetFields.MONTH, m.getMonth()).equalTo(AssetFields.YEAR, m.getYear()).equalTo(AssetFields.NAME, name).findFirst();
+                if (asset != null) {
+                    note = asset.getNote();
+                    Month prev = m.getPreviousMonth(realm);
+                    Asset prevAsset = realm.where(Asset.class).equalTo(AssetFields.MONTH, prev.getMonth()).equalTo(AssetFields.YEAR, prev.getYear()).equalTo(AssetFields.NAME, name).findFirst();
+                    if (prevAsset != null) {
+                        change = asset.getValue() - prevAsset.getValue();
+                        percent = Tools.getPercent(prevAsset.getValue(), asset.getValue());
+                    }
                 }
             }
-            @Override public void onNothingSelected() { sheetBinding.sheetCursorCard.setVisibility(View.GONE); }
-        });
+            
+            if (note != null && !note.isEmpty()) {
+                sheetBinding.sheetCursorNote.setVisibility(View.VISIBLE);
+                sheetBinding.sheetCursorNote.setText(note);
+            } else {
+                sheetBinding.sheetCursorNote.setVisibility(View.GONE);
+            }
+            
+            String changeSign = change >= 0 ? "+" : "";
+            String pctStr = String.format(java.util.Locale.US, "%.1f%%", Math.abs(percent));
+            sheetBinding.sheetCursorChange.setText(String.format("%s%s (%s)", changeSign, Tools.formatAmount(change), pctStr));
+            sheetBinding.sheetCursorChange.setTextColor(ContextCompat.getColor(activity, change >= 0 ? R.color.positive : R.color.negative));
+            sheetBinding.sheetCursorColor.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(activity, Tools.getAccentColor())));
+        }
     }
 
     private void calculateStats(String name, List<Month> allMonths, List<Double> assetValues, int startIdx, int lastIdx) {
@@ -530,6 +634,5 @@ public class AssetSheetManager {
     }
 
     private double toDouble(EditText et) { try { return Double.parseDouble(et.getText().toString()); } catch (Exception e) { return 0.0; } }
-    private String formatString(double val) { return java.text.NumberFormat.getCurrencyInstance(new java.util.Locale("en", "IN")).format(val).replace("₹", "").trim(); }
     private String formatStringValue(double d) { return BigDecimal.valueOf(d).stripTrailingZeros().toPlainString(); }
 }
