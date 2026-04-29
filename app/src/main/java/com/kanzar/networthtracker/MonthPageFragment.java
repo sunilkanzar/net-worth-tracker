@@ -405,6 +405,13 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
         binding.liabSectionTitle.setTextColor(accentColor);
         binding.miniBarChart.setHighlightColor(accentColor);
 
+        // Apply to tutorial
+        binding.tutorial.tutorialTitle.setTextColor(accentColor);
+        binding.tutorial.tutorialAccentLine.setBackgroundColor(accentColor);
+        binding.tutorial.tutorialIconAssets.setImageTintList(ColorStateList.valueOf(accentColor));
+        binding.tutorial.tutorialCta.setTextColor(accentColor);
+        binding.tutorial.tutorialCtaArrow.setImageTintList(ColorStateList.valueOf(accentColor));
+
         // Apply to copy card
         binding.copyCardLayout.copyIconContainer.setBackgroundTintList(ColorStateList.valueOf(Tools.adjustAlpha(accentColor, 0.1f)));
         binding.copyCardLayout.copyIcon.setImageTintList(ColorStateList.valueOf(accentColor));

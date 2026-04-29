@@ -1,6 +1,5 @@
 package com.kanzar.networthtracker;
 
-import android.content.ComponentName;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -160,6 +159,7 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
         binding.navigationView.googleSignIn.setOnClickListener(v -> { new Events().send(new SigninClicked()); syncManager.startSignIn(); });
         binding.navigationView.signOut.setOnClickListener(v -> { new Events().send(new SignoutClicked()); syncManager.signOut(); });
         binding.navigationView.navPreferences.setOnClickListener(v -> { binding.drawerLayout.closeDrawers(); startActivity(new Intent(this, PreferencesActivity.class)); });
+        binding.navigationView.navHelp.setOnClickListener(v -> { binding.drawerLayout.closeDrawers(); startActivity(new Intent(this, HelpActivity.class)); });
         binding.navigationView.navMonthly.setOnClickListener(v -> { new Events().send(new ButtonClicked("monthView")); monthPickerLauncher.launch(new Intent(this, MonthActivity.class)); binding.drawerLayout.closeDrawers(); });
         binding.navigationView.navGraph.setOnClickListener(v -> { new Events().send(new ButtonClicked("chartView")); startActivity(new Intent(this, ChartActivity.class)); binding.drawerLayout.closeDrawers(); });
         binding.navigationView.navAllocation.setOnClickListener(v -> { Intent i = new Intent(this, AllocationActivity.class); i.putExtra("month", month.getMonth()); i.putExtra("year", month.getYear()); startActivity(i); binding.drawerLayout.closeDrawers(); });

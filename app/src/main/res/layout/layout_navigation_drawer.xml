@@ -41,10 +41,6 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Hidden IDs kept for backward-compat with MainActivity binding checks -->
-    <View android:id="@+id/drawerSetGoalSection" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone"/>
-    <View android:id="@+id/drawerHeaderDivider" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone"/>
-
     <!-- Header border -->
     <View
         android:id="@+id/drawerHeaderBottomDivider"
@@ -446,6 +442,38 @@
                     android:layout_weight="1"
                     android:layout_marginStart="14dp"
                     android:text="Settings"
+                    android:textColor="@color/text"
+                    android:textSize="15sp"
+                    android:fontFamily="sans-serif-medium"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/navHelp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <FrameLayout
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_nav_icon">
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_help"
+                        app:tint="@color/text_2"/>
+                </FrameLayout>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="14dp"
+                    android:text="@string/help_faq"
                     android:textColor="@color/text"
                     android:textSize="15sp"
                     android:fontFamily="sans-serif-medium"/>

@@ -80,6 +80,7 @@
         <activity android:name="com.kanzar.networthtracker.SingleAssetTrendActivity" android:exported="false"/>
         <activity android:name="com.kanzar.networthtracker.GoalActivity" android:exported="false"/>
         <activity android:name="com.kanzar.networthtracker.PreferencesActivity" android:exported="false"/>
+        <activity android:name="com.kanzar.networthtracker.HelpActivity" android:exported="false"/>
 
         <receiver
             android:name="com.kanzar.networthtracker.reminders.ReminderReceiver"

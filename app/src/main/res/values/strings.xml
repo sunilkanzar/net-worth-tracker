@@ -46,7 +46,7 @@
     <string name="tutorial_asset">Every row has current value, value change and percent compared to last month</string>
     <string name="tutorial_chart">Chart shows you from the first month filled until current month</string>
     <string name="tutorial_comment">Comments about the month go here</string>
-    <string name="tutorial_footer">Current version is very minimal, improvements and new features are already in development</string>
+    <string name="tutorial_footer">If your data was wiped after the update, please use the Restore Backup feature in the sidebar to import your data. Make sure to select the latest file from backup.</string>
     <string name="tutorial_intro">Start by adding your assets and liabilities monthly bases</string>
     <string name="tutorial_liability">Liabilities are added with minus, everything else in the view is same as assets</string>
     <string name="tutorial_year">Timeline shows you all the filled months without asset details</string>
@@ -145,6 +145,9 @@
     <string name="label_asset_name">ASSET NAME</string>
     <string name="label_liability_name">LIABILITY NAME</string>
     <string name="label_current_value">CURRENT VALUE</string>
+    <string name="label_year_range">YEAR\'S RANGE</string>
+    <string name="label_low">Low</string>
+    <string name="label_high">High</string>
     <string name="label_add_entry">Add Entry</string>
     <string name="label_type_asset">AST</string>
     <string name="label_type_liability">LIB</string>
@@ -165,4 +168,23 @@
     <string name="tab_liabilities">Liabilities</string>
     <string name="financial_year_label">FY %1$d-%2$02d</string>
     <string name="asset_note">Note</string>
+
+    <string name="help_faq">Help &amp; FAQ</string>
+    <string name="help_title">Help Center</string>
+    <string name="faq_section">Frequently Asked Questions</string>
+    <string name="features_section">App Features</string>
+    <string name="hidden_features_section">Hidden Pro-tips</string>
+    <string name="faq_q1">How do I add assets and liabilities?</string>
+    <string name="faq_a1">Tap the \u002b button at the bottom right. Enter the name and current value. For liabilities, ensure you select the liability type in the entry sheet; they are automatically subtracted from your total assets to calculate your Net Worth.</string>
+    <string name="faq_q2">How does Local Backup work?</string>
+    <string name="faq_a2">The app automatically creates local backups of your data on your device. You can configure the frequency (Daily, Weekly, Monthly, etc.) in Settings under \"Auto-Backup Frequency\". These can be manually restored from the \"Restore Backup\" option in the sidebar.</string>
+    <string name="faq_q3">Can I sync my data across devices?</string>
+    <string name="faq_a3">Yes, use the \"Sync to Drive\" button in the navigation drawer to sync your data with Google Drive. This allows you to access and update your net worth from multiple Android devices seamlessly.</string>
+    <string name="feature_1">Monthly Timeline - Track your progress month over month with detailed breakdowns.</string>
+    <string name="feature_2">Visual Charts - Beautiful graphs to see your wealth growth over time.</string>
+    <string name="feature_3">Allocation - See how your wealth is distributed between different asset classes and liabilities.</string>
+    <string name="hidden_feature_1">Long press on any asset in the list to view its individual trend or to delete it.</string>
+    <string name="hidden_feature_2">Tap on the Month name at the top to open a quick month/year picker.</string>
+    <string name="hidden_feature_3">Long press on the Month name to jump instantly back to the current month.</string>
+    <string name="hidden_feature_4">Swipe left or right on the main screen to navigate between months.</string>
 </resources>

@@ -77,6 +77,18 @@ public class AssetSheetManager {
         
         setupBottomSheet();
         setupListeners();
+        setupScrollIndicator();
+    }
+
+    private void setupScrollIndicator() {
+        sheetBinding.sheetScrollView.setOnScrollChangeListener((View.OnScrollChangeListener) (v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            updateScrollIndicator();
+        });
+    }
+
+    private void updateScrollIndicator() {
+        boolean canScrollDown = sheetBinding.sheetScrollView.canScrollVertically(1);
+        sheetBinding.sheetFooterDivider.setVisibility(canScrollDown ? View.VISIBLE : View.GONE);
     }
 
     private void applyAccentColors() {
@@ -226,12 +238,13 @@ public class AssetSheetManager {
 
         sheetBinding.newAssetNote.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
-                sheetBinding.newAssetNote.postDelayed(() -> {
-                    if (sheetBinding.newAssetNote.hasFocus()) {
-                        int scrollTo = sheetBinding.layoutNoteArea.getTop();
-                        sheetBinding.sheetScrollView.smoothScrollTo(0, scrollTo);
-                    }
-                }, 200);
+                scrollToNotes();
+            }
+        });
+
+        sheetBinding.newAssetNote.setOnClickListener(v -> {
+            if (sheetBinding.newAssetNote.hasFocus()) {
+                scrollToNotes();
             }
         });
 
@@ -335,7 +348,7 @@ public class AssetSheetManager {
 
         // Adjust Save button margin based on Delete button visibility
         LinearLayout.LayoutParams saveParams = (LinearLayout.LayoutParams) sheetBinding.btnSaveAsset.getLayoutParams();
-        saveParams.setMarginStart(isNew ? 0 : (int)(14 * activity.getResources().getDisplayMetrics().density));
+        saveParams.setMarginStart(isNew ? 0 : (int)(12 * activity.getResources().getDisplayMetrics().density));
         sheetBinding.btnSaveAsset.setLayoutParams(saveParams);
 
         if (!isNew) initSheetChart(name);
@@ -379,7 +392,7 @@ public class AssetSheetManager {
         sheetBinding.newAssetLayout.post(() -> {
             int peek = sheetBinding.sheetHandle.getHeight() + sheetBinding.sheetHeader.getHeight() +
                        sheetBinding.layoutEditForm.getHeight() + sheetBinding.sheetButtonsContainer.getHeight() +
-                       (int)(28 * activity.getResources().getDisplayMetrics().density);
+                       (int)(64 * activity.getResources().getDisplayMetrics().density);
 
             behavior.setSkipCollapsed(false);
             behavior.setPeekHeight(peek);
@@ -393,6 +406,7 @@ public class AssetSheetManager {
             
             updateFooterSticky(0f);
             sheetBinding.sheetScrollView.scrollTo(0, 0);
+            updateScrollIndicator();
         });
     }
 
@@ -413,6 +427,15 @@ public class AssetSheetManager {
 
     public boolean isVisible() {
         return behavior.getState() != BottomSheetBehavior.STATE_HIDDEN;
+    }
+
+    private void scrollToNotes() {
+        sheetBinding.newAssetNote.postDelayed(() -> {
+            if (sheetBinding.newAssetNote.hasFocus()) {
+                int scrollTo = sheetBinding.layoutNoteArea.getTop();
+                sheetBinding.sheetScrollView.smoothScrollTo(0, scrollTo);
+            }
+        }, 250);
     }
 
     private void saveAsset() {
@@ -477,6 +500,7 @@ public class AssetSheetManager {
 
         setupChartStyle(sheetBinding.sheetChart);
         updateChartData(name, allMonths, assetValues);
+        updateYearRange(allMonths, assetValues);
     }
 
     private void setupChartStyle(LineChart chart) {
@@ -619,6 +643,74 @@ public class AssetSheetManager {
             sheetBinding.sheetCursorChange.setTextColor(ContextCompat.getColor(activity, change >= 0 ? R.color.positive : R.color.negative));
             sheetBinding.sheetCursorColor.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(activity, Tools.getAccentColor())));
         }
+    }
+
+    private void updateYearRange(List<Month> allMonths, List<Double> assetValues) {
+        int dataSize = assetValues.size();
+        if (dataSize <= 1) {
+            sheetBinding.layoutYearRange.setVisibility(View.GONE);
+            return;
+        }
+        sheetBinding.layoutYearRange.setVisibility(View.VISIBLE);
+
+        int startIdx = Math.max(0, dataSize - 12);
+        int lastIdx = dataSize - 1;
+
+        double low = Double.MAX_VALUE;
+        double high = -Double.MAX_VALUE;
+        for (int i = startIdx; i <= lastIdx; i++) {
+            double val = assetValues.get(i);
+            if (val < low) low = val;
+            if (val > high) high = val;
+        }
+
+        final double finalLow = low;
+        final double finalHigh = high;
+        final double startVal = assetValues.get(startIdx);
+        final double currentVal = assetValues.get(lastIdx);
+
+        sheetBinding.yearRangeLow.setText(Tools.formatAmount(low));
+        sheetBinding.yearRangeHigh.setText(Tools.formatAmount(high));
+
+        String startLabel = allMonths.get(startIdx).toStringMMMYY() + ": ";
+        String startValue = Tools.formatAmount(startVal);
+        android.text.SpannableStringBuilder startSpannable = new android.text.SpannableStringBuilder(startLabel + startValue);
+        startSpannable.setSpan(new android.text.style.ForegroundColorSpan(ContextCompat.getColor(activity, R.color.sheet_text_dim)), 0, startLabel.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        startSpannable.setSpan(new android.text.style.ForegroundColorSpan(ContextCompat.getColor(activity, R.color.sheet_text)), startLabel.length(), startSpannable.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        sheetBinding.yearRangeLabelStart.setText(startSpannable);
+
+        String endLabel = "Current: ";
+        String endValue = Tools.formatAmount(currentVal);
+        android.text.SpannableStringBuilder endSpannable = new android.text.SpannableStringBuilder(endLabel + endValue);
+        endSpannable.setSpan(new android.text.style.ForegroundColorSpan(ContextCompat.getColor(activity, R.color.sheet_text_dim)), 0, endLabel.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        endSpannable.setSpan(new android.text.style.ForegroundColorSpan(ContextCompat.getColor(activity, R.color.sheet_text)), endLabel.length(), endSpannable.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        sheetBinding.yearRangeLabelEnd.setText(endSpannable);
+
+        sheetBinding.yearRangeBarContainer.post(() -> {
+            int totalWidth = sheetBinding.yearRangeBarContainer.getWidth();
+            if (totalWidth <= 0) return;
+
+            double range = finalHigh - finalLow;
+            if (range == 0) range = 1.0;
+
+            float startX = (float) ((startVal - finalLow) / range * totalWidth);
+            float endX = (float) ((currentVal - finalLow) / range * totalWidth);
+
+            float markerWidth = sheetBinding.yearRangeStartMarker.getWidth();
+            float leftX = Math.min(startX, endX);
+            float rightX = Math.max(startX, endX);
+
+            sheetBinding.yearRangeStartMarker.setTranslationX(startX - markerWidth / 2f);
+            sheetBinding.yearRangeEndMarker.setTranslationX(endX - markerWidth / 2f);
+
+            ViewGroup.LayoutParams lp = sheetBinding.yearRangeHighlightBar.getLayoutParams();
+            lp.width = (int) Math.abs(rightX - leftX);
+            sheetBinding.yearRangeHighlightBar.setLayoutParams(lp);
+            sheetBinding.yearRangeHighlightBar.setTranslationX(leftX);
+
+            int color = ContextCompat.getColor(activity, currentVal >= startVal ? R.color.positive : R.color.negative);
+            sheetBinding.yearRangeHighlightBar.setBackgroundColor(color);
+        });
     }
 
     private void calculateStats(String name, List<Month> allMonths, List<Double> assetValues, int startIdx, int lastIdx) {

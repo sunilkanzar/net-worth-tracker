@@ -40,7 +40,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clipToPadding="false"
-                android:paddingBottom="100dp">
+                android:paddingBottom="100dp"
+                android:scrollbarStyle="outsideOverlay"
+                android:scrollbars="vertical"
+                android:fadeScrollbars="false">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -375,12 +378,6 @@
                     android:visibility="gone"
                     tools:visibility="visible">
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1.5dp"
-                        android:background="@color/sheet_border"
-                        android:layout_marginBottom="20dp"/>
-
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -676,6 +673,133 @@
                         </com.google.android.material.card.MaterialCardView>
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <!-- Year's Range Section -->
+                    <LinearLayout
+                        android:id="@+id/layoutYearRange"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_marginTop="24dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/label_year_range"
+                            android:textColor="@color/sheet_text_muted"
+                            android:textSize="11sp"
+                            android:fontFamily="sans-serif-black"
+                            android:letterSpacing="0.08"/>
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="12dp">
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/label_low"
+                                android:textColor="@color/sheet_text_dim"
+                                android:textSize="10sp"
+                                android:fontFamily="sans-serif-medium"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:text="@string/label_high"
+                                android:textColor="@color/sheet_text_dim"
+                                android:textSize="10sp"
+                                android:fontFamily="sans-serif-medium"/>
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp">
+                            <TextView
+                                android:id="@+id/yearRangeLow"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentStart="true"
+                                android:layout_toStartOf="@+id/yearRangeHigh"
+                                android:textColor="@color/sheet_text"
+                                android:textSize="14sp"
+                                android:fontFamily="sans-serif-black"
+                                tools:text="₹0"/>
+                            <TextView
+                                android:id="@+id/yearRangeHigh"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:textColor="@color/sheet_text"
+                                android:textSize="14sp"
+                                android:fontFamily="sans-serif-black"
+                                tools:text="₹0"/>
+                        </RelativeLayout>
+
+                        <FrameLayout
+                            android:id="@+id/yearRangeBarContainer"
+                            android:layout_width="match_parent"
+                            android:layout_height="32dp"
+                            android:layout_marginTop="4dp">
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="3.5dp"
+                                android:layout_gravity="top"
+                                android:layout_marginTop="10dp"
+                                android:background="@color/sheet_border"/>
+                            <View
+                                android:id="@+id/yearRangeHighlightBar"
+                                android:layout_width="0dp"
+                                android:layout_height="3.5dp"
+                                android:layout_gravity="top"
+                                android:layout_marginTop="10dp"
+                                android:background="@color/positive"/>
+                            <ImageView
+                                android:id="@+id/yearRangeStartMarker"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_gravity="top"
+                                android:layout_marginTop="13.5dp"
+                                android:src="@drawable/ic_range_start"
+                                android:contentDescription="@null"
+                                app:tint="@color/sheet_text_dim"/>
+                            <ImageView
+                                android:id="@+id/yearRangeEndMarker"
+                                android:layout_width="16dp"
+                                android:layout_height="16dp"
+                                android:layout_gravity="top"
+                                android:layout_marginTop="13.5dp"
+                                android:src="@drawable/ic_range_end"
+                                android:contentDescription="@null"
+                                app:tint="@color/sheet_text_dim"/>
+                        </FrameLayout>
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp">
+                            <TextView
+                                android:id="@+id/yearRangeLabelStart"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentStart="true"
+                                android:layout_toStartOf="@+id/yearRangeLabelEnd"
+                                android:textColor="@color/sheet_text_muted"
+                                android:textSize="11sp"
+                                android:fontFamily="sans-serif-medium"
+                                tools:text="1Y Ago: ₹0"/>
+                            <TextView
+                                android:id="@+id/yearRangeLabelEnd"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:textColor="@color/sheet_text_muted"
+                                android:textSize="11sp"
+                                android:fontFamily="sans-serif-medium"
+                                tools:text="Current: ₹0"/>
+                        </RelativeLayout>
+                    </LinearLayout>
                 </LinearLayout>
 
                 <LinearLayout
@@ -686,12 +810,6 @@
                     android:paddingHorizontal="24dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="20dp">
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1.5dp"
-                        android:background="@color/sheet_border"
-                        android:layout_marginBottom="20dp"/>
 
                     <TextView
                         android:id="@+id/labelNote"
@@ -730,45 +848,59 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
-                android:orientation="horizontal"
-                android:paddingHorizontal="24dp"
-                android:paddingBottom="28dp"
-                android:paddingTop="12dp"
+                android:orientation="vertical"
                 android:background="@color/sheet_bg">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDeleteAsset"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:textAllCaps="false"
-                app:backgroundTint="@color/negative"
-                app:cornerRadius="16dp"
-                app:icon="@drawable/ic_delete"
-                app:iconPadding="0dp"
-                app:iconSize="24dp"
-                app:iconTint="@color/textOnPrimary"
-                app:rippleColor="?attr/colorControlHighlight"
-                android:visibility="gone"
-                tools:visibility="visible" />
+                <View
+                    android:id="@+id/sheetFooterDivider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1.5dp"
+                    android:background="@color/sheet_border"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSaveAsset"
-                android:layout_width="0dp"
-                android:layout_height="56dp"
-                android:layout_weight="1"
-                android:layout_marginStart="14dp"
-                android:text="Save"
-                android:textAllCaps="false"
-                android:textSize="15sp"
-                android:fontFamily="sans-serif-black"
-                app:backgroundTint="@color/blue"
-                app:cornerRadius="16dp"
-                app:icon="@drawable/icon_save"
-                app:iconGravity="textStart"
-                app:iconPadding="10dp"
-                app:iconTint="@color/textOnPrimary"
-                app:rippleColor="?attr/colorControlHighlight" />
-        </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="20dp"
+                    android:paddingBottom="16dp"
+                    android:paddingTop="8dp">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnDeleteAsset"
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:textAllCaps="false"
+                        app:backgroundTint="@color/negative"
+                        app:cornerRadius="16dp"
+                        app:icon="@drawable/ic_delete"
+                        app:iconPadding="0dp"
+                        app:iconSize="24dp"
+                        app:iconTint="@color/textOnPrimary"
+                        app:rippleColor="?attr/colorControlHighlight"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnSaveAsset"
+                        android:layout_width="0dp"
+                        android:layout_height="56dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:text="Save"
+                        android:textAllCaps="false"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-black"
+                        app:backgroundTint="@color/blue"
+                        app:cornerRadius="16dp"
+                        app:icon="@drawable/icon_save"
+                        app:iconGravity="textStart"
+                        app:iconPadding="10dp"
+                        app:iconTint="@color/textOnPrimary"
+                        app:rippleColor="?attr/colorControlHighlight" />
+                </LinearLayout>
+            </LinearLayout>
     </FrameLayout>
 </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

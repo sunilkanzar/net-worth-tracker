@@ -49,6 +49,7 @@
                 android:padding="28dp">
 
                 <TextView
+                    android:id="@+id/tutorialTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/tutorial_title"
@@ -68,6 +69,7 @@
                     android:alpha="0.9" />
 
                 <View
+                    android:id="@+id/tutorialAccentLine"
                     android:layout_width="40dp"
                     android:layout_height="3dp"
                     android:background="@color/accent"
@@ -82,6 +84,7 @@
                     android:orientation="horizontal"
                     android:gravity="top">
                     <ImageView
+                        android:id="@+id/tutorialIconAssets"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_marginTop="2dp"
@@ -205,6 +208,7 @@
                     android:fontFamily="sans-serif-medium" />
 
                 <TextView
+                    android:id="@+id/tutorialCta"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="32dp"
@@ -217,6 +221,7 @@
                     android:gravity="center" />
 
                 <ImageView
+                    android:id="@+id/tutorialCtaArrow"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_gravity="center"
