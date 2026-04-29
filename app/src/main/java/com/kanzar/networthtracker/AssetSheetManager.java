@@ -41,6 +41,8 @@ import com.kanzar.networthtracker.statistics.Events;
 import com.kanzar.networthtracker.statistics.events.AssetAdded;
 import com.kanzar.networthtracker.statistics.events.AssetDeleted;
 
+import android.view.inputmethod.InputMethodManager;
+import android.content.Context;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,6 +88,14 @@ public class AssetSheetManager {
         // Also update segmented control if already initialized
         String signText = sheetBinding.newAssetChange.getText().toString();
         updateSign(!signText.startsWith("-"));
+
+        syncTypeAndColor();
+    }
+
+    public void clearFocus() {
+        sheetBinding.newAssetName.clearFocus();
+        sheetBinding.newAssetValue.clearFocus();
+        sheetBinding.newAssetNote.clearFocus();
     }
 
     private void setupBottomSheet() {
@@ -94,6 +104,8 @@ public class AssetSheetManager {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 if (newState == BottomSheetBehavior.STATE_HIDDEN) {
+                    clearFocus();
+                    sheetBinding.sheetScrollView.scrollTo(0, 0);
                     activity.onAssetViewClosed();
                 } else if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     activity.showScrim(1f);
@@ -115,11 +127,6 @@ public class AssetSheetManager {
         });
 
         sheetBinding.newAssetLayout.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
-            if (bottom < oldBottom && sheetBinding.newAssetNote.hasFocus()) {
-                sheetBinding.sheetScrollView.postDelayed(() -> {
-                    sheetBinding.sheetScrollView.fullScroll(View.FOCUS_DOWN);
-                }, 100);
-            }
             if (bottom != oldBottom || top != oldTop) {
                 if (behavior.getState() != BottomSheetBehavior.STATE_HIDDEN) {
                     updateFooterSticky(currentSlideOffset);
@@ -161,6 +168,9 @@ public class AssetSheetManager {
                     sheetBinding.newAssetName.setAdapter(new ArrayAdapter<>(activity, android.R.layout.simple_dropdown_item_1line, names));
                 }
                 sheetBinding.assetInitial.setText(s.length() > 0 ? s.toString().substring(0, 1).toUpperCase() : "+");
+                if (s.length() > 0) {
+                    syncTypeAndColor();
+                }
             }
             @Override public void afterTextChanged(Editable s) {}
         });
@@ -181,8 +191,11 @@ public class AssetSheetManager {
                 
                 if (toDouble(sheetBinding.newAssetValue) != newValue.doubleValue()) {
                     updatingForm = true;
-                    sheetBinding.newAssetValue.setText(formatStringValue(newValue.doubleValue()));
+                    String valStr = formatStringValue(newValue.doubleValue());
+                    sheetBinding.newAssetValue.setText(valStr);
+                    sheetBinding.newAssetValue.setSelection(valStr.length());
                     updatingForm = false;
+                    syncTypeAndColor();
                 }
             }
             @Override public void afterTextChanged(Editable s) {}
@@ -192,7 +205,8 @@ public class AssetSheetManager {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (updatingForm) return;
-                if (s.toString().equals("-")) return;
+                syncTypeAndColor();
+
                 double val = toDouble(sheetBinding.newAssetValue);
                 Asset previous = getNewAsset().getPrevious();
                 double prevValue = (previous != null) ? previous.getValue() : 0.0;
@@ -200,7 +214,9 @@ public class AssetSheetManager {
                 
                 if (toDouble(sheetBinding.newAssetChange) != change.doubleValue()) {
                     updatingForm = true;
-                    sheetBinding.newAssetChange.setText(formatStringValue(change.doubleValue()));
+                    String changeStr = formatStringValue(change.doubleValue());
+                    sheetBinding.newAssetChange.setText(changeStr);
+                    sheetBinding.newAssetChange.setSelection(changeStr.length());
                     updateSign(change.doubleValue() >= 0);
                     updatingForm = false;
                 }
@@ -210,33 +226,68 @@ public class AssetSheetManager {
 
         sheetBinding.newAssetNote.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
-                sheetBinding.sheetScrollView.postDelayed(() -> sheetBinding.sheetScrollView.fullScroll(View.FOCUS_DOWN), 200);
+                sheetBinding.newAssetNote.postDelayed(() -> {
+                    if (sheetBinding.newAssetNote.hasFocus()) {
+                        int scrollTo = sheetBinding.layoutNoteArea.getTop();
+                        sheetBinding.sheetScrollView.smoothScrollTo(0, scrollTo);
+                    }
+                }, 200);
             }
         });
 
         sheetBinding.btnPlus.setOnClickListener(v -> {
             updateSign(true);
             String s = sheetBinding.newAssetChange.getText().toString();
-            if (s.startsWith("-")) sheetBinding.newAssetChange.setText(s.substring(1));
+            if (s.startsWith("-")) {
+                sheetBinding.newAssetChange.setText(s.substring(1));
+                sheetBinding.newAssetChange.setSelection(sheetBinding.newAssetChange.getText().length());
+            }
         });
 
         sheetBinding.btnMinus.setOnClickListener(v -> {
             updateSign(false);
             String s = sheetBinding.newAssetChange.getText().toString();
-            if (!s.startsWith("-")) sheetBinding.newAssetChange.setText("-" + s);
+            if (!s.startsWith("-")) {
+                sheetBinding.newAssetChange.setText("-" + s);
+                sheetBinding.newAssetChange.setSelection(sheetBinding.newAssetChange.getText().length());
+            }
         });
 
         sheetBinding.btnValueReset.setOnClickListener(v -> {
             updatingForm = true;
             sheetBinding.newAssetChange.setText("0");
+            sheetBinding.newAssetChange.setSelection(1);
             updateSign(true);
             Asset previous = getNewAsset().getPrevious();
             double prevValue = (previous != null) ? previous.getValue() : 0.0;
-            sheetBinding.newAssetValue.setText(formatStringValue(prevValue));
+            String valStr = formatStringValue(prevValue);
+            sheetBinding.newAssetValue.setText(valStr);
+            sheetBinding.newAssetValue.setSelection(valStr.length());
             updatingForm = false;
         });
 
         sheetBinding.btnSaveAsset.setOnClickListener(v -> saveAsset());
+
+        sheetBinding.btnTypeAsset.setOnClickListener(v -> {
+            updateTypeToggle(true);
+            String s = sheetBinding.newAssetValue.getText().toString();
+            if (s.startsWith("-")) {
+                sheetBinding.newAssetValue.setText(s.substring(1));
+                sheetBinding.newAssetValue.setSelection(sheetBinding.newAssetValue.getText().length());
+            }
+        });
+
+        sheetBinding.btnTypeLiability.setOnClickListener(v -> {
+            updateTypeToggle(false);
+            String s = sheetBinding.newAssetValue.getText().toString();
+            if (!s.startsWith("-") && !s.isEmpty() && !s.equals("0")) {
+                sheetBinding.newAssetValue.setText("-" + s);
+                sheetBinding.newAssetValue.setSelection(sheetBinding.newAssetValue.getText().length());
+            } else if (s.isEmpty() || s.equals("0")) {
+                sheetBinding.newAssetValue.setText("-");
+                sheetBinding.newAssetValue.setSelection(1);
+            }
+        });
 
         sheetBinding.btnDeleteAsset.setOnClickListener(v -> {
             String name = sheetBinding.newAssetName.getText().toString();
@@ -270,12 +321,16 @@ public class AssetSheetManager {
         Month m = listener.getCurrentMonth();
         boolean isNew = name == null;
 
+        String currency = Prefs.getString(Prefs.PREFS_CURRENCY, Prefs.DEFAULT_CURRENCY);
+        sheetBinding.currencySymbolValue.setText(currency);
+        sheetBinding.currencySymbolChange.setText(currency);
+
         sheetBinding.sheetStepLabel.setText(isNew ? activity.getString(R.string.sheet_new_entry) : "Edit · " + m.toString());
         sheetBinding.sheetTitle.setText(isNew ? activity.getString(R.string.sheet_add_title) : name);
         sheetBinding.layoutAssetName.setVisibility(isNew ? View.VISIBLE : View.GONE);
         sheetBinding.btnDeleteAsset.setVisibility(isNew ? View.GONE : View.VISIBLE);
         sheetBinding.layoutTrend.setVisibility(isNew ? View.GONE : View.VISIBLE);
-        sheetBinding.assetInitialCard.setVisibility(isNew ? View.GONE : View.VISIBLE);
+        sheetBinding.assetInitialCard.setVisibility(View.VISIBLE);
         sheetBinding.btnValueReset.setVisibility(isNew ? View.GONE : View.VISIBLE);
 
         // Adjust Save button margin based on Delete button visibility
@@ -286,7 +341,13 @@ public class AssetSheetManager {
         if (!isNew) initSheetChart(name);
 
         sheetBinding.newAssetName.setText(name != null ? name : "");
+        if (name != null) sheetBinding.newAssetName.setSelection(name.length());
+        
         sheetBinding.newAssetValue.setText(value != null ? formatStringValue(value) : "");
+        if (value != null) {
+            String valStr = formatStringValue(value);
+            sheetBinding.newAssetValue.setSelection(valStr.length());
+        }
         
         String note = "";
         if (name != null && !name.isEmpty()) {
@@ -298,18 +359,21 @@ public class AssetSheetManager {
                 if (a != null) note = a.getNote();
             }
             sheetBinding.assetInitial.setText(name.substring(0, 1).toUpperCase());
-            sheetBinding.assetInitial.setTextColor(Tools.getAssetColor(name));
             Asset temp = new Asset(name, value, m.getMonth(), m.getYear());
             Asset prev = temp.getPrevious();
             double change = value - (prev != null ? prev.getValue() : 0.0);
-            sheetBinding.newAssetChange.setText(formatStringValue(change));
+            String changeStr = formatStringValue(change);
+            sheetBinding.newAssetChange.setText(changeStr);
+            sheetBinding.newAssetChange.setSelection(changeStr.length());
             updateSign(change >= 0);
         } else {
             sheetBinding.assetInitial.setText("+");
             sheetBinding.newAssetChange.setText("");
             updateSign(true);
         }
+        syncTypeAndColor();
         sheetBinding.newAssetNote.setText(note != null ? note : "");
+        if (note != null) sheetBinding.newAssetNote.setSelection(note.length());
         updatingForm = false;
         
         sheetBinding.newAssetLayout.post(() -> {
@@ -330,11 +394,20 @@ public class AssetSheetManager {
             updateFooterSticky(0f);
             sheetBinding.sheetScrollView.scrollTo(0, 0);
         });
+    }
 
-        if (name != null) sheetBinding.newAssetName.setSelection(name.length());
+    private void hideKeyboard() {
+        View view = activity.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     public void close() {
+        hideKeyboard();
+        clearFocus();
+        sheetBinding.sheetScrollView.scrollTo(0, 0);
         behavior.setState(BottomSheetBehavior.STATE_HIDDEN);
     }
 
@@ -622,6 +695,42 @@ public class AssetSheetManager {
         sheetBinding.btnMinus.setCardBackgroundColor(ColorStateList.valueOf(!isPlus ? bgElev : Color.TRANSPARENT));
         sheetBinding.btnMinus.setCardElevation(!isPlus ? 2f * activity.getResources().getDisplayMetrics().density : 0f);
         sheetBinding.txtMinus.setTextColor(!isPlus ? accent : textDim);
+    }
+
+    private void updateTypeToggle(boolean isAsset) {
+        int accent = ContextCompat.getColor(activity, Tools.getAccentColor());
+        int bgElev = ContextCompat.getColor(activity, R.color.sheet_input_bg);
+        int textDim = ContextCompat.getColor(activity, R.color.sheet_text_dim);
+        float density = activity.getResources().getDisplayMetrics().density;
+
+        sheetBinding.btnTypeAsset.setCardBackgroundColor(ColorStateList.valueOf(isAsset ? bgElev : Color.TRANSPARENT));
+        sheetBinding.btnTypeAsset.setCardElevation(isAsset ? 2f * density : 0f);
+        sheetBinding.txtTypeAsset.setTextColor(isAsset ? accent : textDim);
+
+        sheetBinding.btnTypeLiability.setCardBackgroundColor(ColorStateList.valueOf(!isAsset ? bgElev : Color.TRANSPARENT));
+        sheetBinding.btnTypeLiability.setCardElevation(!isAsset ? 2f * density : 0f);
+        sheetBinding.txtTypeLiability.setTextColor(!isAsset ? accent : textDim);
+    }
+
+    private void syncTypeAndColor() {
+        String valText = sheetBinding.newAssetValue.getText().toString();
+        double value = toDouble(sheetBinding.newAssetValue);
+        boolean isLiability = valText.startsWith("-") || value < 0;
+        boolean isAsset = !isLiability;
+
+        updateTypeToggle(isAsset);
+        sheetBinding.labelAssetName.setText(isAsset ? R.string.label_asset_name : R.string.label_liability_name);
+        sheetBinding.newAssetName.setHint(isAsset ? R.string.new_asset_name_hint : R.string.new_liability_name_hint);
+        
+        String name = sheetBinding.newAssetName.getText().toString();
+        int itemColor;
+        if (!name.isEmpty()) {
+            itemColor = Tools.getAssetColor(name, isLiability);
+        } else {
+            itemColor = ContextCompat.getColor(activity, Tools.getAccentColor());
+        }
+        sheetBinding.assetInitial.setTextColor(itemColor);
+        sheetBinding.assetInitialCard.setCardBackgroundColor(ColorStateList.valueOf(Tools.adjustAlpha(itemColor, 0.133f)));
     }
 
     private String[] getAssetNames(String name) {

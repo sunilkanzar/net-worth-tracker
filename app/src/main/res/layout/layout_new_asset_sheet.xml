@@ -57,35 +57,6 @@
                     android:paddingHorizontal="24dp"
                     android:layout_marginBottom="16dp">
 
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/sheetStepLabel"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/accent"
-                            android:textSize="11sp"
-                            android:fontFamily="sans-serif-black"
-                            android:textAllCaps="true"
-                            android:letterSpacing="0.12"
-                            tools:text="EDIT · APRIL 2026" />
-
-                        <TextView
-                            android:id="@+id/sheetTitle"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/sheet_text"
-                            android:textSize="22sp"
-                            android:fontFamily="sans-serif-black"
-                            android:letterSpacing="-0.02"
-                            android:layout_marginTop="2dp"
-                            tools:text="Mutual fund" />
-                    </LinearLayout>
-
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/assetInitialCard"
                         android:layout_width="44dp"
@@ -104,6 +75,84 @@
                             android:fontFamily="sans-serif-black"
                             tools:text="M" />
                     </com.google.android.material.card.MaterialCardView>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginStart="14dp"
+                        android:layout_marginEnd="12dp">
+
+                        <TextView
+                            android:id="@+id/sheetStepLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/accent"
+                            android:textSize="11sp"
+                            android:fontFamily="sans-serif-black"
+                            android:textAllCaps="true"
+                            android:letterSpacing="0.12"
+                            tools:text="EDIT · APRIL 2026" />
+
+                        <TextView
+                            android:id="@+id/sheetTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/sheet_text"
+                            android:textSize="20sp"
+                            android:fontFamily="sans-serif-black"
+                            android:letterSpacing="-0.02"
+                            android:layout_marginTop="0dp"
+                            tools:text="Mutual fund" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/layoutToggleType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:background="@drawable/bg_segmented_control"
+                        android:padding="2dp"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/btnTypeAsset"
+                            android:layout_width="40dp"
+                            android:layout_height="match_parent"
+                            app:cardBackgroundColor="@color/sheet_input_bg"
+                            app:cardCornerRadius="6dp"
+                            app:cardElevation="2dp"
+                            app:strokeWidth="0dp">
+                            <TextView
+                                android:id="@+id/txtTypeAsset"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="@string/label_type_asset"
+                                android:textColor="@color/accent"
+                                android:textSize="10sp"
+                                android:fontFamily="sans-serif-black" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/btnTypeLiability"
+                            android:layout_width="40dp"
+                            android:layout_height="match_parent"
+                            app:cardBackgroundColor="@android:color/transparent"
+                            app:cardCornerRadius="6dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp">
+                            <TextView
+                                android:id="@+id/txtTypeLiability"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:text="@string/label_type_liability"
+                                android:textColor="@color/sheet_text_dim"
+                                android:textSize="10sp"
+                                android:fontFamily="sans-serif-black" />
+                        </com.google.android.material.card.MaterialCardView>
+                    </LinearLayout>
                 </LinearLayout>
 
                 <!-- Edit Area (Visible in Peek) -->
@@ -172,6 +221,7 @@
                         android:gravity="center_vertical">
 
                     <TextView
+                        android:id="@+id/currencySymbolValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="₹"
@@ -238,6 +288,7 @@
                         android:gravity="center_vertical">
 
                         <TextView
+                            android:id="@+id/currencySymbolChange"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="₹"

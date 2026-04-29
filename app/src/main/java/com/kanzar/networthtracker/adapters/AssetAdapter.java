@@ -214,6 +214,7 @@ public class AssetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 Asset oldAsset = (Asset) oldItem;
                 Asset newAsset = (Asset) newItem;
                 return oldAsset.getValue() == newAsset.getValue() &&
+                        oldAsset.getPrevValue() == newAsset.getPrevValue() &&
                         Objects.equals(oldAsset.getName(), newAsset.getName()) &&
                         oldAsset.getUpdatedAt() == newAsset.getUpdatedAt();
             }

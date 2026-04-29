@@ -14,6 +14,8 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.TextView;
+import android.view.inputmethod.InputMethodManager;
+import android.content.Context;
 import android.widget.Toast;
 import android.animation.ObjectAnimator;
 
@@ -63,6 +65,7 @@ import io.realm.Sort;
 import com.kanzar.networthtracker.backup.LocalBackup;
 import com.kanzar.networthtracker.backup.LocalImport;
 import com.kanzar.networthtracker.eventbus.BackupSavedEvent;
+import com.kanzar.networthtracker.eventbus.DataChangedEvent;
 import com.kanzar.networthtracker.eventbus.ImportedEvent;
 import com.kanzar.networthtracker.eventbus.MessageEvent;
 
@@ -120,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
 
     private void setupViewPager() {
         binding.viewPager.setAdapter(new MonthPagerAdapter(this));
-        binding.viewPager.setOffscreenPageLimit(1);
+        binding.viewPager.setOffscreenPageLimit(2);
         binding.viewPager.setCurrentItem(MonthPagerAdapter.positionOf(month.getMonth(), month.getYear()), false);
         binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -224,16 +227,7 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
     }
 
     private void refreshAllLoadedPages() {
-        int current = binding.viewPager.getCurrentItem();
-        int range = 2;
-        int i = current - range;
-        while (i <= current + range) {
-            if (i >= 0 && i < MonthPagerAdapter.PAGE_COUNT) {
-                MonthPageFragment f = (MonthPageFragment) getSupportFragmentManager().findFragmentByTag("f" + i);
-                if (f != null) f.refresh(false);
-            }
-            i++;
-        }
+        EventBus.getDefault().post(new DataChangedEvent());
         updateGoalProgress();
     }
 
@@ -361,7 +355,9 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
     private void updateGoalProgress() {
         executorService.execute(() -> {
             try (Realm realm = Realm.getDefaultInstance()) {
-                List<Goal> goals = realm.copyFromRealm(realm.where(Goal.class).sort("targetYear", Sort.ASCENDING).findAll());
+                List<Goal> goals = realm.copyFromRealm(realm.where(Goal.class)
+                        .sort("targetYear", Sort.ASCENDING, "targetMonth", Sort.ASCENDING)
+                        .findAll());
                 double nw = month.getValue(realm);
                 runOnUiThread(() -> {
                     if (isFinishing()) return;
@@ -381,7 +377,7 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
     private void bindGoalRow(View row, TextView label, TextView percent, android.widget.ProgressBar bar, Goal goal, double current) {
         if (goal == null || goal.getTargetValue() <= 0) { row.setVisibility(View.GONE); return; }
         row.setVisibility(View.VISIBLE);
-        label.setText(String.format(Locale.getDefault(), "%d GOAL", goal.getTargetYear()));
+        label.setText(String.format(Locale.getDefault(), "%s %d GOAL", Tools.getMonthName(goal.getTargetMonth()), goal.getTargetYear()));
         int progress = (int) Math.min(Math.max(current / goal.getTargetValue() * 100, 0), 100);
         percent.setText(progress + "%"); bar.setProgress(progress);
     }
@@ -397,9 +393,36 @@ public class MainActivity extends AppCompatActivity implements MonthPageFragment
     }
 
     @Override protected void onStart() { super.onStart(); if (!EventBus.getDefault().isRegistered(this)) EventBus.getDefault().register(this); }
-    @Override protected void onStop() { super.onStop(); EventBus.getDefault().unregister(this); }
+    @Override protected void onPause() { 
+        super.onPause(); 
+        if (assetSheetManager != null) {
+            assetSheetManager.clearFocus();
+        }
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null && binding.getRoot().getWindowToken() != null) {
+            imm.hideSoftInputFromWindow(binding.getRoot().getWindowToken(), 0);
+        }
+        EventBus.getDefault().unregister(this); 
+    }
     @Override protected void onDestroy() { super.onDestroy(); executorService.shutdown(); syncManager.shutdown(); }
-    @Override protected void onResume() { super.onResume(); applyAccentColor(); if (firstResume) { firstResume = false; return; } refreshAllLoadedPages(); }
+    @Override protected void onResume() { 
+        super.onResume(); 
+        applyAccentColor(); 
+        
+        // Ensure keyboard is hidden if sheet is not visible
+        if (assetSheetManager != null && !assetSheetManager.isVisible()) {
+            assetSheetManager.clearFocus();
+            binding.mainFab.postDelayed(() -> {
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null && binding.getRoot().getWindowToken() != null) {
+                    imm.hideSoftInputFromWindow(binding.getRoot().getWindowToken(), 0);
+                }
+            }, 100);
+        }
+
+        if (firstResume) { firstResume = false; return; } 
+        refreshAllLoadedPages(); 
+    }
 
     @Subscribe(threadMode = ThreadMode.MAIN) public void onMessageEvent(MessageEvent e) { Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show(); }
     @Subscribe(threadMode = ThreadMode.MAIN) public void onImportedEvent(ImportedEvent e) {

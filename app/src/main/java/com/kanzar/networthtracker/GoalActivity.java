@@ -7,6 +7,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
@@ -66,18 +67,28 @@ public class GoalActivity extends AppCompatActivity {
 
     private void loadGoals() {
         try (Realm realm = Realm.getDefaultInstance()) {
-            List<Goal> goals = realm.copyFromRealm(realm.where(Goal.class).sort("targetYear", Sort.ASCENDING).findAll());
+            List<Goal> goals = realm.copyFromRealm(realm.where(Goal.class)
+                    .sort("targetYear", Sort.ASCENDING, "targetMonth", Sort.ASCENDING)
+                    .findAll());
             goalList.addAll(goals);
         }
         renderGoals();
     }
 
     private void addNewGoal() {
-        int year = Calendar.getInstance().get(Calendar.YEAR) + 1;
+        Calendar cal = Calendar.getInstance();
+        int year = cal.get(Calendar.YEAR) + 1;
+        int month = cal.get(Calendar.MONTH) + 1;
         if (!goalList.isEmpty()) {
-            year = goalList.get(goalList.size() - 1).getTargetYear() + 1;
+            Goal lastGoal = goalList.get(goalList.size() - 1);
+            year = lastGoal.getTargetYear();
+            month = lastGoal.getTargetMonth() + 1;
+            if (month > 12) {
+                month = 1;
+                year++;
+            }
         }
-        goalList.add(new Goal(year, 0));
+        goalList.add(new Goal(year, month, 0));
         renderGoals();
         updateSummary();
     }
@@ -94,12 +105,12 @@ public class GoalActivity extends AppCompatActivity {
     }
 
     private void setupRow(ItemGoalRowV2Binding row, Goal goal, int index) {
-        row.goalLabel.setText("TARGET YEAR: " + goal.getTargetYear());
+        row.goalLabel.setText("TARGET: " + Tools.getMonthName(goal.getTargetMonth()) + " " + goal.getTargetYear());
         if (goal.getTargetValue() > 0) {
             row.goalInput.setText(formatGoalValue((float) goal.getTargetValue()));
         }
 
-        row.goalLabelContainer.setOnClickListener(v -> pickYear(row, goal));
+        row.goalLabelContainer.setOnClickListener(v -> pickDate(row, goal));
         row.goalInput.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void afterTextChanged(Editable s) {}
@@ -107,7 +118,7 @@ public class GoalActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 float val = parseInput(row.goalInput);
                 goal.setTargetValue(val);
-                updateAnalysis(row, val, goal.getTargetYear());
+                updateAnalysis(row, val, goal.getTargetYear(), goal.getTargetMonth());
                 updateSummary();
             }
         });
@@ -119,7 +130,7 @@ public class GoalActivity extends AppCompatActivity {
         });
 
         applyAccent(row, accentColor);
-        updateAnalysis(row, (float) goal.getTargetValue(), goal.getTargetYear());
+        updateAnalysis(row, (float) goal.getTargetValue(), goal.getTargetYear(), goal.getTargetMonth());
     }
 
     private void applyAccent(ItemGoalRowV2Binding row, int color) {
@@ -127,20 +138,36 @@ public class GoalActivity extends AppCompatActivity {
         row.goalProgress.setProgressTintList(ColorStateList.valueOf(color));
     }
 
-    private void pickYear(ItemGoalRowV2Binding row, Goal goal) {
-        final NumberPicker picker = new NumberPicker(this);
+    private void pickDate(ItemGoalRowV2Binding row, Goal goal) {
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.HORIZONTAL);
+        layout.setGravity(android.view.Gravity.CENTER);
+        int p = (int) (24 * getResources().getDisplayMetrics().density);
+        layout.setPadding(p, p / 2, p, 0);
+
+        final NumberPicker monthPicker = new NumberPicker(this);
+        monthPicker.setMinValue(1);
+        monthPicker.setMaxValue(12);
+        monthPicker.setDisplayedValues(new java.text.DateFormatSymbols().getShortMonths());
+        monthPicker.setValue(goal.getTargetMonth());
+
+        final NumberPicker yearPicker = new NumberPicker(this);
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
-        picker.setMinValue(currentYear);
-        picker.setMaxValue(currentYear + 50);
-        picker.setValue(goal.getTargetYear());
+        yearPicker.setMinValue(currentYear);
+        yearPicker.setMaxValue(currentYear + 50);
+        yearPicker.setValue(goal.getTargetYear());
+
+        layout.addView(monthPicker, new LinearLayout.LayoutParams(0, -2, 1f));
+        layout.addView(yearPicker, new LinearLayout.LayoutParams(0, -2, 1f));
 
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("Select Target Year")
-                .setView(picker)
+                .setTitle("Select Target Date")
+                .setView(layout)
                 .setPositiveButton("OK", (d, w) -> {
-                    goal.setTargetYear(picker.getValue());
-                    row.goalLabel.setText("TARGET YEAR: " + goal.getTargetYear());
-                    updateAnalysis(row, (float) goal.getTargetValue(), goal.getTargetYear());
+                    goal.setTargetYear(yearPicker.getValue());
+                    goal.setTargetMonth(monthPicker.getValue());
+                    row.goalLabel.setText("TARGET: " + Tools.getMonthName(goal.getTargetMonth()) + " " + goal.getTargetYear());
+                    updateAnalysis(row, (float) goal.getTargetValue(), goal.getTargetYear(), goal.getTargetMonth());
                     updateSummary();
                 })
                 .setNegativeButton("Cancel", null)
@@ -149,7 +176,7 @@ public class GoalActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void updateAnalysis(ItemGoalRowV2Binding itemBinding, float goalValue, int targetYear) {
+    private void updateAnalysis(ItemGoalRowV2Binding itemBinding, float goalValue, int targetYear, int targetMonth) {
         if (goalValue <= 0 || currentNetWorth <= 0) {
             itemBinding.analysisLayout.setVisibility(View.GONE);
             itemBinding.goalProgress.setProgress(0);
@@ -162,8 +189,14 @@ public class GoalActivity extends AppCompatActivity {
         itemBinding.goalProgress.setProgress(progress);
         itemBinding.goalPercent.setText(progress + "%");
 
-        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
-        int years = Math.max(1, targetYear - currentYear);
+        Calendar current = Calendar.getInstance();
+        int currentYear = current.get(Calendar.YEAR);
+        int currentMonth = current.get(Calendar.MONTH) + 1;
+
+        int totalMonths = (targetYear - currentYear) * 12 + (targetMonth - currentMonth);
+        totalMonths = Math.max(1, totalMonths);
+
+        double years = totalMonths / 12.0;
 
         double rate = Math.pow(goalValue / currentNetWorth, 1.0 / years) - 1.0;
         double pct = rate * 100.0;
@@ -181,7 +214,7 @@ public class GoalActivity extends AppCompatActivity {
             sb.append("Gap: ").append(Tools.formatAmount(remaining));
             sb.append("\nReq. Annual Growth: ").append(String.format(Locale.getDefault(), "%.1f%%", pct));
             sb.append(" (").append(intensity).append(")");
-            sb.append("\nEst. Monthly Addition: ").append(Tools.formatAmount(remaining / (years * 12.0)));
+            sb.append("\nEst. Monthly Addition: ").append(Tools.formatAmount(remaining / totalMonths));
         } else {
             sb.append("Milestone achieved! You are ").append(Tools.formatAmount(Math.abs(remaining))).append(" ahead.");
         }

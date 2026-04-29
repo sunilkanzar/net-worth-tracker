@@ -57,6 +57,7 @@
         <activity
             android:name="com.kanzar.networthtracker.MainActivity"
             android:theme="@style/AppThemeNoActionBar"
+            android:windowSoftInputMode="adjustResize"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

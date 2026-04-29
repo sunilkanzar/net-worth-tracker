@@ -55,11 +55,12 @@ public class CommentActivity extends AppCompatActivity {
                     .equalTo("id", Note.generateId(month, year))
                     .findFirst();
             if (note != null) {
-                saved = note.getContent();
+                saved = note.getContent() != null ? note.getContent() : "";
             }
         }
 
         binding.monthComment.setText(saved);
+        if (saved != null) binding.monthComment.setSelection(saved.length());
         binding.charCount.setText(saved.length() + " characters");
 
         binding.btnBack.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());

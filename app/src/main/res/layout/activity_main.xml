@@ -154,7 +154,7 @@
                 android:background="@drawable/bg_fab_label"
                 android:paddingHorizontal="14dp"
                 android:paddingVertical="8dp"
-                android:text="Add Asset"
+                android:text="@string/label_add_entry"
                 android:textColor="@color/text"
                 android:textSize="13sp"
                 android:fontFamily="sans-serif-medium" />
@@ -169,7 +169,7 @@
                 app:tint="#FFFFFF"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.App.MiniFAB"
                 app:elevation="4dp"
-                android:contentDescription="Add Asset" />
+                android:contentDescription="@string/label_add_entry" />
         </LinearLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton

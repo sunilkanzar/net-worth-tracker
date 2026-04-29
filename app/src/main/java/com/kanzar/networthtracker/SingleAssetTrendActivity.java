@@ -24,6 +24,7 @@ import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.kanzar.networthtracker.databinding.ActivitySingleAssetTrendBinding;
 import com.kanzar.networthtracker.databinding.DialogCustomRangeBinding;
+import com.kanzar.networthtracker.eventbus.DataChangedEvent;
 import com.kanzar.networthtracker.helpers.Month;
 import com.kanzar.networthtracker.helpers.Prefs;
 import com.kanzar.networthtracker.helpers.Tools;
@@ -36,6 +37,9 @@ import java.util.Collections;
 import java.util.List;
 
 import io.realm.Realm;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 public class SingleAssetTrendActivity extends AppCompatActivity {
 
@@ -69,6 +73,28 @@ public class SingleAssetTrendActivity extends AppCompatActivity {
 
         setupChart(binding.trendChart);
         setupRangeSelector();
+        fetchData();
+        updateUI();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDataChanged(DataChangedEvent event) {
         fetchData();
         updateUI();
     }

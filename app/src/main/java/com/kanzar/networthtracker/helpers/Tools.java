@@ -199,4 +199,9 @@ public final class Tools {
         int digitGroups = (int) (Math.log10(bytes) / Math.log10(1024));
         return new DecimalFormat("#,##0.#").format(bytes / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }
+
+    public static String getMonthName(int month) {
+        if (month < 1 || month > 12) return "";
+        return new java.text.DateFormatSymbols().getMonths()[month - 1].toUpperCase();
+    }
 }

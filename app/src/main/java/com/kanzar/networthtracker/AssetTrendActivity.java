@@ -30,6 +30,7 @@ import com.kanzar.networthtracker.databinding.ActivityAssetTrendBinding;
 import com.kanzar.networthtracker.databinding.ItemCursorAssetBinding;
 import com.kanzar.networthtracker.databinding.ItemTrendLegendBinding;
 import com.kanzar.networthtracker.databinding.LayoutTrendCursorCardBinding;
+import com.kanzar.networthtracker.eventbus.DataChangedEvent;
 import com.kanzar.networthtracker.helpers.Month;
 import com.kanzar.networthtracker.helpers.Prefs;
 import com.kanzar.networthtracker.helpers.Tools;
@@ -53,6 +54,9 @@ import android.widget.ArrayAdapter;
 import android.widget.NumberPicker;
 import androidx.appcompat.app.AlertDialog;
 import com.kanzar.networthtracker.databinding.DialogCustomRangeBinding;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 public class AssetTrendActivity extends AppCompatActivity {
 
@@ -90,6 +94,27 @@ public class AssetTrendActivity extends AppCompatActivity {
         
         fetchData();
         rebuildChart();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDataChanged(DataChangedEvent event) {
+        fetchData();
     }
 
     private void setupRangeSelector() {

@@ -38,6 +38,7 @@
     <string name="new_asset_change_title">Change from last month</string>
     <string name="new_asset_name_empty">Add name</string>
     <string name="new_asset_name_hint">Asset</string>
+    <string name="new_liability_name_hint">Liability</string>
     <string name="new_asset_value_empty">Add value</string>
     <string name="new_asset_value_hint">Value</string>
     <string name="search_menu_title">Search</string>
@@ -142,7 +143,11 @@
     <string name="change_arrow_desc">Change arrow</string>
     <string name="vs_last_month">vs last month</string>
     <string name="label_asset_name">ASSET NAME</string>
-    <string name="label_current_value">CURRENT VALUE (₹)</string>
+    <string name="label_liability_name">LIABILITY NAME</string>
+    <string name="label_current_value">CURRENT VALUE</string>
+    <string name="label_add_entry">Add Entry</string>
+    <string name="label_type_asset">AST</string>
+    <string name="label_type_liability">LIB</string>
     <string name="sheet_new_entry">New entry</string>
     <string name="sheet_add_title">Add asset or liability</string>
     <string name="plus">+</string>

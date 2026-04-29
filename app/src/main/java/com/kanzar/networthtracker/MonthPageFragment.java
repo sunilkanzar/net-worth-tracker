@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.kanzar.networthtracker.adapters.AssetAdapter;
 import com.kanzar.networthtracker.databinding.FragmentMonthPageBinding;
+import com.kanzar.networthtracker.eventbus.DataChangedEvent;
 import com.kanzar.networthtracker.helpers.Month;
 import com.kanzar.networthtracker.helpers.Prefs;
 import com.kanzar.networthtracker.helpers.Tools;
@@ -33,6 +34,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import io.realm.Realm;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemClickListener {
 
@@ -183,6 +187,27 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
         binding = null;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().register(this);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (EventBus.getDefault().isRegistered(this)) {
+            EventBus.getDefault().unregister(this);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onDataChanged(DataChangedEvent event) {
+        refresh(false);
+    }
+
     public void refresh() {
         refresh(true);
     }
@@ -200,7 +225,15 @@ public class MonthPageFragment extends Fragment implements AssetAdapter.OnItemCl
 
         executor.execute(() -> {
             try (Realm realm = Realm.getDefaultInstance()) {
-                final List<Asset> assets = month.getAssets(realm);
+                List<Asset> rawAssets = month.getAssets(realm);
+                final List<Asset> assets = new ArrayList<>();
+                for (Asset a : rawAssets) {
+                    if (io.realm.RealmObject.isManaged(a)) {
+                        assets.add(realm.copyFromRealm(a));
+                    } else {
+                        assets.add(a);
+                    }
+                }
                 final boolean noData = realm.where(Asset.class).count() == 0;
                 
                 final double value = month.getValue(realm);
